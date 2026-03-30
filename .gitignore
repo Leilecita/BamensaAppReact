@@ -29,12 +29,34 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
+.AppleDouble
+.LSOverride
+
+# Editor/IDE
+.idea/
+.vscode/
 
 # local env files
 .env*.local
 
 # typescript
 *.tsbuildinfo
+
+# logs
+*.log
+
+# React Native / iOS
+ios/build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+*.xcuserstate
+ios/Pods/
+
+# React Native / Android
+android/.gradle/
+android/build/
+android/app/build/
 
 # generated native folders
 /ios
