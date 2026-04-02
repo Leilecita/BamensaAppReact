@@ -128,11 +128,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: 'ArialRoundedRegular',
   },
- summaryDivider: {
-  height: 0.6,
-  backgroundColor: COLORS.color_line_div,
-  opacity: 0.45,
- },
+  summaryDivider: {
+    height: 0.6,
+    backgroundColor: COLORS.color_line_div,
+    opacity: 0.45,
+  },
   coinDetailWrap: {
     backgroundColor: COLORS.background_selected,
     paddingBottom: 10,
@@ -166,6 +166,22 @@ const styles = StyleSheet.create({
   },
   coinDetailItemsWrap: {
     paddingHorizontal: 4,
+  },
+  coinDetailLoadMoreBtn: {
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 6,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coinDetailLoadMoreIcon: {
+    width: 28,
+    height: 28,
+    resizeMode: 'contain',
+    tintColor: COLORS.colorPrimaryClear2,
+    opacity: 0.95,
   },
   coinDateChipWrap: {
     marginTop: 4,

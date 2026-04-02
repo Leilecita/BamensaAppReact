@@ -12,9 +12,9 @@ const styles = StyleSheet.create({
   paddingVertical: 2,
  },
  text: {
-  color: COLORS.colorPrimaryIntLetter,
+  color: COLORS.colorPrimaryIntLetter2,
   fontSize: DIMENS.smallText,
-  fontFamily: 'OpenSansRegular',
+  fontFamily: 'OpenSansLight',
  },
 });
 
