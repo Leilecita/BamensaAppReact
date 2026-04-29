@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AccountsScreen from '../../containers/accounts/screens/AccountsScreen';
+import CreateAccountScreen from '../../containers/accounts/screens/CreateAccountScreen';
 import InformationByAccountScreen from '../../containers/accounts/screens/InformationByAccountScreen';
 import CoinsScreen from '../../containers/coins/screens/CoinsScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
@@ -24,6 +25,7 @@ export type AppStackParamList = {
  operations: undefined;
  coins: undefined;
  accounts: undefined;
+ createAccount: undefined;
  informationByAccount: {
   accountId: number;
   accountName: string;
@@ -69,6 +71,13 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <AccountsScreen />
+     </ScreenWithShell>
+    )}
+   </Stack.Screen>
+   <Stack.Screen name="createAccount">
+    {() => (
+     <ScreenWithShell>
+      <CreateAccountScreen />
      </ScreenWithShell>
     )}
    </Stack.Screen>

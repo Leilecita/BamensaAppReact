@@ -577,7 +577,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.fab} onPress={() => navigateTo('accounts')} activeOpacity={0.8}>
           <Image source={require('../../../../assets/images/ui/addpersonsan.png')} style={styles.fabImg} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.fab}>
+        <TouchableOpacity style={styles.fab} onPress={() => navigateTo('createAccount')} activeOpacity={0.8}>
           <Image source={require('../../../../assets/images/ui/addaccount.png')} style={styles.fabImg} />
         </TouchableOpacity>
       </View>

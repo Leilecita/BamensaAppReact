@@ -45,6 +45,11 @@ const styles = StyleSheet.create({
   width: 24,
   marginRight: 16,
  },
+ iconImage: {
+  width: 22,
+  height: 22,
+  marginRight: 16,
+ },
  itemText: {
   color: '#4f4677',
   fontSize: DIMENS.valueText,

@@ -1,9 +1,12 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AccountCoinBalanceParam } from '../../../../core/navigation/AppStack';
+import AddActionButton from '../../../../core/components/AddActionButton';
+import { useCoins } from '../../../coins/hooks/useCoins';
 import { dateHelper } from '../../../../helpers/dateHelper';
 import { getFilterFlagSourceByShortName } from '../../../../helpers/flagHelper';
 import { formatAmount1Decimal } from '../../../../helpers/valuesHelper';
+import AddMovementDialog from '../../components/AddMovementDialog';
 import DateChip from '../../components/DateChip';
 import ItemOpByCoin2 from '../../components/ItemOpByCoin2';
 import { fetchItemsOperationByCoin, ReportItemOperation } from '../../services/accountItemsOperationService';
@@ -98,7 +101,9 @@ type Props = {
 };
 
 export default function InformationByAccountSummaryTab({ accountId, balances }: Props) {
+ const { coins } = useCoins();
  const [openCoinId, setOpenCoinId] = useState<number | null>(null);
+ const [addDialogVisible, setAddDialogVisible] = useState(false);
  const [coinItemsCache, setCoinItemsCache] = useState<Record<number, ReportItemOperation[]>>({});
  const [coinLoading, setCoinLoading] = useState<Record<number, boolean>>({});
  const [coinLoadingMore, setCoinLoadingMore] = useState<Record<number, boolean>>({});
@@ -215,6 +220,23 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
  );
 
  const sortedBalances = useMemo(() => balances, [balances]);
+ const coinOptions = useMemo(
+  () => {
+   const fromCatalog = coins
+    .map((coin) => String(coin.short_name ?? '').toUpperCase().trim())
+    .filter(Boolean);
+
+   if (fromCatalog.length) {
+    return Array.from(new Set(fromCatalog));
+   }
+
+   const fromBalances = balances
+    .map((b) => String(b.coin_short_name ?? '').toUpperCase().trim())
+    .filter(Boolean);
+   return Array.from(new Set(fromBalances));
+  },
+  [balances, coins]
+ );
 
  return (
   <View style={styles.summaryWrap}>
@@ -263,9 +285,12 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
     )}
    </ScrollView>
 
-   <TouchableOpacity style={styles.summaryFab} activeOpacity={0.85}>
-    <Text style={styles.summaryFabText}>+</Text>
-   </TouchableOpacity>
+   <AddActionButton style={styles.summaryFab} onPress={() => setAddDialogVisible(true)} />
+   <AddMovementDialog
+    visible={addDialogVisible}
+    coinOptions={coinOptions}
+    onClose={() => setAddDialogVisible(false)}
+   />
   </View>
  );
 }
