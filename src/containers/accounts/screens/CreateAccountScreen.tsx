@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppTopBar from '../../../core/components/AppTopBar';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
+import { createAccount } from '../services/accountService';
 import styles from './CreateAccountScreen.styles';
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
@@ -15,6 +16,8 @@ const CATEGORY_OPTIONS = [
   APP_CONSTANTS.CATEGORY_GOLD,
   APP_CONSTANTS.CATEGORY_PLATINUM,
 ];
+
+const ACCOUNT_COLORS = ['#685c85', '#4f426b', '#A49FB8', '#817699', '#a197b8', '#9088a3', '#C6BCDA'];
 
 type FieldRowProps = {
   icon: any;
@@ -70,6 +73,7 @@ export default function CreateAccountScreen() {
   const [cuit, setCuit] = useState('');
   const [address, setAddress] = useState('');
   const [observation, setObservation] = useState('');
+  const [saving, setSaving] = useState<'none' | 'save' | 'assign'>('none');
 
   const category = CATEGORY_OPTIONS[categoryIndex] ?? APP_CONSTANTS.CATEGORY_BASIC;
 
@@ -77,25 +81,44 @@ export default function CreateAccountScreen() {
     setCategoryIndex((prev) => (prev + 1) % CATEGORY_OPTIONS.length);
   };
 
-  const handleSave = (assignToOperation: boolean) => {
+  const isSaving = saving !== 'none';
+
+  const handleSave = async (assignToOperation: boolean) => {
     if (!name.trim() || !phone.trim()) {
       Alert.alert('Datos incompletos', 'Completá al menos Nombre y Teléfono.');
       return;
     }
 
-    const payload = {
-      name: name.trim(),
-      surname: surname.trim(),
-      phone: phone.trim(),
-      category,
-      cuit: cuit.trim(),
-      address: address.trim(),
-      observation: observation.trim(),
-      assignToOperation,
-    };
+    setSaving(assignToOperation ? 'assign' : 'save');
+    try {
+      const created = await createAccount({
+        client_name: name.trim(),
+        category: category.trim(),
+        phone: phone.trim(),
+        color: ACCOUNT_COLORS[Math.floor(Math.random() * ACCOUNT_COLORS.length)] ?? ACCOUNT_COLORS[0],
+        client_surname: surname.trim(),
+        address: address.trim(),
+        cuit: cuit.trim(),
+        observation: observation.trim(),
+      });
 
-    console.log('[CREATE_ACCOUNT] payload:', JSON.stringify(payload, null, 2));
-    Alert.alert('Listo', 'Cuenta preparada. Revisá consola para ver el payload.');
+      if (assignToOperation) {
+        const fullName = `${created.client_name} ${created.client_surname}`.trim();
+        navigation.navigate('home', {
+          selectedAccount: {
+            id: created.id,
+            name: fullName || created.client_name,
+          },
+        });
+        return;
+      }
+
+      navigation.goBack();
+    } catch (e: any) {
+      Alert.alert('No se pudo crear la cuenta', e?.message || 'Error desconocido');
+    } finally {
+      setSaving('none');
+    }
   };
 
   return (
@@ -178,18 +201,24 @@ export default function CreateAccountScreen() {
       <View style={styles.actionColumn}>
         <Pressable
           style={({ pressed }) => [styles.actionBtn, pressed ? styles.actionBtnPressed : null]}
+          disabled={isSaving}
           onPress={() => handleSave(false)}
         >
           <Image source={require('../../../../assets/images/ui/saveviol.png')} style={styles.actionIcon} />
-          <Text style={styles.actionText}>Guardar</Text>
+          <Text style={styles.actionText}>{saving === 'save' ? 'Guardando...' : 'Guardar'}</Text>
+          {saving === 'save' ? <ActivityIndicator size="small" color="#ffffff" style={styles.actionLoader} /> : null}
         </Pressable>
 
         <Pressable
           style={({ pressed }) => [styles.actionBtn, styles.actionBtnAssign, pressed ? styles.actionBtnPressed : null]}
+          disabled={isSaving}
           onPress={() => handleSave(true)}
         >
           <Image source={require('../../../../assets/images/ui/saveviol.png')} style={styles.actionIcon} />
-          <Text style={styles.actionText}>Guardar y asignar a operación</Text>
+          <Text style={styles.actionText}>
+            {saving === 'assign' ? 'Guardando...' : 'Guardar y asignar a operación'}
+          </Text>
+          {saving === 'assign' ? <ActivityIndicator size="small" color="#ffffff" style={styles.actionLoader} /> : null}
         </Pressable>
       </View>
     </View>

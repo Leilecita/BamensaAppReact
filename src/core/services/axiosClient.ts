@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const api = axios.create({
  //baseURL: 'http://loteriasole.abarbieri.com.ar/',
  baseURL: 'http://bamensa-dev.abarbieri.com.ar/',
+ //baseURL: 'http://192.168.0.47/bam_server/',
 
  timeout: 10000,
 });

@@ -33,6 +33,7 @@ const IMAGE_FILTER_FLAG_BY_SHORT_NAME: Record<string, ImageSourcePropType> = {
 class FlagHelper {
  private static instance: FlagHelper = new FlagHelper();
  private coins: CoinLike[] = [];
+ private nameById: Record<number, string> = {};
 
  private constructor() {}
 
@@ -42,6 +43,13 @@ class FlagHelper {
 
  setCoins(coins: CoinLike[]): void {
   this.coins = coins;
+  const byId: Record<number, string> = {};
+  coins.forEach((coin) => {
+   if (!Number.isFinite(coin.id)) return;
+   const name = String(coin.name ?? '').trim();
+   if (name) byId[coin.id] = name;
+  });
+  this.nameById = byId;
  }
 
  getCoins(): CoinLike[] {
@@ -56,6 +64,10 @@ class FlagHelper {
  getShortName(id: number): string {
   const coin = this.coins.find((item) => item?.id === id);
   return coin?.short_name ?? DEFAULT_SHORT_NAME;
+ }
+
+ getNameById(id: number): string {
+  return this.nameById[id] ?? '';
  }
 
  getPositionAdapter(shortName: string, coins: CoinLike[] = this.coins): number {

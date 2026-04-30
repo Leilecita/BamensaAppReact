@@ -46,7 +46,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const routeName = route.name as keyof AppStackParamList;
- const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount'
+ const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes'
   ? routeName
   : 'home';
   const menuTranslateX = useRef(new Animated.Value(-320)).current;
@@ -109,7 +109,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Caja total" onPress={closeMenu} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Saldo monedas" onPress={closeMenu} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Balance" onPress={closeMenu} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={closeMenu} />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={() => navigateTo('outcomes')} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={closeMenu} />
                   </View>

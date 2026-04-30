@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
 import { getFlagSourceByShortName } from '../../../helpers/flagHelper';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
-import { ReportAccount } from '../services/accountService';
+import { ReportAccount, updateAccount } from '../services/accountService';
 import AccountInfoDialog from './AccountInfoDialog';
 import styles from './AccountCard.styles';
 
@@ -25,17 +25,20 @@ export default function AccountCard({
  onAssignToOperation,
  onPressMovements,
 }: AccountCardProps) {
+ const [accountView, setAccountView] = useState(account);
  const [expanded, setExpanded] = useState(false);
  const [infoVisible, setInfoVisible] = useState(false);
- const letter = account.account.firstName?.trim()?.charAt(0)?.toUpperCase() || 'A';
+ const letter = accountView.account.firstName?.trim()?.charAt(0)?.toUpperCase() || 'A';
  const shouldShowBalances = showBalances;
- const categoryLabel = ownMode ? APP_CONSTANTS.CATEGORY_PERSONAL : account.account.category;
- const phone = account.account.phone?.trim();
- const rawAccount = account.raw?.account ?? account.raw ?? {};
+ const categoryLabel = ownMode ? APP_CONSTANTS.CATEGORY_PERSONAL : accountView.account.category;
+ const phone = accountView.account.phone?.trim();
+ const rawAccount = accountView.raw?.account ?? accountView.raw ?? {};
 
- const accountInfo = useMemo(() => {
+  const accountInfo = useMemo(() => {
   const toStr = (value: unknown) => String(value ?? '').trim();
-  const name = toStr(account.account.name) || '-';
+  const firstName = toStr(accountView.account.firstName);
+  const fallbackName = toStr(accountView.account.name);
+  const name = firstName || fallbackName || '-';
   const phoneValue = toStr(phone) || '';
   const category = toStr(categoryLabel) || '';
   const cuit =
@@ -56,7 +59,7 @@ export default function AccountCard({
    toStr(rawAccount?.note);
   const startDate =
    toStr(rawAccount?.created) ||
-   toStr(account.raw?.created) ||
+   toStr(accountView.raw?.created) ||
    toStr(rawAccount?.start_date) ||
    toStr(rawAccount?.date_init) ||
    toStr(rawAccount?.fecha_inicio);
@@ -70,27 +73,14 @@ export default function AccountCard({
    observation,
    startDate,
   };
- }, [account.account.name, account.raw, categoryLabel, phone, rawAccount]);
-
- const infoRows = useMemo(
-  () => [
-   { label: 'Nombre', value: accountInfo.name },
-   { label: 'Telefono', value: accountInfo.phone },
-   { label: 'Categoria', value: accountInfo.category },
-   { label: 'Cuit', value: accountInfo.cuit },
-   { label: 'Dirección', value: accountInfo.address },
-   { label: 'Observación', value: accountInfo.observation },
-   { label: 'Fecha inicio', value: accountInfo.startDate },
-  ],
-  [accountInfo]
- );
+ }, [accountView.account.name, accountView.raw, categoryLabel, phone, rawAccount]);
 
  if (__DEV__ && ownMode) {
   console.log(
-   `[AccountCard] ownMode id=${account.account.id} name=${account.account.name} shouldShowBalances=${shouldShowBalances} balanceCount=${account.balance.length}`,
+   `[AccountCard] ownMode id=${accountView.account.id} name=${accountView.account.name} shouldShowBalances=${shouldShowBalances} balanceCount=${accountView.balance.length}`,
   );
-  if (account.balance.length) {
-   console.log('[AccountCard] balances =>', account.balance);
+  if (accountView.balance.length) {
+   console.log('[AccountCard] balances =>', accountView.balance);
   }
  }
 
@@ -106,6 +96,60 @@ export default function AccountCard({
   await Linking.openURL(url);
  };
 
+ const handleSaveEdit = async (nextInfo: {
+  name: string;
+  surname: string;
+  phone: string;
+  category: string;
+  cuit: string;
+  address: string;
+  observation: string;
+  startDate: string;
+ }) => {
+  await updateAccount({
+   id: accountView.account.id,
+   client_name: nextInfo.name.trim(),
+   client_surname: nextInfo.surname.trim(),
+   phone: nextInfo.phone.trim(),
+   category: nextInfo.category.trim(),
+   observation: nextInfo.observation.trim(),
+   cuit: nextInfo.cuit.trim(),
+   address: nextInfo.address.trim(),
+   color: String(accountView.account.color ?? '#9D92B6'),
+   created: String(rawAccount?.created ?? accountView.raw?.created ?? ''),
+   protected_account: String(accountView.account.protectedAccount ?? 'false'),
+  });
+
+  const firstName = nextInfo.name.trim();
+  const lastName = nextInfo.surname.trim();
+  const fullName = `${firstName}${lastName ? ` ${lastName}` : ''}`.trim();
+
+  setAccountView((prev) => ({
+   ...prev,
+   account: {
+    ...prev.account,
+    firstName,
+    lastName,
+    name: fullName || firstName,
+    phone: nextInfo.phone.trim(),
+    category: nextInfo.category.trim(),
+   },
+   raw: {
+    ...prev.raw,
+    account: {
+     ...(prev.raw?.account ?? prev.raw ?? {}),
+     client_name: firstName,
+     client_surname: lastName,
+     phone: nextInfo.phone.trim(),
+     category: nextInfo.category.trim(),
+     observation: nextInfo.observation.trim(),
+     cuit: nextInfo.cuit.trim(),
+     address: nextInfo.address.trim(),
+    },
+   },
+  }));
+ };
+
  return (
   <>
    <TouchableOpacity
@@ -118,22 +162,22 @@ export default function AccountCard({
       <View style={styles.leftCircle}>
        <Image
         source={require('../../../../assets/images/ui/bblanco.png')}
-        style={[styles.leftCircleImg, { tintColor: account.account.color || '#9D92B6' }]}
+        style={[styles.leftCircleImg, { tintColor: accountView.account.color || '#9D92B6' }]}
        />
        <Text style={styles.leftCircleText}>{letter}</Text>
       </View>
 
       <View style={styles.mainInfo}>
        <Text style={styles.nameText} numberOfLines={2}>
-        {account.account.name}
+        {accountView.account.name}
        </Text>
        <Text style={styles.categoryText}>{categoryLabel}</Text>
       </View>
 
       {shouldShowBalances ? (
        <View style={styles.balanceWrap}>
-        {(account.balance.length
-         ? account.balance
+        {(accountView.balance.length
+         ? accountView.balance
          : [
             {
              coin_id: 0,
@@ -155,7 +199,7 @@ export default function AccountCard({
        <TouchableOpacity
         style={styles.assignBtn}
         activeOpacity={0.8}
-        onPress={() => onAssignToOperation?.(account)}
+        onPress={() => onAssignToOperation?.(accountView)}
        >
         <Text style={styles.assignText}>asignar a operacion</Text>
        </TouchableOpacity>
@@ -180,7 +224,7 @@ export default function AccountCard({
        <TouchableOpacity
         style={styles.movWrap}
         activeOpacity={0.8}
-        onPress={() => onPressMovements?.(account)}
+        onPress={() => onPressMovements?.(accountView)}
        >
         <Image source={require('../../../../assets/images/ui/mov3.png')} style={styles.movImg} />
        </TouchableOpacity>
@@ -189,7 +233,21 @@ export default function AccountCard({
     </View>
    </TouchableOpacity>
 
-   <AccountInfoDialog visible={infoVisible} rows={infoRows} onClose={() => setInfoVisible(false)} />
+   <AccountInfoDialog
+    visible={infoVisible}
+   info={{
+     name: accountView.account.firstName?.trim() || accountInfo.name,
+     surname: accountView.account.lastName ?? '',
+     phone: accountInfo.phone,
+     category: accountInfo.category,
+     cuit: accountInfo.cuit,
+     address: accountInfo.address,
+     observation: accountInfo.observation,
+     startDate: accountInfo.startDate,
+    }}
+    onClose={() => setInfoVisible(false)}
+    onSave={handleSaveEdit}
+   />
   </>
  );
 }

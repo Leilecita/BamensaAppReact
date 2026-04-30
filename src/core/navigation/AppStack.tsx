@@ -6,6 +6,7 @@ import InformationByAccountScreen from '../../containers/accounts/screens/Inform
 import CoinsScreen from '../../containers/coins/screens/CoinsScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
 import OperationsScreen from '../../containers/operations/screens/OperationsScreen';
+import OutcomesScreen from '../../containers/outcomes/screens/OutcomesScreen';
 import AppShell from './AppShell';
 import { AppRoute } from './SideMenuContext';
 
@@ -26,6 +27,7 @@ export type AppStackParamList = {
  coins: undefined;
  accounts: undefined;
  createAccount: undefined;
+ outcomes: undefined;
  informationByAccount: {
   accountId: number;
   accountName: string;
@@ -78,6 +80,13 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <CreateAccountScreen />
+     </ScreenWithShell>
+    )}
+   </Stack.Screen>
+   <Stack.Screen name="outcomes">
+    {() => (
+     <ScreenWithShell>
+      <OutcomesScreen />
      </ScreenWithShell>
     )}
    </Stack.Screen>

@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import type { AppStackParamList } from './AppStack';
 
-export type AppRoute = 'home' | 'operations' | 'coins' | 'accounts' | 'createAccount';
+export type AppRoute = 'home' | 'operations' | 'coins' | 'accounts' | 'createAccount' | 'outcomes';
 
 type SideMenuContextType = {
  openMenu: () => void;

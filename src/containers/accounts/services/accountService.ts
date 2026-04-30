@@ -47,6 +47,37 @@ type AccountsRequestParams = {
  method?: string;
 };
 
+export type CreateAccountData = {
+ client_name: string;
+ category: string;
+ phone: string;
+ color: string;
+ client_surname?: string;
+ address?: string;
+ cuit?: string;
+ observation?: string;
+};
+
+export type CreatedAccount = {
+ id: number;
+ client_name: string;
+ client_surname: string;
+};
+
+export type UpdateAccountData = {
+ id: number;
+ client_name: string;
+ client_surname?: string;
+ category?: string;
+ phone?: string;
+ address?: string;
+ cuit?: string;
+ observation?: string;
+ color?: string;
+ created?: string;
+ protected_account?: string;
+};
+
 const FALLBACK_COIN_SHORT_BY_ID: Record<number, string> = {
  1: 'ARS',
  2: 'USD',
@@ -54,14 +85,6 @@ const FALLBACK_COIN_SHORT_BY_ID: Record<number, string> = {
  4: 'BRA',
 };
 
-const FALLBACK_COIN_NAME_BY_SHORT: Record<string, string> = {
- ARS: 'Peso argentino',
- USD: 'Dolar',
- EUR: 'Euro',
- BRA: 'Real',
-};
-
-let coinNameById: Record<number, string> = {};
 let coinsCatalogLoaded = false;
 let coinsCatalogPromise: Promise<void> | null = null;
 
@@ -76,15 +99,6 @@ const ensureCoinsCatalog = async (): Promise<void> => {
   coinsCatalogPromise = (async () => {
    try {
     const coins = await fetchCoins();
-    const shortById: Record<number, string> = {};
-    const nameById: Record<number, string> = {};
-    coins.forEach((coin) => {
-      if (!Number.isFinite(coin.id)) return;
-      const shortName = String(coin.short_name ?? '').toUpperCase().trim();
-      if (shortName) shortById[coin.id] = shortName;
-      const coinName = String(coin.name ?? '').trim();
-      if (coinName) nameById[coin.id] = coinName;
-    });
     flagHelper.setCoins(
      coins.map((coin) => ({
       id: coin.id,
@@ -92,7 +106,6 @@ const ensureCoinsCatalog = async (): Promise<void> => {
       short_name: coin.short_name,
      })),
     );
-    coinNameById = nameById;
    } catch {
     // fallback local mapping
    } finally {
@@ -120,10 +133,10 @@ const mapBalanceItem = (b: any): ReportBoxCoin => {
  const mappedShortByIdFromHelper = String(
   flagHelper.getCoins().find((coin) => coin.id === coinId)?.short_name ?? '',
  )
-  .toUpperCase()
-  .trim();
+ .toUpperCase()
+ .trim();
  const mappedShortById = mappedShortByIdFromHelper || FALLBACK_COIN_SHORT_BY_ID[coinId] || '';
- const mappedNameById = coinNameById[coinId] ?? '';
+ const mappedNameById = flagHelper.getNameById(coinId);
  const resolvedShortName = String(
   b?.coin_short_name ??
    b?.short_name ??
@@ -140,10 +153,9 @@ const mapBalanceItem = (b: any): ReportBoxCoin => {
   .trim();
  const resolvedCoinName = String(
   b?.coin_name ??
-   b?.name ??
-   coinNode?.name ??
-   mappedNameById ??
-   FALLBACK_COIN_NAME_BY_SHORT[resolvedShortName] ??
+  b?.name ??
+  coinNode?.name ??
+  mappedNameById ??
    resolvedShortName
  )
   .trim();
@@ -269,25 +281,41 @@ export async function fetchAccounts({
 export async function fetchSpecialAccounts({
  page,
 }: FetchSpecialAccountsParams): Promise<ReportAccount[]> {
- // Distintos backends legacy usan nombres distintos para el mismo método.
- const methodCandidates = ['getSpecialAccounts', 'getSpecialAccount', 'getReportSpecialAccount'];
+ return requestAccounts({ method: 'getReportSpecialAccount', page });
+}
 
- for (const method of methodCandidates) {
-  try {
-   return await requestAccounts({ method, page });
-  } catch {
-   // seguimos con el siguiente candidato
-  }
+export async function createAccount(accountData: CreateAccountData): Promise<CreatedAccount> {
+ const response = await api.post('/accounts.php', accountData);
+ const data = response.data;
+
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al crear cuenta');
  }
 
- // Fallback defensivo: si no existe endpoint especial en este backend,
- // devolvemos cuentas normales para no romper la pantalla.
- return requestAccounts({
- method: 'getReportAccount',
- page,
- query: '',
- category: APP_CONSTANTS.TYPE_ALL,
-});
+ const raw = data?.data ?? data;
+ const item = Array.isArray(raw) ? raw[0] : raw;
+ const id = Number(item?.id ?? item?.account_id ?? 0);
+ const clientName = String(item?.client_name ?? accountData.client_name ?? '').trim();
+ const clientSurname = String(item?.client_surname ?? accountData.client_surname ?? '').trim();
+
+ if (!Number.isFinite(id) || id <= 0) {
+  throw new Error('La cuenta se creó pero el backend no devolvió un id válido');
+ }
+
+ return {
+  id,
+  client_name: clientName,
+  client_surname: clientSurname,
+ };
+}
+
+export async function updateAccount(accountData: UpdateAccountData): Promise<void> {
+ const response = await api.put('/accounts.php', accountData);
+ const data = response.data;
+
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al modificar cuenta');
+ }
 }
 
 async function requestAccounts(params: AccountsRequestParams): Promise<ReportAccount[]> {

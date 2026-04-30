@@ -149,6 +149,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'OpenSansRegular',
   },
+  actionLoader: {
+    marginLeft: 8,
+  },
 });
 
 export default styles;
