@@ -75,9 +75,9 @@ export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
       {expanded ? (
        <View style={styles.lineInfoAccounts}>
         <Image source={require('../../../../assets/images/ui/sessionviol.png')} style={styles.metaIcon} />
-        <Text style={styles.metaText}>{item.user_name || '-'}</Text>
-        <Text style={styles.metaText}>{getHourMinutes(item.created)}</Text>
-        <Text style={styles.metaText}>hs</Text>
+        <Text style={styles.metaUserText}>{item.user_name || '-'}</Text>
+        <Text style={styles.metaUserText}>{getHourMinutes(item.created)}</Text>
+        <Text style={styles.metaUserText}>hs</Text>
        </View>
       ) : null}
 

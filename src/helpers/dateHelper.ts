@@ -73,6 +73,15 @@ export class DateHelper {
   const date = new Date(year, month - 1, day);
   return `${WEEKDAY_SHORT_ES[date.getDay()]} ${day} ${MONTH_NAME_ES[month - 1]} ${year}`;
  }
+
+ formatHeaderMonthYearEs(dateKey: string): string {
+  if (dateKey === 'Sin fecha') return dateKey;
+  const parts = dateKey.split('-').map((item) => Number(item));
+  const year = parts[0];
+  const month = parts[1];
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return dateKey;
+  return `${MONTH_NAME_ES[month - 1]} ${year}`;
+ }
 }
 
 export const dateHelper = new DateHelper();

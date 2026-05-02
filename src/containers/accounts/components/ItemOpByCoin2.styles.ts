@@ -92,6 +92,12 @@ const styles = StyleSheet.create({
   fontSize: DIMENS.itemOpByCoinMetaText,
   fontFamily: 'OpenSansRegular',
  },
+ metaUserText: {
+  marginLeft: 8,
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: DIMENS.itemOpByCoinMetaText,
+  fontFamily: 'OpenSansLight',
+ },
  balanceDivider: {
   width: 1,
   marginLeft: 8,

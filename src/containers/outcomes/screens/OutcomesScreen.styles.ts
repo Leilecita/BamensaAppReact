@@ -1,0 +1,228 @@
+import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../core/constants/colors';
+import { DIMENS } from '../../../core/constants/dimensions';
+
+const styles = StyleSheet.create({
+ screen: {
+  flex: 1,
+  backgroundColor: COLORS.colorPrimaryClear3,
+ },
+ listContent: {
+  paddingTop: 6,
+  paddingBottom: 250,
+ },
+ sectionHeaderWrap: {
+  paddingHorizontal: 8,
+  paddingTop: 2,
+  paddingBottom: 4,
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+ },
+ sectionHeaderChip: {
+  alignSelf: 'flex-start',
+  minHeight: 0,
+  borderRadius: 8,
+  backgroundColor: COLORS.colorPrimaryClear2,
+  paddingHorizontal: 10,
+  paddingVertical: 3,
+  justifyContent: 'center',
+  marginLeft: 2,
+ },
+sectionHeaderText: {
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: 18,
+  fontFamily: 'OpenSansLight',
+ },
+ sectionTotalsWrap: {
+  flexDirection: 'column',
+  alignItems: 'flex-end',
+  marginRight: 2,
+  gap: 6,
+ },
+ sectionTotalChip: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: COLORS.colorPrimaryClear2,
+  borderRadius: 8,
+  paddingLeft: 8,
+  paddingRight: 10,
+  minHeight: 30,
+ },
+ sectionTotalFlag: {
+  width: 22,
+  height: 20,
+  marginVertical: 3,
+  opacity: 0.8,
+ },
+ sectionTotalText: {
+  marginLeft: 6,
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: 18,
+  fontFamily: 'OpenSansLight',
+ },
+ rowWrap: {
+  paddingTop: 0,
+ },
+ rowShell: {
+  width: '100%',
+  flexDirection: 'row',
+ },
+ rowContent: {
+  flex: 1,
+  marginLeft: 12,
+  marginRight: 12,
+  justifyContent: 'center',
+ },
+ rowLine: {
+  minHeight: 0,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingTop: 12,
+ },
+ rowDescription: {
+  flex: 1,
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ rowCoin: {
+  width: 56,
+  textAlign: 'right',
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: 16,
+  fontFamily: 'OpenSansLight',
+ },
+ rowValue: {
+  flex: 1.05,
+  textAlign: 'right',
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ rowDivider: {
+  marginTop: 12,
+  marginLeft: 12,
+  marginRight: 12,
+  height: 1,
+  backgroundColor: COLORS.colorPrimaryClear2,
+ },
+ rowInfoUser: {
+  marginTop: 4,
+  flexDirection: 'row',
+  alignItems: 'center',
+ },
+ rowInfoUserIcon: {
+  width: 17,
+  height: 17,
+  resizeMode: 'contain',
+  opacity: 0.8,
+ },
+ rowInfoUserText: {
+  marginLeft: 8,
+  color: COLORS.colorPrimaryIntLetter,
+  fontSize: 17,
+  fontFamily: 'OpenSansLight',
+ },
+ emptyWrap: {
+  marginTop: 28,
+  alignItems: 'center',
+  paddingHorizontal: 18,
+ },
+ emptyText: {
+  marginTop: 8,
+  color: COLORS.word_clear,
+  fontFamily: 'OpenSansRegular',
+  textAlign: 'center',
+ },
+ retryBtn: {
+  marginTop: 10,
+  backgroundColor: COLORS.colorPrimaryChange,
+  borderRadius: 10,
+  paddingHorizontal: 14,
+  paddingVertical: 8,
+ },
+ retryText: {
+  color: COLORS.white,
+  fontFamily: 'OpenSansRegular',
+ },
+ fab: {
+  position: 'absolute',
+  right: 26,
+  bottom: 120,
+  width: 65,
+  height: 65,
+ },
+ deleteDialogBackdrop: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 12,
+ },
+ deleteDialogCard: {
+  width: '100%',
+  maxWidth: 540,
+  borderRadius: 10,
+  backgroundColor: COLORS.background_dialog,
+  paddingHorizontal: DIMENS.dialogMarginLeft,
+  paddingTop: DIMENS.dialogMarginTop,
+  paddingBottom: DIMENS.dialogMarginBottom,
+ },
+ deleteDialogTitle: {
+  height: 36,
+  textAlign: 'center',
+  color: COLORS.word,
+  fontSize: 20,
+  fontFamily: 'OpenSansRegular',
+ },
+ deleteDialogInfoRow: {
+  marginTop: 12,
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexWrap: 'wrap',
+ },
+ deleteDialogInfoText: {
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ deleteDialogInfoDash: {
+  color: '#6e6e6e',
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+  marginHorizontal: 6,
+ },
+ deleteDialogActions: {
+  marginTop: 16,
+  flexDirection: 'row',
+  alignItems: 'center',
+ },
+ deleteDialogCancelBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  justifyContent: 'center',
+  alignItems: 'center',
+ },
+ deleteDialogCancelText: {
+  color: COLORS.colorDialogButton,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ deleteDialogDeleteBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  borderRadius: 8,
+  backgroundColor: COLORS.colorDialogButton,
+  justifyContent: 'center',
+  alignItems: 'center',
+ },
+ deleteDialogDeleteText: {
+  color: COLORS.white,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansBold',
+ },
+});
+
+export default styles;
