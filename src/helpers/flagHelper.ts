@@ -57,7 +57,8 @@ class FlagHelper {
  }
 
  getId(shortName: string, coins: CoinLike[] = this.coins): number {
-  const coin = coins.find((item) => item?.short_name === shortName);
+  const needle = String(shortName ?? '').trim();
+  const coin = coins.find((item) => String(item?.short_name ?? '').trim() === needle);
   return coin?.id ?? -1;
  }
 

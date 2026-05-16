@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   SectionList,
   Text,
   TouchableOpacity,
@@ -12,11 +13,18 @@ import OperationsFiltersBottomSheet, {
   OPERATIONS_QUICK_FILTERS,
 } from '../../../core/components/OperationsFiltersBottomSheet';
 import { useSideMenu } from '../../../core/navigation/SideMenuContext';
+import { AuthContext } from '../../../contexts/AuthContext';
 import { dateHelper } from '../../../helpers/dateHelper';
 import { useCoins } from '../../coins/hooks/useCoins';
 import OperationCard from '../components/OperationCard';
 import { useOperations } from '../hooks/useOperations';
-import { ReportOperation } from '../services/operationService';
+import {
+  affectClientOperationAndSync,
+  deleteOperation,
+  ReportOperation,
+  updateOperationObservation,
+} from '../services/operationService';
+import { changeStateItem } from '../../accounts/services/accountItemsOperationService';
 import styles from './OperationsScreen.styles';
 
 type OperationSection = {
@@ -27,6 +35,7 @@ type OperationSection = {
 
 export default function OperationsScreen() {
   const { navigateTo } = useSideMenu();
+  const { userId } = useContext(AuthContext);
   const [quickFilter, setQuickFilter] = useState<string>('all');
   const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
   const sheetHeight = 240;
@@ -106,6 +115,53 @@ export default function OperationsScreen() {
     }));
   }, [operations]);
 
+  const handleDeleteOperation = async (operation: ReportOperation) => {
+    try {
+      await deleteOperation(operation.operation_id);
+      await reload();
+      Alert.alert('Listo', 'Se ha eliminado la operación');
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
+    }
+  };
+
+  const handleChangeItemState = async ({ itemId, nextState }: { itemId: number; nextState: string }) => {
+    await changeStateItem(itemId, nextState);
+  };
+
+  const handleUpdateOperation = async ({
+    operation,
+    observation,
+  }: {
+    operation: ReportOperation;
+    observation: string;
+  }) => {
+    await updateOperationObservation({
+      id: operation.operation_id,
+      observation,
+      nota: operation.nota ?? '',
+    });
+  };
+
+  const handleAffectClient = async ({
+    operation,
+    side,
+  }: {
+    operation: ReportOperation;
+    side: 'in' | 'out';
+  }) => {
+    if (!userId) {
+      throw new Error('No se pudo identificar el usuario actual.');
+    }
+
+    await affectClientOperationAndSync({
+      operation,
+      side,
+      userId,
+    });
+    await reload();
+  };
+
   return (
     <View style={styles.screen}>
       <AppTopBar
@@ -117,7 +173,15 @@ export default function OperationsScreen() {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.operation_id.toString()}
-        renderItem={({ item }) => <OperationCard operation={item} />}
+        renderItem={({ item }) => (
+          <OperationCard
+            operation={item}
+            onDeleteOperation={handleDeleteOperation}
+            onChangeItemState={handleChangeItemState}
+            onUpdateOperation={handleUpdateOperation}
+            onAffectClient={handleAffectClient}
+          />
+        )}
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeaderWrap}>
             <Text style={styles.sectionHeaderText}>{section.title}</Text>

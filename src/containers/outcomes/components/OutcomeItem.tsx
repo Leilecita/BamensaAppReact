@@ -30,7 +30,7 @@ export default function OutcomeItem({ item, onLongPress }: Props) {
         <Text style={styles.rowDescription} numberOfLines={1}>
          {item.description || '-'}
         </Text>
-      <Text style={styles.rowCoin}>{item.coin_name || 'ARS'}</Text>
+      <Text style={styles.rowCoin}>{item.coin_short_name || 'ARS'}</Text>
       <Text style={styles.rowValue}>{Number(item.value ?? 0).toFixed(1)}</Text>
      </View>
 

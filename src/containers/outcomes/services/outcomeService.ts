@@ -1,5 +1,7 @@
 import api from '../../../core/services/axiosClient';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
+import { flagHelper } from '../../../helpers/flagHelper';
+import { fetchCoins } from '../../coins/services/coinService';
 
 export type GroupByType = 'all' | 'day' | 'month';
 
@@ -9,6 +11,8 @@ export type ReportOutcome = {
  item_operation_id: number;
  description: string;
  type: string;
+ coin_id: number;
+ coin_short_name: string;
  coin_name: string;
  value: number;
  created: string;
@@ -41,6 +45,30 @@ const toNumber = (value: unknown): number => {
 
 const toText = (value: unknown): string => String(value ?? '').trim();
 
+let coinsCatalogLoaded = false;
+let coinsCatalogPromise: Promise<void> | null = null;
+
+const ensureCoinsCatalog = async (): Promise<void> => {
+ if (coinsCatalogLoaded) return;
+ if (!coinsCatalogPromise) {
+  coinsCatalogPromise = (async () => {
+   try {
+    const coins = await fetchCoins();
+    flagHelper.setCoins(
+     coins.map((coin) => ({
+      id: coin.id,
+      name: coin.name,
+      short_name: coin.short_name,
+     })),
+    );
+   } finally {
+    coinsCatalogLoaded = true;
+   }
+  })();
+ }
+ await coinsCatalogPromise;
+};
+
 const resolveCreated = (raw: any): string => {
  const candidates = [
   raw?.outcome_created,
@@ -60,21 +88,32 @@ const resolveCreated = (raw: any): string => {
  return '';
 };
 
-const mapOutcome = (raw: any, index: number): ReportOutcome => ({
- id: Number(raw?.outcome_id ?? raw?.item_operation_id ?? raw?.id ?? raw?.item_id ?? raw?.operation_item_id ?? index),
- outcome_id: Number(raw?.outcome_id ?? raw?.operation_id ?? raw?.id ?? 0),
- item_operation_id: Number(raw?.item_operation_id ?? raw?.item_id ?? raw?.operation_item_id ?? 0),
- description: toText(raw?.description ?? raw?.observation ?? raw?.obs ?? raw?.detail ?? raw?.type),
- type: toText(raw?.type ?? APP_CONSTANTS.TYPE_GASTO),
- coin_name: toText(raw?.coin_name ?? raw?.coin ?? raw?.coin_short_name ?? 'ARS').toUpperCase(),
- value: toNumber(raw?.value ?? raw?.debit ?? raw?.amount ?? raw?.total),
- created: resolveCreated(raw),
- user_name: toText(raw?.user_name ?? raw?.user ?? ''),
- tot_ars: toNumber(raw?.tot_ars),
- tot_usd: toNumber(raw?.tot_usd),
-});
+const mapOutcome = (raw: any, index: number): ReportOutcome => {
+ const coinId = Number(raw?.coin_id ?? raw?.out_coin_id ?? raw?.in_coin_id ?? 0);
+ const shortFromId = coinId > 0 ? flagHelper.getShortName(coinId) : '';
+ const shortFromRaw = toText(raw?.coin_short_name ?? raw?.coin ?? raw?.coin_name).toUpperCase();
+ const resolvedShortName = toText(shortFromId || shortFromRaw || 'ARS').toUpperCase();
+ const resolvedCoinName = toText(raw?.coin_name ?? resolvedShortName);
+
+ return {
+  id: Number(raw?.outcome_id ?? raw?.item_operation_id ?? raw?.id ?? raw?.item_id ?? raw?.operation_item_id ?? index),
+  outcome_id: Number(raw?.outcome_id ?? raw?.operation_id ?? raw?.id ?? 0),
+  item_operation_id: Number(raw?.item_operation_id ?? raw?.item_id ?? raw?.operation_item_id ?? 0),
+  description: toText(raw?.description ?? raw?.observation ?? raw?.obs ?? raw?.detail ?? raw?.type),
+  type: toText(raw?.type ?? APP_CONSTANTS.TYPE_GASTO),
+  coin_id: coinId,
+  coin_short_name: resolvedShortName,
+  coin_name: resolvedCoinName,
+  value: toNumber(raw?.value ?? raw?.debit ?? raw?.amount ?? raw?.total),
+  created: resolveCreated(raw),
+  user_name: toText(raw?.user_name ?? raw?.user ?? ''),
+  tot_ars: toNumber(raw?.tot_ars),
+  tot_usd: toNumber(raw?.tot_usd),
+ };
+};
 
 export async function fetchOutcomes(page: number, coinId: number, groupBy: GroupByType): Promise<ReportOutcome[]> {
+ await ensureCoinsCatalog();
  const response = await api.get('/items_operation.php', {
   params: {
    method: 'getOutcomes',

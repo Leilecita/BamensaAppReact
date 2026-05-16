@@ -38,6 +38,13 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     tintColor: COLORS.colorPrimaryDarkLetter,
   },
+  onlyFishertonNote: {
+    marginTop: 10,
+    textAlign: 'center',
+    color: COLORS.colorPrimaryDarkLetter,
+    fontSize: DIMENS.generalText,
+    fontFamily: 'OpenSansBold',
+  },
   fieldsWrap: {
     marginTop: 16,
     marginBottom: 16,

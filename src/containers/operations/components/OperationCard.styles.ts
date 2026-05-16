@@ -9,13 +9,29 @@ const styles = StyleSheet.create({
   marginTop: 4,
   marginBottom: 4,
  },
- card: {
+card: {
   backgroundColor: '#fff',
   borderRadius: 10,
   paddingLeft: 8,
   paddingRight: 8,
   paddingTop: 16,
   paddingBottom: 16,
+ },
+ menuButton: {
+  position: 'absolute',
+  top: 6,
+  right: 8,
+  zIndex: 10,
+  width: 24,
+  height: 24,
+  alignItems: 'center',
+  justifyContent: 'center',
+ },
+ menuButtonText: {
+  color: '#6b6584',
+  fontSize: 22,
+  lineHeight: 22,
+  fontFamily: 'OpenSansRegular',
  },
  summaryRow: {
   flexDirection: 'row',
@@ -203,7 +219,14 @@ const styles = StyleSheet.create({
   fontSize: DIMENS.smallText,
   fontFamily: 'OpenSansRegular',
  },
- infoDialogBackdrop: {
+ observationText: {
+  marginTop: 8,
+  marginLeft: 4,
+  color: COLORS.colorPrimaryClearLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+infoDialogBackdrop: {
   flex: 1,
   backgroundColor: 'rgba(0,0,0,0.52)',
   justifyContent: 'center',
@@ -375,6 +398,15 @@ const styles = StyleSheet.create({
   fontSize: DIMENS.generalText,
   fontFamily: 'OpenSansLight',
  },
+ infoDialogObsInput: {
+  minHeight: 35,
+  borderRadius: 8,
+  backgroundColor: '#ffffff',
+  paddingHorizontal: 10,
+  color: '#615886',
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansLight',
+ },
  infoDialogActions: {
   marginTop: 16,
   paddingHorizontal: 0,
@@ -395,6 +427,100 @@ const styles = StyleSheet.create({
   padding: 9,
   resizeMode: 'contain',
   opacity: 0.45,
+ },
+ infoDialogSaveRow: {
+  marginTop: 16,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 12,
+ },
+ infoDialogSaveCancelBtn: {
+  width: '46%',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginRight: 6,
+  height: 42,
+ },
+ infoDialogSaveCancelText: {
+  color: '#6f6392',
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ infoDialogSaveBtn: {
+  width: '46%',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginLeft: 6,
+  height: 42,
+  borderRadius: 8,
+  backgroundColor: '#6f6392',
+ },
+ infoDialogSaveText: {
+  color: '#fff',
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmCard: {
+  width: '100%',
+  maxWidth: 520,
+  borderRadius: 12,
+  backgroundColor: COLORS.background_dialog,
+  margin: 8,
+ },
+ affectConfirmContent: {
+  marginTop: DIMENS.dialogMarginTop,
+  marginBottom: DIMENS.dialogMarginBottom,
+  marginLeft: DIMENS.dialogMarginLeft,
+  marginRight: DIMENS.dialogMarginRight,
+ },
+ affectConfirmTitle: {
+  height: 36,
+  textAlign: 'center',
+  textAlignVertical: 'center',
+  color: COLORS.word,
+  fontSize: 20,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmTextWrap: {
+  marginTop: 12,
+ },
+ affectConfirmText: {
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmTextStrong: {
+  fontFamily: 'OpenSansBold',
+ },
+ affectConfirmActions: {
+  marginTop: 20,
+  flexDirection: 'row',
+  alignItems: 'center',
+ },
+ affectConfirmCancelBtn: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: DIMENS.heightButton,
+ },
+ affectConfirmCancelText: {
+  color: COLORS.colorDialogButton,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmOkBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  borderRadius: 12,
+  backgroundColor: COLORS.colorDialogButton,
+  alignItems: 'center',
+  justifyContent: 'center',
+ },
+ affectConfirmOkText: {
+  color: COLORS.white,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
  },
 });
 

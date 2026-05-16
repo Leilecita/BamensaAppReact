@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
-import { getFlagSourceByShortName } from '../../../helpers/flagHelper';
+import { getFilterFlagSourceByShortName } from '../../../helpers/flagHelper';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { ReportAccount, updateAccount } from '../services/accountService';
 import AccountInfoDialog from './AccountInfoDialog';
@@ -190,7 +190,7 @@ export default function AccountCard({
             },
            ]).map((balance, index) => (
          <View key={`${balance.coin_short_name}-${index}`} style={styles.balanceRow}>
-          <Image source={getFlagSourceByShortName(balance.coin_short_name)} style={styles.balanceFlag} />
+          <Image source={getFilterFlagSourceByShortName(balance.coin_short_name)} style={styles.balanceFlag} />
           <Text style={styles.balanceText}>{formatAmount(balance.balance)}</Text>
          </View>
         ))}

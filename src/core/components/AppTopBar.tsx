@@ -29,12 +29,12 @@ const styles = StyleSheet.create({
   alignItems: 'center',
  },
  menuIcon: {
-  color: COLORS.white,
+  color: COLORS.topBarText,
   fontSize: 30,
   marginRight: 22,
  },
  topTitle: {
-  color: COLORS.white,
+  color: COLORS.topBarText,
   fontSize: 22,
   fontFamily: 'OpenSansRegular',
  },

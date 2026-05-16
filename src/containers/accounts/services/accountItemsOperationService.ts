@@ -1,5 +1,6 @@
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import api from '../../../core/services/axiosClient';
+import { flagHelper } from '../../../helpers/flagHelper';
 
 export type ReportItemOperation = {
  id: number;
@@ -77,4 +78,77 @@ export async function fetchItemsOperationByCoin(
    : [];
 
  return source.map(normalizeItem).filter((item) => item.id !== 0);
+}
+
+export type ReportBoxCoin = {
+ coin_id: number;
+ coin_short_name: string;
+ balance: number;
+};
+
+const normalizeBalanceCoin = (item: any): ReportBoxCoin => {
+ const coinId = toNumber(item?.coin_id);
+ return {
+  coin_id: coinId,
+  coin_short_name: flagHelper.getShortName(coinId),
+  balance: toNumber(item?.balance),
+ };
+};
+
+export async function getTotalAmountCoinsByAccountId(accountId: number): Promise<ReportBoxCoin[]> {
+ const response = await api.get('/items_operation_acces.php', {
+  params: {
+   method: 'getAmountGroupByCoin',
+   account_id: accountId,
+  },
+ });
+
+ if (response.data?.result && response.data.result !== 'success') {
+  throw new Error(response.data?.message || 'Error al obtener balance por moneda');
+ }
+
+ const payload = response.data?.data ?? response.data;
+ const source = Array.isArray(payload)
+  ? payload
+  : payload && typeof payload === 'object'
+   ? Object.values(payload)
+   : [];
+
+ return source
+  .map(normalizeBalanceCoin)
+  .filter((item) => item.coin_id > 0 && Boolean(item.coin_short_name));
+}
+
+export async function changeStateItem(id: number, state: string): Promise<void> {
+ const response = await api.put('/items_operation.php', { id, state });
+ const data = response.data;
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al cambiar estado del movimiento');
+ }
+}
+
+export async function deleteReportItem(id: number): Promise<void> {
+ const response = await api.delete('/items_operation.php', {
+  params: { id },
+ });
+ const data = response.data;
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al borrar movimiento');
+ }
+}
+
+export type UpdateItemOperationData = {
+ id: number;
+ state: string;
+ debit: number;
+ credit: number;
+ created: string;
+};
+
+export async function putItemOperation(dataInput: UpdateItemOperationData): Promise<void> {
+ const response = await api.put('/items_operation.php', dataInput);
+ const data = response.data;
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al editar movimiento');
+ }
 }

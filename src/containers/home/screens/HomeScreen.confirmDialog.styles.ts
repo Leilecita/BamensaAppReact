@@ -6,7 +6,7 @@ export const confirmDialogStyles = {
   backgroundColor: 'rgba(0,0,0,0.52)',
   justifyContent: 'center',
   alignItems: 'center',
-  padding: 6,
+  padding: 4,
  },
  confirmDialogCard: {
   width: '100%',
@@ -14,23 +14,24 @@ export const confirmDialogStyles = {
   backgroundColor: '#f3f2f7',
   borderRadius: 12,
   overflow: 'hidden',
-  marginTop: DIMENS.dialogMarginTop,
-  marginBottom: DIMENS.dialogMarginBottom,
+  margin: 4,
  },
  confirmDialogHeader: {
-  paddingTop: 14,
-  paddingBottom: 10,
-  paddingHorizontal: 16,
+  paddingTop: 8,
+  paddingBottom: 6,
+  paddingHorizontal: DIMENS.dialogMarginLeft,
   alignItems: 'center',
  },
  confirmDialogType: {
   color: '#4f4677',
-  fontSize: DIMENS.titleLargeText,
+  height: 35,
+  textAlignVertical: 'center',
+  fontSize: DIMENS.generalText,
   fontFamily: 'OpenSansBold',
  },
  confirmDialogBody: {
-  paddingHorizontal: 6,
-  paddingVertical: 6,
+  paddingHorizontal: 4,
+  paddingVertical: 4,
   gap: 8,
  },
  confirmSummaryCard: {
@@ -46,6 +47,21 @@ export const confirmDialogStyles = {
   alignItems: 'center',
   justifyContent: 'space-between',
   gap: 8,
+ },
+ confirmAffectInWrap: {
+  position: 'absolute',
+  left: 0,
+  bottom: 0,
+ },
+ confirmAffectOutWrap: {
+  position: 'absolute',
+  right: 0,
+  bottom: 0,
+ },
+ confirmAffectIcon: {
+  width: 25,
+  height: 20,
+  resizeMode: 'contain',
  },
  confirmSummaryCol: {
   flex: 1,
@@ -106,7 +122,7 @@ export const confirmDialogStyles = {
   marginHorizontal: 4,
  },
  confirmMetaRow: {
-  minHeight: DIMENS.heightButton,
+  minHeight: 35,
   flexDirection: 'row',
   alignItems: 'center',
   paddingLeft: DIMENS.dialogMarginLeft,
@@ -135,7 +151,7 @@ export const confirmDialogStyles = {
  },
  confirmDialogObsInput: {
   width: '100%',
-  minHeight: DIMENS.heightButton,
+  minHeight: 35,
   borderRadius: 10,
   backgroundColor: '#fdfdfd',
   color: '#615886',
@@ -149,7 +165,7 @@ export const confirmDialogStyles = {
   paddingHorizontal: DIMENS.dialogMarginLeft,
   paddingBottom: DIMENS.dialogMarginBottom,
   paddingTop: 6,
-  gap: 10,
+  gap: 8,
   marginTop: 16,
  },
  confirmDialogCancel: {

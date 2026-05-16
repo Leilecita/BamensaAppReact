@@ -110,8 +110,8 @@ const styles = StyleSheet.create({
   fontFamily: 'ArialRoundedRegular',
   textTransform: 'uppercase',
   marginLeft: 10,
-  marginTop: 5,
-  marginBottom: 5,
+  marginTop: 7,
+  marginBottom: 3,
  },
  amountInput: {
   flex: 1,
@@ -187,8 +187,8 @@ const styles = StyleSheet.create({
   fontFamily: 'ArialRoundedRegular',
   textTransform: 'uppercase',
   marginLeft: 10,
-  marginTop: 5,
-  marginBottom: 5,
+  marginTop: 7,
+  marginBottom: 3,
  },
 });
 

@@ -1,28 +1,52 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+ attachDebugInterceptors,
+ attachSessionInterceptor,
+ createClient,
+} from './axiosClient.helpers';
+
+//ROSARIO
+//export const BASE_URL = 'http://loteriasole.abarbieri.com.ar/'; //ahora usa esta dire 
+
+//FISHERTON
+// public static final String BASE_URL = "http://bam_fisherton.abarbieri.com.ar/";
+// public static final String BASE_URL = "http://frutos-dev.abarbieri.com.ar/"; //ahora usa esta direccion
+
+//LOCALHOST
+export const BASE_URL = 'http://192.168.0.97/bam_server/';
+
+
+//-------------------------
+
+//FISHERTON dejarla siempre es para que desde Bamensa Change App puedan ver las cajas de Fisherton
+// SOLO LECTURA | NO SE TOCA
+//public static final String BASE_URL2 = "http://bam_fisherton.abarbieri.com.ar/";
+
+export const BASE_URL2 = 'http://frutos-dev.abarbieri.com.ar/';
+
+//-------------------------
+
+// ROSARIO para postear operaciones cuando se esta en fisherton
+// public static final String BASE_URL3 = "http://bamensa.abarbieri.com.ar/";
+export const BASE_URL3 = 'http://loteriasole.abarbieri.com.ar/';
+
+
+//public static final String BASE_URL3 = "http://192.168.0.36/bam_server/"; // es para tester
+
+//-------------------------
+
+const TIMEOUT = 10000;
 
 const api = axios.create({
- //baseURL: 'http://loteriasole.abarbieri.com.ar/',
- baseURL: 'http://bamensa-dev.abarbieri.com.ar/',
- //baseURL: 'http://192.168.0.47/bam_server/',
-
- timeout: 10000,
+ baseURL: BASE_URL,
+ timeout: TIMEOUT,
 });
 
-api.interceptors.request.use(
- async (config) => {
-  const token = await AsyncStorage.getItem('userToken');
-  console.log('TOKEN para request:', token);
+export const getAPIService = () => createClient(BASE_URL, TIMEOUT);
+export const getAPISessionService = () => api;
+export const getAPISessionService2 = () => attachSessionInterceptor(createClient(BASE_URL2, TIMEOUT));
+export const getAPIServiceBamApp = () => createClient(BASE_URL3, TIMEOUT);
 
-  const isLoginRequest = config.url?.includes('login.php');
-
-  if (token && !isLoginRequest) {
-   config.headers['Session'] = token;
-  }
-
-  return config;
- },
- (error) => Promise.reject(error)
-);
+attachDebugInterceptors(api);
 
 export default api;

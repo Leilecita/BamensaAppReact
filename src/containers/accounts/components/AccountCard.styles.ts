@@ -87,11 +87,13 @@ const styles = StyleSheet.create({
   flexDirection: 'row',
   alignItems: 'center',
   marginBottom: 2,
+  marginTop: 4,
  },
  balanceFlag: {
-  width: 24,
-  height: 24,
+  width: 22,
+  height: 22,
   marginRight: 8,
+  opacity: 0.8,
   resizeMode: 'contain',
  },
  balanceText: {

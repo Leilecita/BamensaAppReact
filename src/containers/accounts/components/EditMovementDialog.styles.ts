@@ -1,0 +1,150 @@
+import { StyleSheet } from 'react-native';
+import { COLORS } from '../../../core/constants/colors';
+import { DIMENS } from '../../../core/constants/dimensions';
+
+const styles = StyleSheet.create({
+ backdrop: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 10,
+ },
+ card: {
+  width: '100%',
+  maxWidth: 500,
+  borderRadius: 12,
+  backgroundColor: COLORS.background_dialog,
+  paddingHorizontal: 14,
+  paddingTop: 14,
+  paddingBottom: 12,
+ },
+ title: {
+  textAlign: 'center',
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: 24,
+  fontFamily: 'ArialRoundedRegular',
+  textTransform: 'lowercase',
+ },
+ onlyFishertonNote: {
+  marginTop: 10,
+  textAlign: 'center',
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansBold',
+ },
+ fieldsWrap: {
+  marginTop: 16,
+  marginBottom: 16,
+  gap: 12,
+ },
+ bigRow: {
+  height: DIMENS.heightOperationInput,
+  borderRadius: 4,
+  backgroundColor: COLORS.white,
+  borderWidth: 1,
+  borderColor: COLORS.white,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 8,
+ },
+ coinInline: {
+  width: '40%',
+  flexDirection: 'row',
+  alignItems: 'center',
+ },
+ coinFlag: {
+  width: 42,
+  height: 42,
+  resizeMode: 'contain',
+  marginRight: 12,
+ },
+ coinText: {
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.numberItemText,
+  fontFamily: 'ArialRoundedRegular',
+  textTransform: 'uppercase',
+ },
+ dottedDivider: {
+  width: 1,
+  alignSelf: 'stretch',
+  marginVertical: 6,
+  marginHorizontal: 6,
+  borderLeftWidth: 1,
+  borderStyle: 'dashed',
+  borderColor: '#c3bbd6',
+ },
+ plusText: {
+  width: 20,
+  textAlign: 'center',
+  color: COLORS.colorPrimaryClearLetter,
+  fontSize: 28,
+  fontFamily: 'ArialRoundedRegular',
+ },
+ amountInput: {
+  flex: 1,
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.bigText,
+  fontFamily: 'ArialRoundedRegular',
+  paddingLeft: 8,
+  paddingRight: 8,
+ },
+ fieldRow: {
+  height: DIMENS.heightRecCuadInpunt,
+  borderRadius: 4,
+  backgroundColor: COLORS.white,
+  borderWidth: 1,
+  borderColor: COLORS.white,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingLeft: 8,
+ },
+ fieldLabel: {
+  width: '40%',
+  color: COLORS.colorPrimaryIntLetter2,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ fieldValueWrap: {
+  flex: 1,
+  alignSelf: 'stretch',
+  justifyContent: 'center',
+ },
+ fieldValueText: {
+  color: COLORS.word,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+  paddingLeft: 8,
+ },
+ actionsRow: {
+  marginTop: 20,
+  flexDirection: 'row',
+  alignItems: 'center',
+ },
+ cancelBtn: {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: DIMENS.heightButton,
+ },
+ cancelText: {
+  color: COLORS.colorDialogButton,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansBold',
+ },
+ saveBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  borderRadius: 10,
+  backgroundColor: COLORS.colorDialogButton,
+  alignItems: 'center',
+  justifyContent: 'center',
+ },
+ saveText: {
+  color: COLORS.white,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+});
+
+export default styles;

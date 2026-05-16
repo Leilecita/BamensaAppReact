@@ -3,7 +3,7 @@ import { COLORS } from '../../../core/constants/colors';
 import { DIMENS } from '../../../core/constants/dimensions';
 
 const styles = StyleSheet.create({
- linear: {
+linear: {
   width: '100%',
   paddingTop: 1,
   backgroundColor: COLORS.background_selected,

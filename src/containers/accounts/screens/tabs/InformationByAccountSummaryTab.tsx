@@ -1,15 +1,28 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { AccountCoinBalanceParam } from '../../../../core/navigation/AppStack';
 import AddActionButton from '../../../../core/components/AddActionButton';
+import { APP_CONSTANTS } from '../../../../core/constants/appConstants';
 import { useCoins } from '../../../coins/hooks/useCoins';
 import { dateHelper } from '../../../../helpers/dateHelper';
 import { getFilterFlagSourceByShortName } from '../../../../helpers/flagHelper';
 import { formatAmount1Decimal } from '../../../../helpers/valuesHelper';
 import AddMovementDialog from '../../components/AddMovementDialog';
+import ChangeStateItemDialog from '../../components/ChangeStateItemDialog';
+import DeleteMovementDialog from '../../components/DeleteMovementDialog';
+import EditMovementDialog from '../../components/EditMovementDialog';
 import DateChip from '../../components/DateChip';
 import ItemOpByCoin2 from '../../components/ItemOpByCoin2';
-import { fetchItemsOperationByCoin, ReportItemOperation } from '../../services/accountItemsOperationService';
+import {
+ changeStateItem,
+ deleteReportItem,
+ fetchItemsOperationByCoin,
+ getTotalAmountCoinsByAccountId,
+ putItemOperation,
+ ReportItemOperation,
+} from '../../services/accountItemsOperationService';
+import { shouldBlockMirrorAccountMovementCreation } from '../../services/accountMovementService';
+import api from '../../../../core/services/axiosClient';
 import styles from '../InformationByAccountScreen.styles';
 
 const PAGE_SIZE = 12;
@@ -23,6 +36,7 @@ function CoinMovementDetail({
  onRetry,
  onLoadMore,
  coinShortName,
+ onLongPressItem,
 }: {
  items: ReportItemOperation[];
  loading: boolean;
@@ -32,6 +46,7 @@ function CoinMovementDetail({
  onRetry: () => void;
  onLoadMore: () => void;
  coinShortName: string;
+ onLongPressItem: (item: ReportItemOperation) => void;
 }) {
  return (
   <View style={styles.coinDetailWrap}>
@@ -59,8 +74,8 @@ function CoinMovementDetail({
    ) : (
    <View style={styles.coinDetailItemsWrap}>
      {items.map((item, index) => {
-      const currentDayMonth = dateHelper.getDayMonth(item.created);
-      const prevDayMonth = index > 0 ? dateHelper.getDayMonth(items[index - 1].created) : null;
+      const currentDayMonth = dateHelper.onlyDayMonth(item.created);
+      const prevDayMonth = index > 0 ? dateHelper.onlyDayMonth(items[index - 1].created) : null;
       const showDate = currentDayMonth !== prevDayMonth;
 
       return (
@@ -70,7 +85,7 @@ function CoinMovementDetail({
           <DateChip label={currentDayMonth} />
          </View>
         ) : null}
-       <ItemOpByCoin2 item={item} />
+       <ItemOpByCoin2 item={item} onLongPress={onLongPressItem} />
        </Fragment>
       );
      })}
@@ -102,6 +117,7 @@ type Props = {
 
 export default function InformationByAccountSummaryTab({ accountId, balances }: Props) {
  const { coins } = useCoins();
+ const [balancesView, setBalancesView] = useState<AccountCoinBalanceParam[]>(balances);
  const [openCoinId, setOpenCoinId] = useState<number | null>(null);
  const [addDialogVisible, setAddDialogVisible] = useState(false);
  const [coinItemsCache, setCoinItemsCache] = useState<Record<number, ReportItemOperation[]>>({});
@@ -110,54 +126,20 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
  const [coinError, setCoinError] = useState<Record<number, string | null>>({});
  const [coinPage, setCoinPage] = useState<Record<number, number>>({});
  const [coinHasMore, setCoinHasMore] = useState<Record<number, boolean>>({});
- const [coinBalanceOverride, setCoinBalanceOverride] = useState<Record<number, number>>({});
+ const [editDialogVisible, setEditDialogVisible] = useState(false);
+ const [editingMovement, setEditingMovement] = useState<ReportItemOperation | null>(null);
+ const [changeStateDialogVisible, setChangeStateDialogVisible] = useState(false);
+ const [changingStateMovement, setChangingStateMovement] = useState<ReportItemOperation | null>(null);
+ const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
+ const [deletingMovement, setDeletingMovement] = useState<ReportItemOperation | null>(null);
 
  useEffect(() => {
-  if (!balances.length) return;
-  let cancelled = false;
+  setBalancesView(balances);
+ }, [balances]);
 
-  const preloadLatestBalances = async () => {
-   const entries = await Promise.all(
-    balances.map(async (coin) => {
-     try {
-      const items = await fetchItemsOperationByCoin(0, coin.coin_id, accountId);
-      return [coin.coin_id, items[0]?.balance ?? coin.balance, items] as const;
-     } catch {
-      return [coin.coin_id, coin.balance, undefined] as const;
-     }
-    })
-   );
-
-   if (cancelled) return;
-
-   const nextBalances: Record<number, number> = {};
-   const nextCache: Record<number, ReportItemOperation[]> = {};
-   const nextPage: Record<number, number> = {};
-   const nextHasMore: Record<number, boolean> = {};
-
-   entries.forEach(([coinId, balance, items]) => {
-    nextBalances[coinId] = balance;
-    nextPage[coinId] = 0;
-    nextHasMore[coinId] = Boolean(items && items.length >= PAGE_SIZE);
-    if (items && items.length) {
-     nextCache[coinId] = items;
-    }
-   });
-
-   setCoinBalanceOverride(nextBalances);
-   setCoinPage(nextPage);
-   setCoinHasMore(nextHasMore);
-   if (Object.keys(nextCache).length) {
-    setCoinItemsCache((prev) => ({ ...nextCache, ...prev }));
-   }
-  };
-
-  preloadLatestBalances();
-
-  return () => {
-   cancelled = true;
-  };
- }, [accountId, balances]);
+ const shouldBlockMovementCreation = useMemo(() => {
+  return shouldBlockMirrorAccountMovementCreation(api.defaults.baseURL, accountId);
+ }, [accountId]);
 
  const loadCoinItemsFirstPage = useCallback(
   async (coinId: number) => {
@@ -207,6 +189,43 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
   [accountId, coinHasMore, coinLoading, coinLoadingMore, coinPage]
  );
 
+ const refreshAllMovementsAndBalances = useCallback(async () => {
+  const balancesByAccount = await getTotalAmountCoinsByAccountId(accountId);
+
+  setBalancesView(
+   balancesByAccount.map((row) => ({
+    coin_id: row.coin_id,
+    coin_short_name: row.coin_short_name,
+    balance: row.balance,
+   })),
+  );
+
+  const entries = await Promise.all(
+   balancesByAccount.map(async (coin) => {
+    try {
+     const items = await fetchItemsOperationByCoin(0, coin.coin_id, accountId);
+     return [coin.coin_id, items] as const;
+    } catch {
+     return [coin.coin_id, [] as ReportItemOperation[]] as const;
+    }
+   }),
+  );
+
+  const nextCache: Record<number, ReportItemOperation[]> = {};
+  const nextPage: Record<number, number> = {};
+  const nextHasMore: Record<number, boolean> = {};
+
+  entries.forEach(([coinId, items]) => {
+   nextCache[coinId] = items;
+   nextPage[coinId] = 0;
+   nextHasMore[coinId] = items.length >= PAGE_SIZE;
+  });
+
+  setCoinItemsCache(nextCache);
+  setCoinPage(nextPage);
+  setCoinHasMore(nextHasMore);
+ }, [accountId]);
+
  const handleToggleCoin = useCallback(
   (coinId: number) => {
     const isOpening = openCoinId !== coinId;
@@ -219,7 +238,74 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
   [openCoinId, coinItemsCache, loadCoinItemsFirstPage]
  );
 
- const sortedBalances = useMemo(() => balances, [balances]);
+ const handleLongPressItem = useCallback(
+  (item: ReportItemOperation) => {
+   Alert.alert('Opciones', 'Seleccioná una acción', [
+    {
+     text: 'Cambiar estado',
+     onPress: () => {
+      setChangingStateMovement(item);
+      setChangeStateDialogVisible(true);
+     },
+    },
+    {
+     text: 'Editar',
+     onPress: () => {
+      if (
+       String(item.nota ?? '').includes(APP_CONSTANTS.AFFECT_ACO) ||
+       String(item.nota ?? '').includes(APP_CONSTANTS.AFFECT_ACI)
+      ) {
+       Alert.alert('Atención', 'No puede editar un movimiento que fue afectado por una COMPRA o VENTA.');
+       return;
+      }
+
+      setEditingMovement(item);
+      setEditDialogVisible(true);
+     },
+    },
+    {
+     text: 'Borrar',
+     style: 'destructive',
+     onPress: () => {
+      setDeletingMovement(item);
+      setDeleteDialogVisible(true);
+     },
+    },
+    { text: 'Cancelar', style: 'cancel' },
+   ]);
+  },
+  [refreshAllMovementsAndBalances]
+ );
+
+ const handleSaveEditMovement = useCallback(
+  async ({
+   id,
+   state,
+   debit,
+   credit,
+   created,
+   coinId: _coinId,
+  }: {
+   id: number;
+   state: string;
+   debit: number;
+   credit: number;
+   created: string;
+   coinId: number;
+  }) => {
+   await putItemOperation({
+    id,
+    state,
+    debit,
+    credit,
+    created,
+   });
+   await refreshAllMovementsAndBalances();
+  },
+  [refreshAllMovementsAndBalances]
+ );
+
+ const sortedBalances = useMemo(() => balancesView, [balancesView]);
  const coinOptions = useMemo(
   () => {
    const fromCatalog = coins
@@ -230,12 +316,12 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
     return Array.from(new Set(fromCatalog));
    }
 
-   const fromBalances = balances
+   const fromBalances = balancesView
     .map((b) => String(b.coin_short_name ?? '').toUpperCase().trim())
     .filter(Boolean);
    return Array.from(new Set(fromBalances));
   },
-  [balances, coins]
+  [balancesView, coins]
  );
 
  return (
@@ -256,10 +342,10 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
         >
          <View style={styles.summaryCoinSide}>
           <Image source={getFilterFlagSourceByShortName(item.coin_short_name)} style={styles.summaryFlag} />
-          <Text style={styles.summaryCoinCode}>{item.coin_short_name}</Text>
+         <Text style={styles.summaryCoinCode}>{item.coin_short_name}</Text>
          </View>
-         <Text style={styles.summaryAmount}>
-          {formatAmount1Decimal(coinBalanceOverride[item.coin_id] ?? item.balance)}
+         <Text style={[styles.summaryAmount, expanded ? styles.summaryAmountHidden : null]}>
+          {formatAmount1Decimal(item.balance)}
          </Text>
         </TouchableOpacity>
 
@@ -269,10 +355,11 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
           loading={Boolean(coinLoading[item.coin_id])}
           loadingMore={Boolean(coinLoadingMore[item.coin_id])}
           hasMore={Boolean(coinHasMore[item.coin_id])}
-          error={coinError[item.coin_id] ?? null}
-          onRetry={() => loadCoinItemsFirstPage(item.coin_id)}
-          onLoadMore={() => loadCoinItemsNextPage(item.coin_id)}
-          coinShortName={item.coin_short_name}
+         error={coinError[item.coin_id] ?? null}
+         onRetry={() => loadCoinItemsFirstPage(item.coin_id)}
+         onLoadMore={() => loadCoinItemsNextPage(item.coin_id)}
+         coinShortName={item.coin_short_name}
+         onLongPressItem={handleLongPressItem}
          />
         ) : null}
 
@@ -285,11 +372,61 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
     )}
    </ScrollView>
 
-   <AddActionButton style={styles.summaryFab} onPress={() => setAddDialogVisible(true)} />
+   <AddActionButton
+    style={styles.summaryFab}
+    onPress={() => {
+     if (shouldBlockMovementCreation) {
+      Alert.alert('Atención', 'Esta cuenta muestra movimientos en espejo de la sucursal Fisherton.');
+      return;
+     }
+     setAddDialogVisible(true);
+    }}
+   />
    <AddMovementDialog
     visible={addDialogVisible}
+    accountId={accountId}
     coinOptions={coinOptions}
+    coinsCatalog={coins.map((coin) => ({ id: coin.id, shortName: coin.short_name }))}
     onClose={() => setAddDialogVisible(false)}
+    onSaved={async ({ coinId }) => {
+     await refreshAllMovementsAndBalances();
+     setOpenCoinId(coinId);
+    }}
+   />
+   <EditMovementDialog
+    visible={editDialogVisible}
+    accountId={accountId}
+    item={editingMovement}
+    onClose={() => {
+     setEditDialogVisible(false);
+     setEditingMovement(null);
+    }}
+   onSave={handleSaveEditMovement}
+   />
+   <ChangeStateItemDialog
+    visible={changeStateDialogVisible}
+    item={changingStateMovement}
+    onClose={() => {
+     setChangeStateDialogVisible(false);
+     setChangingStateMovement(null);
+    }}
+   onSave={async ({ id, state }) => {
+     await changeStateItem(id, state);
+     await refreshAllMovementsAndBalances();
+    }}
+   />
+   <DeleteMovementDialog
+    visible={deleteDialogVisible}
+    accountId={accountId}
+    item={deletingMovement}
+    onClose={() => {
+     setDeleteDialogVisible(false);
+     setDeletingMovement(null);
+    }}
+    onDelete={async (item) => {
+     await deleteReportItem(item.id);
+     await refreshAllMovementsAndBalances();
+    }}
    />
   </View>
  );

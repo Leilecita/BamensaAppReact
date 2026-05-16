@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
+import { dateHelper } from '../../../helpers/dateHelper';
 import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
 import { ReportItemOperation } from '../services/accountItemsOperationService';
 import styles from './ItemOpByCoin2.styles';
 
 type ItemOpByCoin2Props = {
  item: ReportItemOperation;
+ onLongPress?: (item: ReportItemOperation) => void;
 };
 
 const capitalizeWord = (text?: string) => {
@@ -15,18 +17,10 @@ const capitalizeWord = (text?: string) => {
  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 };
 
-const getHourMinutes = (created?: string) => {
- if (!created) return '--:--';
- const parts = created.split(' ');
- if (parts.length < 2) return '--:--';
- const h = parts[1]?.split(':');
- if (h.length < 2) return '--:--';
- return `${h[0]}:${h[1]}`;
-};
-
-export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
+export default function ItemOpByCoin2({ item, onLongPress }: ItemOpByCoin2Props) {
  const [expanded, setExpanded] = useState(false);
  const dividerDots = expanded ? 18 : 10;
+ const createdHour = dateHelper.onlyHourMinut(dateHelper.getOnlyTime(item.created)) || '--:--';
 
  const isCredit = item.credit > 0;
  const amount = isCredit ? item.credit : item.debit;
@@ -34,6 +28,17 @@ export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
  const amountStyle = isCredit ? styles.amountPlus : styles.amountMinus;
 
  const pending = item.state === APP_CONSTANTS.STATE_PENDIENT;
+ const observation = String(item.observation ?? '').trim();
+ const isFishertonMirrorObservation = !pending && (observation === 'balanceFisherton' || observation === 'opFisherton');
+ const hasBalanceObservation = !pending && observation.toLowerCase().includes('balance');
+ const showStateIcon = pending || hasBalanceObservation || isFishertonMirrorObservation;
+ const stateIcon = pending
+  ? require('../../../../assets/images/ui/pendsan.png')
+  : isFishertonMirrorObservation
+   ? require('../../../../assets/app-icons/logo_ic_fisherton4_round.png')
+   : hasBalanceObservation
+    ? require('../../../../assets/images/ui/bal2.png')
+    : require('../../../../assets/images/ui/pendsan.png');
  const showAffect = item.nota?.includes(APP_CONSTANTS.AFFECT_ACO) || item.nota?.includes(APP_CONSTANTS.AFFECT_ACI);
  const affectIcon = item.nota?.includes(APP_CONSTANTS.AFFECT_ACO)
   ? require('../../../../assets/images/ui/entraccliente.png')
@@ -42,7 +47,12 @@ export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
  const showObs = useMemo(() => !!String(item.observation ?? '').trim(), [item.observation]);
 
  return (
-  <TouchableOpacity style={styles.linear} activeOpacity={0.85} onPress={() => setExpanded((prev) => !prev)}>
+  <TouchableOpacity
+   style={styles.linear}
+   activeOpacity={0.85}
+   onPress={() => setExpanded((prev) => !prev)}
+   onLongPress={() => onLongPress?.(item)}
+  >
    <View style={styles.rel}>
     <View style={styles.mainRow}>
      <View style={styles.leftCol}>
@@ -54,8 +64,8 @@ export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
         </View>
 
        <Image
-        source={require('../../../../assets/images/ui/pendsan.png')}
-        style={[styles.stateIm, !pending ? styles.stateHidden : null]}
+        source={stateIcon}
+        style={[styles.stateIm, !showStateIcon ? styles.stateHidden : null]}
        />
 
        {showAffect ? <Image source={affectIcon} style={styles.stateImAffect} /> : null}
@@ -76,7 +86,7 @@ export default function ItemOpByCoin2({ item }: ItemOpByCoin2Props) {
        <View style={styles.lineInfoAccounts}>
         <Image source={require('../../../../assets/images/ui/sessionviol.png')} style={styles.metaIcon} />
         <Text style={styles.metaUserText}>{item.user_name || '-'}</Text>
-        <Text style={styles.metaUserText}>{getHourMinutes(item.created)}</Text>
+        <Text style={styles.metaUserText}>{createdHour}</Text>
         <Text style={styles.metaUserText}>hs</Text>
        </View>
       ) : null}

@@ -39,7 +39,7 @@ export default function OutcomesScreen() {
  const [editDialogVisible, setEditDialogVisible] = useState(false);
  const [editingOutcome, setEditingOutcome] = useState<ReportOutcome | null>(null);
  const [deletingOutcome, setDeletingOutcome] = useState<ReportOutcome | null>(null);
- const [groupBy, setGroupBy] = useState<GroupByType>('month');
+ const [groupBy, setGroupBy] = useState<GroupByType>('day');
  const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
  const sheetHeight = 200;
  const sheetPeek = 80;
@@ -217,7 +217,7 @@ export default function OutcomesScreen() {
    return;
   }
 
-  const coinChanged = editingOutcome.coin_name !== coinShortName;
+  const coinChanged = editingOutcome.coin_short_name !== coinShortName;
   const valueChanged = Number(editingOutcome.value ?? 0) !== Number(amount ?? 0);
   const descChanged = (editingOutcome.description ?? '') !== description;
   const dateChanged = (editingOutcome.created ?? '') !== created;
@@ -314,7 +314,7 @@ export default function OutcomesScreen() {
     initialData={
       editingOutcome
         ? {
-            coinShortName: editingOutcome.coin_name,
+            coinShortName: editingOutcome.coin_short_name,
             amount: editingOutcome.value,
             description: editingOutcome.description,
             created: editingOutcome.created,

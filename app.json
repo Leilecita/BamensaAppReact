@@ -25,6 +25,13 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "appVariant": "bamensa",
+      "baseUrl": "http://loteriasole.abarbieri.com.ar/",
+      "eas": {
+        "projectId": "f959eabf-bafd-440f-a528-ebb9c9234503"
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { ActivityIndicator, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../../core/constants/appConstants';
 import OperationsFiltersBottomSheet, {
@@ -6,11 +6,17 @@ import OperationsFiltersBottomSheet, {
  OPERATIONS_QUICK_FILTERS,
 } from '../../../../core/components/OperationsFiltersBottomSheet';
 import { AccountCoinBalanceParam } from '../../../../core/navigation/AppStack';
+import { AuthContext } from '../../../../contexts/AuthContext';
 import { dateHelper } from '../../../../helpers/dateHelper';
 import { getFilterFlagSourceByShortName } from '../../../../helpers/flagHelper';
 import OperationCard from '../../../operations/components/OperationCard';
-import { ReportOperation } from '../../../operations/services/operationService';
+import {
+ affectClientOperationAndSync,
+ ReportOperation,
+ updateOperationObservation,
+} from '../../../operations/services/operationService';
 import { useAccountOperations } from '../../hooks/useAccountOperations';
+import { changeStateItem } from '../../services/accountItemsOperationService';
 import styles from '../InformationByAccountScreen.styles';
 
 type OperationSection = {
@@ -25,6 +31,7 @@ type Props = {
 };
 
 export default function InformationByAccountOperationsTab({ accountId, balances }: Props) {
+ const { userId } = useContext(AuthContext);
  const [quickFilter, setQuickFilter] = useState<string>('all');
  const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
  const sheetHeight = 240;
@@ -93,6 +100,43 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
   resolvedFilters
  );
 
+ const handleChangeItemState = async ({ itemId, nextState }: { itemId: number; nextState: string }) => {
+  await changeStateItem(itemId, nextState);
+ };
+
+ const handleUpdateOperation = async ({
+  operation,
+  observation,
+ }: {
+  operation: ReportOperation;
+  observation: string;
+ }) => {
+  await updateOperationObservation({
+   id: operation.operation_id,
+   observation,
+   nota: operation.nota ?? '',
+  });
+ };
+
+ const handleAffectClient = async ({
+  operation,
+  side,
+ }: {
+  operation: ReportOperation;
+  side: 'in' | 'out';
+ }) => {
+  if (!userId) {
+   throw new Error('No se pudo identificar el usuario actual.');
+  }
+
+  await affectClientOperationAndSync({
+   operation,
+   side,
+   userId,
+  });
+  await reload();
+ };
+
  const sections = useMemo<OperationSection[]>(() => {
   const byDate = new Map<string, ReportOperation[]>();
 
@@ -123,7 +167,15 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
     sections={sections}
     keyExtractor={(item) => item.operation_id.toString()}
     contentContainerStyle={styles.listContent}
-    renderItem={({ item }) => <OperationCard operation={item} wrapperStyle={styles.operationCardCompact} />}
+    renderItem={({ item }) => (
+     <OperationCard
+      operation={item}
+      wrapperStyle={styles.operationCardCompact}
+      onChangeItemState={handleChangeItemState}
+      onUpdateOperation={handleUpdateOperation}
+      onAffectClient={handleAffectClient}
+     />
+    )}
     renderSectionHeader={({ section }) => (
      <View style={styles.sectionHeaderWrap}>
       <Text style={styles.sectionHeaderText}>{section.title}</Text>

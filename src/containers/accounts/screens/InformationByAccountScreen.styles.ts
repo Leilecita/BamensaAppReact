@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   summaryCoinBlock: {
     paddingTop: 6,
     paddingHorizontal: 12,
-    backgroundColor: COLORS.background_selected,
+    backgroundColor: COLORS.background,
   },
   summaryCoinBlockExpanded: {
     backgroundColor: COLORS.background_selected,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 6,
-    backgroundColor: COLORS.background_selected,
+    backgroundColor: COLORS.background,
   },
   summaryRowExpanded: {
     backgroundColor: COLORS.background_selected,
@@ -127,6 +127,9 @@ const styles = StyleSheet.create({
     color: COLORS.colorPrimaryDarkLetter,
     fontSize: 22,
     fontFamily: 'ArialRoundedRegular',
+  },
+  summaryAmountHidden: {
+    opacity: 0,
   },
   summaryDivider: {
     height: 0.6,

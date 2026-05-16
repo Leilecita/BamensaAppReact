@@ -78,13 +78,6 @@ export type UpdateAccountData = {
  protected_account?: string;
 };
 
-const FALLBACK_COIN_SHORT_BY_ID: Record<number, string> = {
- 1: 'ARS',
- 2: 'USD',
- 3: 'EUR',
- 4: 'BRA',
-};
-
 let coinsCatalogLoaded = false;
 let coinsCatalogPromise: Promise<void> | null = null;
 
@@ -135,7 +128,7 @@ const mapBalanceItem = (b: any): ReportBoxCoin => {
  )
  .toUpperCase()
  .trim();
- const mappedShortById = mappedShortByIdFromHelper || FALLBACK_COIN_SHORT_BY_ID[coinId] || '';
+ const mappedShortById = mappedShortByIdFromHelper;
  const mappedNameById = flagHelper.getNameById(coinId);
  const resolvedShortName = String(
   b?.coin_short_name ??
@@ -196,14 +189,29 @@ const normalizeBalances = (item: any): ReportBoxCoin[] => {
  }
 
  const candidates: ReportBoxCoin[] = [];
- const byKey: Record<string, unknown> = {
-  ARS: item?.ars,
-  USD: item?.usd,
-  EUR: item?.eur,
-  BRA: item?.bra,
- };
 
- Object.entries(byKey).forEach(([coin, value]) => {
+ const dynamicByKey: Record<string, unknown> = {};
+
+ // 1) Build from coins catalog so every configured currency is contemplated.
+ flagHelper.getCoins().forEach((coin) => {
+  const short = String(coin.short_name ?? '').toUpperCase().trim();
+  if (!short) return;
+  const lower = short.toLowerCase();
+  const normalizedLower = lower === 'uyu' ? 'uru' : lower;
+  dynamicByKey[short] = item?.[lower] ?? item?.[normalizedLower];
+ });
+
+ // 2) Add explicit top-level short-name keys coming from backend payload.
+ if (item && typeof item === 'object') {
+  Object.entries(item).forEach(([key, value]) => {
+   const short = String(key).toUpperCase().trim();
+   if (!/^[A-Z]{3,5}$/.test(short)) return;
+   if (dynamicByKey[short] !== undefined) return;
+   dynamicByKey[short] = value;
+  });
+ }
+
+ Object.entries(dynamicByKey).forEach(([coin, value]) => {
   const amount = pickNumber(value);
   if (amount !== null) {
    candidates.push({

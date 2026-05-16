@@ -15,7 +15,10 @@ import {
 } from 'react-native';
 import { useCoins } from '../../coins/hooks/useCoins';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
+import { BASE_URL } from '../../../core/services/axiosClient';
+import { getAppVariant } from '../../../core/theme/appVariant';
 import AppBottomSheet from '../../../core/components/AppBottomSheet';
+import AppDatePicker from '../../../core/components/AppDatePicker';
 import AppTopBar from '../../../core/components/AppTopBar';
 import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -25,7 +28,15 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { dateHelper } from '../../../helpers/dateHelper';
 import { flagHelper, getFlagSourceByShortName } from '../../../helpers/flagHelper';
 import OperationCard from '../../operations/components/OperationCard';
+import {
+  affectClientOperationAndSync,
+  deleteOperation,
+  postOperation,
+  ReportOperation,
+  updateOperationObservation,
+} from '../../operations/services/operationService';
 import { useOperations } from '../../operations/hooks/useOperations';
+import { changeStateItem } from '../../accounts/services/accountItemsOperationService';
 import styles from './HomeScreen.styles';
 
 type OperationState = typeof APP_CONSTANTS.STATE_DONE | typeof APP_CONSTANTS.STATE_PENDIENT;
@@ -51,6 +62,13 @@ type OperationPayload = {
 };
 
 export default function HomeScreen() {
+  const appVariant = getAppVariant();
+  const appTitle =
+    appVariant === 'fisherton'
+      ? APP_CONSTANTS.NAME_FISHERTON
+      : appVariant === 'mendoza'
+        ? APP_CONSTANTS.NAME_MENDOZA
+        : APP_CONSTANTS.NAME_BAMENSA;
   const route = useRoute<RouteProp<AppStackParamList, 'home'>>();
   const { openMenu, navigateTo } = useSideMenu();
   const { userName, userId } = useContext(AuthContext);
@@ -66,6 +84,8 @@ export default function HomeScreen() {
   const [confirmDialogVisible, setConfirmDialogVisible] = useState(false);
   const [confirmObservation, setConfirmObservation] = useState('');
   const [confirmDate, setConfirmDate] = useState('');
+  const [confirmCreatedPayload, setConfirmCreatedPayload] = useState('');
+  const [confirmDatePickerVisible, setConfirmDatePickerVisible] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [selectedAccountName, setSelectedAccountName] = useState('');
   const [affectIn, setAffectIn] = useState(false);
@@ -73,6 +93,10 @@ export default function HomeScreen() {
   const [lastEditedAmountField, setLastEditedAmountField] = useState<'in' | 'out'>('in');
   const [inState, setInState] = useState<OperationState>(APP_CONSTANTS.STATE_DONE);
   const [outState, setOutState] = useState<OperationState>(APP_CONSTANTS.STATE_DONE);
+  const [affectConfirmVisible, setAffectConfirmVisible] = useState(false);
+  const [affectConfirmType, setAffectConfirmType] = useState<'affect_in' | 'affect_out' | null>(null);
+  const [listOptionsVisible, setListOptionsVisible] = useState(false);
+  const [savingOperation, setSavingOperation] = useState(false);
   const { coins, loadingCoins, coinsError, reloadCoins } = useCoins();
   const inAmountRef = useRef<TextInput>(null);
   const outAmountRef = useRef<TextInput>(null);
@@ -81,6 +105,9 @@ export default function HomeScreen() {
   const windowHeight = Dimensions.get('window').height;
   const sheetHeight = Math.min(windowHeight * 0.44, 390);
   const sheetPeek = 90;
+
+  const pairCoin1 = operationType === APP_CONSTANTS.TYPE_COMPRA ? inCoin : outCoin;
+  const pairCoin2 = operationType === APP_CONSTANTS.TYPE_COMPRA ? outCoin : inCoin;
 
   const parseNumber = (value: string): number | null => {
     const normalized = value.trim().replace(',', '.');
@@ -100,8 +127,7 @@ export default function HomeScreen() {
     return parsed.toFixed(1);
   };
 
-  const buildOperationPayload = (obs: string): OperationPayload => {
-    const now = new Date();
+  const buildOperationPayload = (obs: string, created: string): OperationPayload => {
     const noteParts: string[] = [];
 
     if (affectIn) {
@@ -114,7 +140,7 @@ export default function HomeScreen() {
     return {
       type: operationType,
       exchange: parseNumber(exchangeValue) ?? 0,
-      created: dateHelper.getActualDate(now),
+      created,
       observation: obs,
       account_id: selectedAccountId ?? APP_CONSTANTS.CUENTA_VARIOS,
       user_id: userId ?? 0,
@@ -228,24 +254,63 @@ export default function HomeScreen() {
       return;
     }
 
-    setConfirmDate(dateHelper.getActualDateToShow(new Date()));
+    const actualPayloadDate = dateHelper.getActualDate(new Date());
+    const actualDialogDate = dateHelper.getActualDateToShow(new Date());
+    setConfirmCreatedPayload(actualPayloadDate);
+    setConfirmDate(actualDialogDate);
     setConfirmObservation('');
     setConfirmDialogVisible(true);
   };
 
   const handleCloseConfirmDialog = () => {
     setConfirmDialogVisible(false);
+    setConfirmDatePickerVisible(false);
   };
 
-  const handleConfirmDialogAccept = () => {
-    const operationPayload = buildOperationPayload(confirmObservation.trim());
-    console.log('[SAVE_OPERATION] payload:', JSON.stringify(operationPayload, null, 2));
+  const cleanAffectClient = () => {
+    setAffectIn(false);
+    setAffectOut(false);
+  };
 
-    setConfirmDialogVisible(false);
-    Alert.alert(
-      'Listo',
-      'Confirmación registrada. Revisá la consola para ver el payload completo de la operación.'
+  const cleanSelectedAccount = () => {
+    setSelectedAccountId(null);
+    setSelectedAccountName('');
+    cleanAffectClient();
+  };
+
+  const resetOperationStates = () => {
+    setInState(APP_CONSTANTS.STATE_DONE);
+    setOutState(APP_CONSTANTS.STATE_DONE);
+  };
+
+  const cleanAllFields = () => {
+    handleCleanInputs();
+    resetOperationStates();
+    cleanSelectedAccount();
+
+    setAffectConfirmVisible(false);
+    setAffectConfirmType(null);
+    setConfirmObservation('');
+  };
+
+  const handleConfirmDialogAccept = async () => {
+    if (savingOperation) return;
+    const operationPayload = buildOperationPayload(
+      confirmObservation.trim(),
+      confirmCreatedPayload || dateHelper.getActualDate(new Date())
     );
+    setSavingOperation(true);
+    try {
+      await postOperation(operationPayload);
+      setConfirmDialogVisible(false);
+      cleanAllFields();
+      await reload();
+      Alert.alert('Listo', 'Operación guardada correctamente.');
+    } catch (e: any) {
+      Alert.alert('Error', e?.message || 'No se pudo guardar la operación');
+    } finally {
+      setSavingOperation(false);
+    }
   };
 
   const handleToggleOperationType = () => {
@@ -308,10 +373,7 @@ export default function HomeScreen() {
   }, [route.params?.selectedAccount?.id, route.params?.selectedAccount?.name]);
 
   const handleClearSelectedAccount = () => {
-    setSelectedAccountId(null);
-    setSelectedAccountName('');
-    setAffectIn(false);
-    setAffectOut(false);
+    cleanSelectedAccount();
   };
 
   const handleToggleAffectIn = () => {
@@ -320,7 +382,12 @@ export default function HomeScreen() {
       Alert.alert('Operación pendiente', 'No puede afectar a un cliente si la operación de entrada está pendiente.');
       return;
     }
-    setAffectIn((prev) => !prev);
+    if (affectIn) {
+      setAffectIn(false);
+      return;
+    }
+    setAffectConfirmType('affect_in');
+    setAffectConfirmVisible(true);
   };
 
   const handleToggleAffectOut = () => {
@@ -329,7 +396,74 @@ export default function HomeScreen() {
       Alert.alert('Operación pendiente', 'No puede afectar a un cliente si la operación de salida está pendiente.');
       return;
     }
-    setAffectOut((prev) => !prev);
+    if (affectOut) {
+      setAffectOut(false);
+      return;
+    }
+    setAffectConfirmType('affect_out');
+    setAffectConfirmVisible(true);
+  };
+
+  const closeAffectConfirm = () => {
+    setAffectConfirmVisible(false);
+    setAffectConfirmType(null);
+  };
+
+  const handleAcceptAffectConfirm = () => {
+    if (affectConfirmType === 'affect_in') {
+      setAffectIn(true);
+    }
+    if (affectConfirmType === 'affect_out') {
+      setAffectOut(true);
+    }
+    closeAffectConfirm();
+  };
+
+  const handleDeleteOperation = async (operation: ReportOperation) => {
+    try {
+      await deleteOperation(operation.operation_id);
+      await reload();
+      Alert.alert('Listo', 'Se ha eliminado la operación');
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
+    }
+  };
+
+  const handleChangeItemState = async ({ itemId, nextState }: { itemId: number; nextState: string }) => {
+    await changeStateItem(itemId, nextState);
+  };
+
+  const handleUpdateOperation = async ({
+    operation,
+    observation,
+  }: {
+    operation: ReportOperation;
+    observation: string;
+  }) => {
+    await updateOperationObservation({
+      id: operation.operation_id,
+      observation,
+      nota: operation.nota ?? '',
+    });
+  };
+
+  const handleAffectClient = async ({
+    operation,
+    side,
+  }: {
+    operation: ReportOperation;
+    side: 'in' | 'out';
+  }) => {
+    if (!userId) {
+      throw new Error('No se pudo identificar el usuario actual.');
+    }
+
+    await affectClientOperationAndSync({
+      operation,
+      side,
+      userId,
+    });
+    await reload();
   };
 
   useEffect(() => {
@@ -350,7 +484,68 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
-      <AppTopBar title="Change app" leftSymbol="☰" onPressLeft={openMenu} />
+      <AppTopBar title={appTitle} leftSymbol="☰" onPressLeft={openMenu} />
+      <View style={styles.optionsMenuWrap}>
+        <TouchableOpacity
+          style={styles.optionsButton}
+          onPress={() => setListOptionsVisible((prev) => !prev)}
+          activeOpacity={0.85}
+        >
+          <Image source={require('../../../../assets/images/ui/optsan.png')} style={styles.optionsButtonIcon} />
+        </TouchableOpacity>
+
+        {listOptionsVisible ? (
+          <View style={styles.optionsList}>
+            <TouchableOpacity
+              style={styles.optionsListItem}
+              activeOpacity={0.85}
+              onPress={() => {
+                setListOptionsVisible(false);
+                navigateTo('operations');
+              }}
+            >
+              <Text style={styles.optionsListItemText}>Operaciones</Text>
+              <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.optionsListItem}
+              activeOpacity={0.85}
+              onPress={() => {
+                setListOptionsVisible(false);
+                navigateTo('outcomes');
+              }}
+            >
+              <Text style={styles.optionsListItemText}>Gastos</Text>
+              <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.optionsListItem}
+              activeOpacity={0.85}
+              onPress={() => {
+                setListOptionsVisible(false);
+                Alert.alert('Caja F', 'Pantalla pendiente en React Native.');
+              }}
+            >
+              <Text style={styles.optionsListItemText}>Caja F</Text>
+              <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.optionsListItem}
+              activeOpacity={0.85}
+              onPress={() => {
+                setListOptionsVisible(false);
+                Alert.alert('Caja', 'Pantalla pendiente en React Native.');
+              }}
+            >
+              <Text style={styles.optionsListItemText}>Caja</Text>
+              <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerRow}>
@@ -360,7 +555,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <View style={styles.headerHalfRight}>
             <Text style={styles.coinPair}>
-              {inCoin} con {outCoin}
+              {pairCoin1} con {pairCoin2}
             </Text>
           </View>
         </View>
@@ -539,7 +734,7 @@ export default function HomeScreen() {
           <View style={styles.rateSide}>
             <View style={styles.rateTextRow}>
               <Text style={styles.rateText}>
-                {inCoin} 1 = {outCoin}{' '}
+                {pairCoin1} 1 = {pairCoin2}{' '}
               </Text>
               <Text style={styles.rateValueText}>{exchangeValue || '1'}</Text>
             </View>
@@ -582,6 +777,12 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
+      {__DEV__ ? (
+        <View style={styles.devBaseUrlWrap}>
+          <Text style={styles.devBaseUrlText}>{BASE_URL}</Text>
+        </View>
+      ) : null}
+
    <AppBottomSheet
     height={sheetHeight}
     peekHeight={sheetPeek}
@@ -602,7 +803,15 @@ export default function HomeScreen() {
           <FlatList
             data={operations}
             keyExtractor={(item) => item.operation_id.toString()}
-            renderItem={({ item }) => <OperationCard operation={item} />}
+            renderItem={({ item }) => (
+              <OperationCard
+                operation={item}
+                onDeleteOperation={handleDeleteOperation}
+                onChangeItemState={handleChangeItemState}
+                onUpdateOperation={handleUpdateOperation}
+                onAffectClient={handleAffectClient}
+              />
+            )}
             onEndReached={loadMore}
             onEndReachedThreshold={0.45}
             contentContainerStyle={styles.sheetListContent}
@@ -663,7 +872,7 @@ export default function HomeScreen() {
                   </Text>
                   <View style={styles.confirmSummarySubRowRight}>
                     <Text style={[styles.confirmSummarySub, styles.confirmSummarySubRightText]}>
-                      {inCoin} 1 = {outCoin} {exchangeValue || '1'}
+                      {pairCoin1} 1 = {pairCoin2} {exchangeValue || '1'}
                     </Text>
                     {outState === APP_CONSTANTS.STATE_PENDIENT ? (
                       <Image
@@ -673,6 +882,24 @@ export default function HomeScreen() {
                     ) : null}
                   </View>
                 </View>
+
+                {affectIn ? (
+                  <View style={styles.confirmAffectInWrap}>
+                    <Image
+                      source={require('../../../../assets/images/ui/saleccliente2.png')}
+                      style={styles.confirmAffectIcon}
+                    />
+                  </View>
+                ) : null}
+
+                {affectOut ? (
+                  <View style={styles.confirmAffectOutWrap}>
+                    <Image
+                      source={require('../../../../assets/images/ui/entraccliente.png')}
+                      style={styles.confirmAffectIcon}
+                    />
+                  </View>
+                ) : null}
               </View>
 
               <View style={styles.confirmMetaRow}>
@@ -680,7 +907,9 @@ export default function HomeScreen() {
                   <Image source={require('../../../../assets/images/ui/dateviol.png')} style={styles.confirmMetaIcon} />
                 </View>
                 <View style={styles.confirmMetaContent}>
-                  <Text style={styles.confirmMetaText}>{confirmDate}</Text>
+                  <TouchableOpacity activeOpacity={0.8} onPress={() => setConfirmDatePickerVisible(true)}>
+                    <Text style={styles.confirmMetaText}>{confirmDate}</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -713,13 +942,36 @@ export default function HomeScreen() {
               <TouchableOpacity onPress={handleCloseConfirmDialog} style={styles.confirmDialogCancel}>
                 <Text style={styles.confirmDialogCancelText}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleConfirmDialogAccept} style={styles.confirmDialogAccept}>
-                <Text style={styles.confirmDialogAcceptText}>Confirmar</Text>
+              <TouchableOpacity
+                onPress={handleConfirmDialogAccept}
+                style={styles.confirmDialogAccept}
+                disabled={savingOperation}
+              >
+                <Text style={styles.confirmDialogAcceptText}>
+                  {savingOperation ? 'Guardando...' : 'Confirmar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </Pressable>
         </Pressable>
       </Modal>
+
+      <AppDatePicker
+        visible={confirmDatePickerVisible}
+        value={new Date()}
+        onCancel={() => setConfirmDatePickerVisible(false)}
+        onConfirm={(selectedDate) => {
+          const time = dateHelper.getOnlyTime(dateHelper.getActualDate(new Date())) || '00:00:00';
+          const yyyy = String(selectedDate.getFullYear());
+          const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+          const dd = String(selectedDate.getDate()).padStart(2, '0');
+          const nextPayload = `${yyyy}-${mm}-${dd} ${time}`;
+
+          setConfirmCreatedPayload(nextPayload);
+          setConfirmDate(dateHelper.getActualDateToShow(new Date(nextPayload.replace(' ', 'T'))));
+          setConfirmDatePickerVisible(false);
+        }}
+      />
 
       <Modal visible={coinPickerVisible} transparent animationType="fade" onRequestClose={closeCoinPicker}>
         <Pressable style={styles.coinPickerBackdrop} onPress={closeCoinPicker}>
@@ -765,6 +1017,38 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               )}
             />
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal visible={affectConfirmVisible} transparent animationType="fade" onRequestClose={closeAffectConfirm}>
+        <Pressable style={styles.affectConfirmBackdrop} onPress={closeAffectConfirm}>
+          <Pressable style={styles.affectConfirmCard} onPress={() => {}}>
+            <Text style={styles.affectConfirmTitle}>Afecta cliente</Text>
+            <Text style={styles.affectConfirmText}>
+              {affectConfirmType === 'affect_in' ? (
+                <>
+                  {'Se efectuará el '}
+                  <Text style={styles.affectConfirmTextStrong}>{`retiro de ${inAmount || '0'} ${inCoin}`}</Text>
+                  {' de la cuenta del cliente luego de confirmar la operación.'}
+                </>
+              ) : (
+                <>
+                  {'Se efectuará el '}
+                  <Text style={styles.affectConfirmTextStrong}>{`depósito de ${outAmount || '0'} ${outCoin}`}</Text>
+                  {' en la cuenta del cliente luego de confirmar la operación.'}
+                </>
+              )}
+            </Text>
+
+            <View style={styles.affectConfirmActions}>
+              <TouchableOpacity style={styles.affectConfirmCancelBtn} onPress={closeAffectConfirm} activeOpacity={0.8}>
+                <Text style={styles.affectConfirmCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.affectConfirmOkBtn} onPress={handleAcceptAffectConfirm} activeOpacity={0.8}>
+                <Text style={styles.affectConfirmOkText}>Continuar</Text>
+              </TouchableOpacity>
+            </View>
           </Pressable>
         </Pressable>
       </Modal>

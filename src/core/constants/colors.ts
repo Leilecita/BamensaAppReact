@@ -1,4 +1,6 @@
-export const COLORS = {
+import { getAppVariant } from '../theme/appVariant';
+
+const BASE_COLORS = {
  colorPrimary: '#685c85',
  colorPrimaryDark: '#4f426b',
 
@@ -92,4 +94,43 @@ export const COLORS = {
  Python: '#66BB6A',
  CPP: '#EF5350',
  Java: '#29B6F6',
+ topBarText: '#FFFFFF',
+} as const;
+
+const VARIANT_COLORS = {
+ bamensa: {
+  colorPrimary: BASE_COLORS.colorPrimaryChange,
+  colorPrimaryDark: BASE_COLORS.colorPrimaryDarkChange,
+  colorAccent: BASE_COLORS.colorAccentChange,
+  colorDialogButton: BASE_COLORS.colorDialogButtonChange,
+  colorPrimaryChange: BASE_COLORS.colorPrimaryChange,
+  colorPrimaryDarkChange: BASE_COLORS.colorPrimaryDarkChange,
+  colorAccentChange: BASE_COLORS.colorAccentChange,
+  colorDialogButtonChange: BASE_COLORS.colorDialogButtonChange,
+ },
+ fisherton: {
+  topBarText: BASE_COLORS.textColorAppFisherton,
+ },
+ mendoza: {
+  colorPrimary: '#3E6A76',
+  colorPrimaryDark: '#2D515D',
+  colorAccent: '#2D515D',
+  colorDialogButton: '#3E6A76',
+  colorPrimaryChange: '#3E6A76',
+  colorPrimaryDarkChange: '#2D515D',
+  colorAccentChange: '#2D515D',
+  colorDialogButtonChange: '#3E6A76',
+  word: '#2D515D',
+  colorPrimaryDarkLetter: '#2D515D',
+  colorPrimaryIntLetter: '#3B6270',
+  colorPrimaryIntLetter2: '#4A7382',
+  colorPrimaryClearLetter: '#6E98A5',
+  color_line_div: '#C0D2D8',
+  color_line_punt: '#C0D2D8',
+ },
+} as const;
+
+export const COLORS = {
+ ...BASE_COLORS,
+ ...(VARIANT_COLORS[getAppVariant()] || VARIANT_COLORS.bamensa),
 } as const;

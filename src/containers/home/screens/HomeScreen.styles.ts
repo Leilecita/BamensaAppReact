@@ -9,6 +9,46 @@ const styles = StyleSheet.create({
   flex: 1,
   backgroundColor: COLORS.colorPrimaryClear3,
  },
+ optionsMenuWrap: {
+  position: 'absolute',
+  right: 16,
+  top: 120,
+  zIndex: 25,
+  alignItems: 'flex-end',
+ },
+ optionsButton: {
+  width: 40,
+  height: 40,
+ },
+ optionsButtonIcon: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'contain',
+ },
+ optionsList: {
+  marginTop: 16,
+  alignItems: 'flex-end',
+ },
+ optionsListItem: {
+  minHeight: 40,
+  borderRadius: 16,
+  backgroundColor: COLORS.back_flot,
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 16,
+  paddingLeft: 16,
+ },
+ optionsListItemText: {
+  color: COLORS.colorPrimaryDarkLetter,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+  paddingRight: 16,
+ },
+ optionsListItemIcon: {
+  width: 40,
+  height: 40,
+  resizeMode: 'contain',
+ },
  scroll: {
   flex: 1,
  },
@@ -49,11 +89,11 @@ const styles = StyleSheet.create({
  headerHalfRight: {
   flex: 1,
   justifyContent: 'flex-start',
-  paddingLeft: 14,
+  paddingLeft: 4,
  },
  coinPair: {
   color: COLORS.colorPrimaryClearpp,
-  fontSize: DIMENS.titleLargeText,
+  fontSize: DIMENS.generalText,
   fontFamily: 'OpenSansRegular',
  },
  formArea: {
@@ -340,6 +380,19 @@ const styles = StyleSheet.create({
   width: 50,
   height: 50,
  },
+ devBaseUrlWrap: {
+  position: 'absolute',
+  left: 12,
+  bottom: 98,
+  maxWidth: '72%',
+  zIndex: 7,
+ },
+ devBaseUrlText: {
+  color: '#9A9AA3',
+  fontSize: 10,
+  fontFamily: 'OpenSansRegular',
+  textAlign: 'left',
+ },
  ...confirmDialogStyles,
  coinPickerBackdrop: {
   flex: 1,
@@ -467,6 +520,69 @@ const styles = StyleSheet.create({
  emptyText: {
   color: COLORS.word_clear,
   fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmBackdrop: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.52)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 10,
+ },
+ affectConfirmCard: {
+  width: '100%',
+  maxWidth: 500,
+  borderRadius: 12,
+  backgroundColor: COLORS.background_dialog,
+  paddingHorizontal: DIMENS.dialogMarginLeft,
+  paddingTop: DIMENS.dialogMarginTop,
+  paddingBottom: DIMENS.dialogMarginBottom,
+ },
+ affectConfirmTitle: {
+  height: 36,
+  textAlign: 'center',
+  color: COLORS.word,
+  fontSize: 20,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmText: {
+  marginTop: 12,
+  color: COLORS.word,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+  lineHeight: 24,
+ },
+ affectConfirmTextStrong: {
+  fontFamily: 'OpenSansBold',
+ },
+ affectConfirmActions: {
+  marginTop: 20,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 10,
+ },
+ affectConfirmCancelBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  justifyContent: 'center',
+  alignItems: 'center',
+ },
+ affectConfirmCancelText: {
+  color: COLORS.colorDialogButton,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansRegular',
+ },
+ affectConfirmOkBtn: {
+  flex: 1,
+  minHeight: DIMENS.heightButton,
+  borderRadius: 8,
+  backgroundColor: COLORS.colorDialogButton,
+  justifyContent: 'center',
+  alignItems: 'center',
+ },
+ affectConfirmOkText: {
+  color: COLORS.white,
+  fontSize: DIMENS.generalText,
+  fontFamily: 'OpenSansBold',
  },
 });
 
