@@ -24,6 +24,7 @@ import styles from './OutcomesScreen.styles';
 
 type OutcomeSection = {
  title: string;
+ dateKey: string;
  data: ReportOutcome[];
  totals: {
   ars: number;
@@ -106,6 +107,7 @@ export default function OutcomesScreen() {
         groupBy === 'month'
           ? dateHelper.formatHeaderMonthYearEs(dateKey)
           : dateHelper.formatHeaderDateEs(dateKey),
+      dateKey,
       data,
       totals: sectionTotals,
     };
@@ -261,7 +263,22 @@ export default function OutcomesScreen() {
     renderSectionHeader={({ section }) => (
       <View style={styles.sectionHeaderWrap}>
        <View style={styles.sectionHeaderChip}>
-        <Text style={styles.sectionHeaderText}>{section.title}</Text>
+        {groupBy === 'month' || section.dateKey === 'Sin fecha' ? (
+         <Text style={styles.sectionHeaderText}>{section.title}</Text>
+        ) : (
+         <>
+          <Text style={styles.sectionHeaderWeekdayText}>
+           {dateHelper.getNameDay(section.dateKey)}
+          </Text>
+          <Text style={styles.sectionHeaderDayText}>
+           {dateHelper.numberDay(section.dateKey)}
+          </Text>
+          <Text style={styles.sectionHeaderMonthText}>
+           {dateHelper.getNameMonth2(section.dateKey)}
+          </Text>
+          <Text style={styles.sectionHeaderYearText}>{section.dateKey.slice(0, 4)}</Text>
+         </>
+        )}
        </View>
        {groupBy === 'month' ? (
         <View style={styles.sectionTotalsWrap}>

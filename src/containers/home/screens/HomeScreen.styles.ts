@@ -338,16 +338,17 @@ const styles = StyleSheet.create({
  },
  clearClientBtn: {
   position: 'absolute',
-  top: 3,
-  left: 3,
-  width: 14,
-  height: 14,
+  top: 2,
+  left: 4,
+  width: 24,
+  height: 24,
+  zIndex: 5,
   alignItems: 'center',
   justifyContent: 'center',
  },
  clearClientText: {
   color: COLORS.word_clear,
-  fontSize: DIMENS.tinyText,
+  fontSize: DIMENS.captionText,
   fontFamily: 'OpenSansRegular',
  },
  confirmBtn: {
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
  fabColumn: {
   position: 'absolute',
   right: 30,
-  bottom: 120,
+  bottom: 50,
   gap: 16,
   zIndex: 6,
  },
@@ -481,6 +482,7 @@ const styles = StyleSheet.create({
  },
  sheetListContent: {
   paddingHorizontal: 4,
+  paddingTop: 6,
   paddingBottom: 14,
  },
  center: {

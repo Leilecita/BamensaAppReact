@@ -5,6 +5,21 @@
   },
   "build": {
     "bamensa": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "bamensa",
+        "EXPO_PUBLIC_APP_VARIANT": "bamensa",
+        "EXPO_PUBLIC_BASE_URL": "http://loteriasole.abarbieri.com.ar/"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
       "env": {
         "APP_VARIANT": "bamensa",
         "EXPO_PUBLIC_APP_VARIANT": "bamensa",
@@ -12,6 +27,10 @@
       }
     },
     "fisherton": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
       "env": {
         "APP_VARIANT": "fisherton",
         "EXPO_PUBLIC_APP_VARIANT": "fisherton",
@@ -19,6 +38,10 @@
       }
     },
     "mendoza": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
       "env": {
         "APP_VARIANT": "mendoza",
         "EXPO_PUBLIC_APP_VARIANT": "mendoza",

@@ -7,11 +7,15 @@ const normalizeVariant = (value: string): AppVariant => {
  return 'bamensa';
 };
 
-export const getAppVariant = (): AppVariant => {
+/*export const getAppVariant = (): AppVariant => {
  const envVariant = process.env.EXPO_PUBLIC_APP_VARIANT || process.env.APP_VARIANT || '';
  const resolved = normalizeVariant(envVariant || 'bamensa');
  if (__DEV__) {
   console.log('[APP_VARIANT]', { envVariant, resolved });
  }
  return resolved;
+}; */
+export const getAppVariant = (): AppVariant => {
+ //return 'fisherton';
+ return 'bamensa';
 };

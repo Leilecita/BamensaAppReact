@@ -103,7 +103,7 @@ export default function HomeScreen() {
   const exchangeRef = useRef<TextInput>(null);
 
   const windowHeight = Dimensions.get('window').height;
-  const sheetHeight = Math.min(windowHeight * 0.44, 390);
+  const sheetHeight = Math.min(windowHeight * 0.64, 560);
   const sheetPeek = 90;
 
   const pairCoin1 = operationType === APP_CONSTANTS.TYPE_COMPRA ? inCoin : outCoin;
@@ -752,6 +752,7 @@ export default function HomeScreen() {
                   style={styles.clearClientBtn}
                   activeOpacity={0.8}
                   onPress={handleClearSelectedAccount}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={styles.clearClientText}>x</Text>
                 </TouchableOpacity>
@@ -783,14 +784,15 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-   <AppBottomSheet
-    height={sheetHeight}
-    peekHeight={sheetPeek}
-    arrowSource={require('../../../../assets/images/ui/arrowsan.png')}
-    dragOn="handle"
-    containerStyle={styles.sheet}
-    bodyStyle={styles.sheetBody}
-   >
+      <AppBottomSheet
+        height={sheetHeight}
+        peekHeight={sheetPeek}
+        arrowSource={require('../../../../assets/images/ui/arrowsan.png')}
+        dragOn="both"
+        disableBodyDragWhenExpanded
+        containerStyle={styles.sheet}
+        bodyStyle={styles.sheetBody}
+      >
         {error ? (
           <View style={styles.center}>
             <Text style={styles.errorTitle}>No se pudieron cargar las operaciones</Text>
@@ -854,7 +856,9 @@ export default function HomeScreen() {
                         style={styles.confirmSummaryStateInline}
                       />
                     ) : null}
-                    <Text style={[styles.confirmSummarySub, styles.confirmSummarySubLeftText]}>Varios</Text>
+                    <Text style={[styles.confirmSummarySub, styles.confirmSummarySubLeftText]}>
+                      {selectedAccountName?.trim() || 'Varios'}
+                    </Text>
                   </View>
                 </View>
                 <Image
@@ -1023,7 +1027,7 @@ export default function HomeScreen() {
 
       <Modal visible={affectConfirmVisible} transparent animationType="fade" onRequestClose={closeAffectConfirm}>
         <Pressable style={styles.affectConfirmBackdrop} onPress={closeAffectConfirm}>
-          <Pressable style={styles.affectConfirmCard} onPress={() => {}}>
+          <Pressable style={styles.affectConfirmCard} onPress={() => { }}>
             <Text style={styles.affectConfirmTitle}>Afecta cliente</Text>
             <Text style={styles.affectConfirmText}>
               {affectConfirmType === 'affect_in' ? (

@@ -17,22 +17,6 @@ card: {
   paddingTop: 16,
   paddingBottom: 16,
  },
- menuButton: {
-  position: 'absolute',
-  top: 6,
-  right: 8,
-  zIndex: 10,
-  width: 24,
-  height: 24,
-  alignItems: 'center',
-  justifyContent: 'center',
- },
- menuButtonText: {
-  color: '#6b6584',
-  fontSize: 22,
-  lineHeight: 22,
-  fontFamily: 'OpenSansRegular',
- },
  summaryRow: {
   flexDirection: 'row',
   alignItems: 'center',

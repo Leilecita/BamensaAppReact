@@ -19,6 +19,7 @@ type AppBottomSheetProps = {
  containerStyle?: StyleProp<ViewStyle>;
  bodyStyle?: StyleProp<ViewStyle>;
  dragOn?: 'handle' | 'body' | 'both';
+ disableBodyDragWhenExpanded?: boolean;
 };
 
 export default function AppBottomSheet({
@@ -29,6 +30,7 @@ export default function AppBottomSheet({
  containerStyle,
  bodyStyle,
  dragOn = 'body',
+ disableBodyDragWhenExpanded = false,
 }: AppBottomSheetProps) {
  const minY = 0;
  const maxY = Math.max(0, height - peekHeight);
@@ -49,24 +51,41 @@ export default function AppBottomSheet({
   }).start();
  };
 
- const panResponder = useMemo(
+ const sharedPanHandlers = {
+  onPanResponderGrant: () => {
+   dragStartY.current = currentY.current;
+  },
+  onPanResponderMove: (_: unknown, gestureState: { dy: number }) => {
+   translateY.setValue(clamp(dragStartY.current + gestureState.dy));
+  },
+  onPanResponderRelease: (_: unknown, gestureState: { dy: number; vy: number }) => {
+   const released = clamp(dragStartY.current + gestureState.dy);
+   const shouldExpand = released < maxY * 0.56 || gestureState.vy < -0.45;
+   animateTo(shouldExpand ? minY : maxY);
+  },
+ };
+
+ const handlePanResponder = useMemo(
   () =>
    PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
+    onStartShouldSetPanResponder: () => false,
     onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 2,
-    onPanResponderGrant: () => {
-      dragStartY.current = currentY.current;
-    },
-    onPanResponderMove: (_, gestureState) => {
-      translateY.setValue(clamp(dragStartY.current + gestureState.dy));
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      const released = clamp(dragStartY.current + gestureState.dy);
-      const shouldExpand = released < maxY * 0.56 || gestureState.vy < -0.45;
-      animateTo(shouldExpand ? minY : maxY);
-    },
+    ...sharedPanHandlers,
    }),
   [maxY, minY, translateY],
+ );
+
+ const bodyPanResponder = useMemo(
+  () =>
+   PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+     if (disableBodyDragWhenExpanded && currentY.current <= minY + 1) return false;
+     return Math.abs(gestureState.dy) > 2;
+    },
+    ...sharedPanHandlers,
+   }),
+  [disableBodyDragWhenExpanded, minY, maxY, translateY],
  );
 
  const toggleSheet = () => {
@@ -78,7 +97,7 @@ export default function AppBottomSheet({
   <Animated.View style={[styles.root, { height, transform: [{ translateY }] }, containerStyle]}>
    <View
     style={styles.handleWrap}
-    {...(dragOn === 'handle' || dragOn === 'both' ? panResponder.panHandlers : {})}
+    {...(dragOn === 'handle' || dragOn === 'both' ? handlePanResponder.panHandlers : {})}
    >
     <TouchableOpacity onPress={toggleSheet} activeOpacity={0.8}>
      <Image source={arrowSource} style={styles.handleArrow} />
@@ -86,7 +105,7 @@ export default function AppBottomSheet({
    </View>
    <View
     style={[styles.body, bodyStyle]}
-    {...(dragOn === 'body' || dragOn === 'both' ? panResponder.panHandlers : {})}
+    {...(dragOn === 'body' || dragOn === 'both' ? bodyPanResponder.panHandlers : {})}
    >
     {children}
    </View>

@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
  },
  mainInfo: {
   flex: 1,
-  marginLeft: 8,
+  marginLeft: 4,
   paddingRight: 4,
  },
  nameText: {
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   marginTop: 2,
   color: COLORS.colorPrimaryClearLetter,
   fontSize: DIMENS.smallText,
-  fontFamily: 'OpenSansRegular',
+  fontFamily: 'OpenSansLight',
   textTransform: 'lowercase',
  },
  assignBtn: {

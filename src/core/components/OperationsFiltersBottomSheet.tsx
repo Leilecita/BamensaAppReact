@@ -117,14 +117,27 @@ export default function OperationsFiltersBottomSheet({
        activeOpacity={0.8}
        onPress={() => onSelectQuickFilter(filter.key)}
       >
-       <Image
-        source={filter.icon}
-        style={[
-         styles.filterIcon,
-         { width: filter.iconSize ?? 40, height: filter.iconSize ?? 40 },
-         selected ? styles.filterIconActive : null,
-        ]}
-       />
+       {filter.key === 'usr' ? (
+        <View style={[styles.userFilterIconWrap, selected ? styles.filterIconActive : null]}>
+         <Image
+          source={require('../../../assets/images/ui/buttonbshadow.png')}
+          style={styles.userFilterIconBg}
+         />
+         <Image
+          source={require('../../../assets/images/ui/userwhite2.png')}
+          style={styles.userFilterIconFg}
+         />
+        </View>
+       ) : (
+        <Image
+         source={filter.icon}
+         style={[
+          styles.filterIcon,
+          { width: filter.iconSize ?? 40, height: filter.iconSize ?? 40 },
+          selected ? styles.filterIconActive : null,
+         ]}
+        />
+       )}
        <Text style={[styles.filterLabel, selected ? styles.filterLabelActive : null]}>{filter.label}</Text>
       </TouchableOpacity>
      );
@@ -200,6 +213,25 @@ const styles = StyleSheet.create({
   width: 40,
   height: 40,
   opacity: 0.7,
+  resizeMode: 'contain',
+ },
+ userFilterIconWrap: {
+  width: 45,
+  height: 45,
+  opacity: 0.7,
+  alignItems: 'center',
+  justifyContent: 'center',
+ },
+ userFilterIconBg: {
+  position: 'absolute',
+  width: 45,
+  height: 45,
+  resizeMode: 'contain',
+  tintColor: '#4f426b',
+ },
+ userFilterIconFg: {
+  width: 25,
+  height: 25,
   resizeMode: 'contain',
  },
  filterIconActive: {

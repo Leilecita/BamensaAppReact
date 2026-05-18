@@ -60,6 +60,6 @@ export const APP_CONSTANTS = {
 
  METHODS: {
   GET_REPORTS_OPERATION: 'getReportsOperation',
+  GET_ALL_USERS: 'getAllUsers',
  },
 } as const;
-

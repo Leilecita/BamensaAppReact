@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { ActivityIndicator, SectionList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../../core/constants/appConstants';
 import OperationsFiltersBottomSheet, {
  CoinFilterOption,
@@ -17,6 +17,7 @@ import {
 } from '../../../operations/services/operationService';
 import { useAccountOperations } from '../../hooks/useAccountOperations';
 import { changeStateItem } from '../../services/accountItemsOperationService';
+import { AppUser, fetchUsers } from '../../../../core/services/userService';
 import styles from '../InformationByAccountScreen.styles';
 
 type OperationSection = {
@@ -34,6 +35,11 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
  const { userId } = useContext(AuthContext);
  const [quickFilter, setQuickFilter] = useState<string>('all');
  const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
+ const [selectedUser, setSelectedUser] = useState<number>(APP_CONSTANTS.USER_ALL);
+ const [usersDialogVisible, setUsersDialogVisible] = useState(false);
+ const [users, setUsers] = useState<AppUser[]>([]);
+ const [loadingUsers, setLoadingUsers] = useState(false);
+ const [usersError, setUsersError] = useState('');
  const sheetHeight = 240;
  const sheetPeek = 90;
 
@@ -83,7 +89,7 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
      type: APP_CONSTANTS.TYPE_ALL,
      state: APP_CONSTANTS.STATE_ALL,
      coin: selectedCoin,
-     user: APP_CONSTANTS.USER_ALL,
+     user: selectedUser,
     };
    default:
     return {
@@ -93,7 +99,7 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
      user: APP_CONSTANTS.USER_ALL,
     };
   }
- }, [quickFilter, selectedCoin]);
+ }, [quickFilter, selectedCoin, selectedUser]);
 
  const { operations, loading, loadingMore, error, loadMore, reload } = useAccountOperations(
   accountId,
@@ -137,6 +143,24 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
   await reload();
  };
 
+ const handleOpenUsersDialog = async () => {
+  setUsersDialogVisible(true);
+
+  if (users.length > 0 || loadingUsers) return;
+
+  setLoadingUsers(true);
+  setUsersError('');
+
+  try {
+   const data = await fetchUsers();
+   setUsers(data);
+  } catch (error: any) {
+   setUsersError(error?.message || 'No se pudieron cargar los usuarios');
+  } finally {
+   setLoadingUsers(false);
+  }
+ };
+
  const sections = useMemo<OperationSection[]>(() => {
   const byDate = new Map<string, ReportOperation[]>();
 
@@ -178,7 +202,24 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
     )}
     renderSectionHeader={({ section }) => (
      <View style={styles.sectionHeaderWrap}>
-      <Text style={styles.sectionHeaderText}>{section.title}</Text>
+      <View style={styles.sectionHeaderDatePill}>
+       {section.dateKey === 'Sin fecha' ? (
+        <Text style={styles.sectionHeaderWeekdayText}>{section.title}</Text>
+       ) : (
+        <>
+         <Text style={styles.sectionHeaderWeekdayText}>
+          {dateHelper.getNameDay(section.dateKey)}
+         </Text>
+         <Text style={styles.sectionHeaderDayText}>
+          {dateHelper.numberDay(section.dateKey)}
+         </Text>
+         <Text style={styles.sectionHeaderMonthText}>
+          {dateHelper.getNameMonth2(section.dateKey)}
+         </Text>
+         <Text style={styles.sectionHeaderYearText}>{section.dateKey.slice(0, 4)}</Text>
+        </>
+       )}
+      </View>
      </View>
     )}
     onEndReached={loadMore}
@@ -200,7 +241,7 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
       ) : null}
      </View>
     }
-    ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
+    ListFooterComponent={!loading && loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
    />
 
    <OperationsFiltersBottomSheet
@@ -209,15 +250,80 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
     quickFilters={OPERATIONS_QUICK_FILTERS}
     selectedQuickFilter={quickFilter}
     onSelectQuickFilter={(key) => {
+     if (key === 'usr') {
+      setQuickFilter('usr');
+      handleOpenUsersDialog();
+      return;
+     }
+
      setQuickFilter(key);
      if (key === 'all') {
       setSelectedCoin(APP_CONSTANTS.COIN_ALL);
+      setSelectedUser(APP_CONSTANTS.USER_ALL);
      }
     }}
     coinFilters={coinFilters}
     selectedCoinId={selectedCoin}
     onSelectCoinId={setSelectedCoin}
    />
+
+   <Modal
+    visible={usersDialogVisible}
+    transparent
+    animationType="fade"
+    onRequestClose={() => setUsersDialogVisible(false)}
+   >
+    <Pressable style={styles.usersDialogBackdrop} onPress={() => setUsersDialogVisible(false)}>
+     <Pressable style={styles.usersDialogCard} onPress={() => {}}>
+      <Text style={styles.usersDialogTitle}>Usuarios</Text>
+
+      {loadingUsers ? (
+       <View style={styles.usersDialogLoadingWrap}>
+        <ActivityIndicator size="small" color="#6f6392" />
+       </View>
+      ) : (
+       <FlatList
+        data={users}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.usersList}
+        renderItem={({ item }) => (
+         <TouchableOpacity
+          style={styles.userRow}
+          activeOpacity={0.8}
+          onPress={() => {
+           setSelectedUser(item.id);
+           setQuickFilter('usr');
+           setUsersDialogVisible(false);
+          }}
+         >
+          <View style={styles.userAvatar}>
+           <Text style={styles.userAvatarText}>{item.name.trim().charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={styles.userRowText}>{item.name}</Text>
+         </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+         <View style={styles.usersDialogLoadingWrap}>
+          <Text style={styles.usersDialogEmptyText}>
+           {usersError || 'No hay usuarios para mostrar'}
+          </Text>
+         </View>
+        }
+       />
+      )}
+
+      <View style={styles.usersDialogActions}>
+       <TouchableOpacity
+        style={styles.usersDialogCancelBtn}
+        activeOpacity={0.8}
+        onPress={() => setUsersDialogVisible(false)}
+       >
+        <Text style={styles.usersDialogCancelText}>Cancelar</Text>
+       </TouchableOpacity>
+      </View>
+     </Pressable>
+    </Pressable>
+   </Modal>
   </View>
  );
 }

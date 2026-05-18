@@ -267,18 +267,6 @@ export default function OperationCard({
  return (
   <View style={[styles.wrapper, wrapperStyle]}>
    <View style={styles.card}>
-    {onDeleteOperation ? (
-     <TouchableOpacity
-      style={styles.menuButton}
-      onPress={() => {
-       setDeleteDialogVisible(true);
-      }}
-      activeOpacity={0.8}
-     >
-      <Text style={styles.menuButtonText}>⋮</Text>
-     </TouchableOpacity>
-    ) : null}
-
     <TouchableOpacity activeOpacity={0.95} onPress={toggleExpanded}>
      {renderSummaryItem()}
     </TouchableOpacity>

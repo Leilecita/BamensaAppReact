@@ -22,7 +22,7 @@ const VARIANTS: Record<AppVariant, VariantConfig> = {
  },
  fisherton: {
   name: 'Fisherton app',
-  slug: 'fisherton-app',
+  slug: 'bamensa-app',
   icon: './assets/app-icons/logo_ic_fisherton5.png',
   androidPackage: 'com.example.fisherton',
   iosBundleIdentifier: 'com.example.fisherton',
@@ -58,13 +58,38 @@ export default (): ExpoConfig => {
   icon: selected.icon,
   userInterfaceStyle: 'light',
   splash: {
-   image: './assets/splash-icon.png',
+   image:
+    variant === 'fisherton'
+     ? './assets/app-icons/logo_ic_fisherton5.png'
+     : './assets/splash-icon.png',
    resizeMode: 'contain',
    backgroundColor: '#ffffff',
   },
   ios: {
    supportsTablet: true,
    bundleIdentifier: selected.iosBundleIdentifier,
+   config: {
+    usesNonExemptEncryption: false,
+   },
+   infoPlist: {
+    NSAppTransportSecurity: {
+     NSExceptionDomains: {
+      'loteriasole.abarbieri.com.ar': {
+       NSIncludesSubdomains: true,
+       NSExceptionAllowsInsecureHTTPLoads: true,
+      },
+      'frutos-dev.abarbieri.com.ar': {
+       NSIncludesSubdomains: true,
+       NSExceptionAllowsInsecureHTTPLoads: true,
+      },
+      'bamensa-dev.abarbieri.com.ar': {
+       NSIncludesSubdomains: true,
+       NSExceptionAllowsInsecureHTTPLoads: true,
+      },
+     },
+    },
+    ITSAppUsesNonExemptEncryption: false,
+   },
   },
   android: {
    package: selected.androidPackage,
@@ -79,6 +104,10 @@ export default (): ExpoConfig => {
   web: {
    favicon: './assets/favicon.png',
   },
+  plugins: [
+   '@react-native-community/datetimepicker',
+   'expo-font',
+  ],
   extra: {
    appVariant: variant,
    baseUrl: resolvedBaseUrl,
