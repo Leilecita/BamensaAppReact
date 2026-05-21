@@ -97,6 +97,8 @@ export default function HomeScreen() {
   const [affectConfirmType, setAffectConfirmType] = useState<'affect_in' | 'affect_out' | null>(null);
   const [listOptionsVisible, setListOptionsVisible] = useState(false);
   const [savingOperation, setSavingOperation] = useState(false);
+  const [sheetScrollOffset, setSheetScrollOffset] = useState(0);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
   const { coins, loadingCoins, coinsError, reloadCoins } = useCoins();
   const inAmountRef = useRef<TextInput>(null);
   const outAmountRef = useRef<TextInput>(null);
@@ -104,7 +106,7 @@ export default function HomeScreen() {
 
   const windowHeight = Dimensions.get('window').height;
   const sheetHeight = Math.min(windowHeight * 0.64, 560);
-  const sheetPeek = 90;
+  const sheetPeek = 110;
 
   const pairCoin1 = operationType === APP_CONSTANTS.TYPE_COMPRA ? inCoin : outCoin;
   const pairCoin2 = operationType === APP_CONSTANTS.TYPE_COMPRA ? outCoin : inCoin;
@@ -790,6 +792,9 @@ export default function HomeScreen() {
         arrowSource={require('../../../../assets/images/ui/arrowsan.png')}
         dragOn="both"
         disableBodyDragWhenExpanded
+        bodyScrollOffset={sheetScrollOffset}
+        bodyCollapseThreshold={80}
+        onExpandedChange={setSheetExpanded}
         containerStyle={styles.sheet}
         bodyStyle={styles.sheetBody}
       >
@@ -816,6 +821,14 @@ export default function HomeScreen() {
             )}
             onEndReached={loadMore}
             onEndReachedThreshold={0.45}
+            scrollEnabled={sheetExpanded}
+            bounces={false}
+            alwaysBounceVertical={false}
+            overScrollMode="never"
+            onScroll={(event) => {
+              setSheetScrollOffset(event.nativeEvent.contentOffset.y);
+            }}
+            scrollEventThrottle={16}
             contentContainerStyle={styles.sheetListContent}
             ListEmptyComponent={
               <View style={styles.emptyWrap}>
@@ -825,7 +838,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
             }
-            ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
+            ListFooterComponent={!loading && loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
           />
         )}
       </AppBottomSheet>

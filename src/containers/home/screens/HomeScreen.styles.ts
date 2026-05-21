@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   width: 22,
   height: 40,
   marginRight: 10,
-  tintColor: COLORS.colorPrimaryClearpp,
+  tintColor: COLORS.colorPrimaryDarkLetter,
   resizeMode: 'contain',
  },
  exchangeInputMock: {

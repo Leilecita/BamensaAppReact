@@ -1,7 +1,8 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, Pressable, SectionList, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import AddActionButton from '../../../core/components/AddActionButton';
 import AppTopBar from '../../../core/components/AppTopBar';
+import ContextActionMenu from '../../../core/components/ContextActionMenu';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { useSideMenu } from '../../../core/navigation/SideMenuContext';
 import { AuthContext } from '../../../contexts/AuthContext';
@@ -33,6 +34,7 @@ type OutcomeSection = {
 };
 
 export default function OutcomesScreen() {
+ const { height: windowHeight } = useWindowDimensions();
  const { navigateTo } = useSideMenu();
  const { userId } = useContext(AuthContext);
  const { coins } = useCoins();
@@ -40,10 +42,12 @@ export default function OutcomesScreen() {
  const [editDialogVisible, setEditDialogVisible] = useState(false);
  const [editingOutcome, setEditingOutcome] = useState<ReportOutcome | null>(null);
  const [deletingOutcome, setDeletingOutcome] = useState<ReportOutcome | null>(null);
+ const [menuOutcome, setMenuOutcome] = useState<ReportOutcome | null>(null);
+ const [menuTop, setMenuTop] = useState(180);
  const [groupBy, setGroupBy] = useState<GroupByType>('day');
  const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
  const sheetHeight = 200;
- const sheetPeek = 80;
+ const sheetPeek = 88;
 
  const { outcomes, loading, loadingMore, error, loadMore, reload } = useOutcomes({
   coinId: selectedCoin,
@@ -170,6 +174,7 @@ export default function OutcomesScreen() {
  };
 
  const handleOpenEditOutcome = (item: ReportOutcome) => {
+  setMenuOutcome(null);
   setEditingOutcome(item);
   setEditDialogVisible(true);
  };
@@ -185,19 +190,9 @@ export default function OutcomesScreen() {
   }
  };
 
- const handleOpenOutcomeMenu = (item: ReportOutcome) => {
-  Alert.alert('Opciones', 'Seleccioná una acción', [
-   {
-    text: 'Editar',
-    onPress: () => handleOpenEditOutcome(item),
-   },
-   {
-    text: 'Eliminar',
-    style: 'destructive',
-    onPress: () => setDeletingOutcome(item),
-   },
-   { text: 'Cancelar', style: 'cancel' },
-  ]);
+ const handleOpenOutcomeMenu = (item: ReportOutcome, anchorY: number) => {
+  setMenuTop(Math.min(Math.max(110, anchorY + 22), windowHeight - 240));
+  setMenuOutcome(item);
  };
 
  const handleSaveEditOutcome = async ({
@@ -311,7 +306,7 @@ export default function OutcomesScreen() {
        ) : null}
       </View>
     }
-    ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
+    ListFooterComponent={!loading && loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
    />
 
    <AddActionButton style={styles.fab} onPress={() => setAddDialogVisible(true)} />
@@ -343,6 +338,25 @@ export default function OutcomesScreen() {
       setEditingOutcome(null);
     }}
    onSave={handleSaveEditOutcome}
+   />
+
+   <ContextActionMenu
+    visible={!!menuOutcome}
+    top={menuTop}
+    onClose={() => setMenuOutcome(null)}
+    items={[
+      {
+       label: 'Editar',
+       onPress: () => menuOutcome && handleOpenEditOutcome(menuOutcome),
+      },
+      {
+       label: 'Borrar',
+       onPress: () => {
+        if (!menuOutcome) return;
+        setDeletingOutcome(menuOutcome);
+       },
+      },
+    ]}
    />
 
    <Modal

@@ -153,7 +153,7 @@ export default function AccountsScreen() {
        ) : null}
       </View>
     }
-    ListFooterComponent={loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
+    ListFooterComponent={!loading && loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
    />
 
    <AppBottomSheet

@@ -72,66 +72,64 @@ export default function EditMovementDialog({ visible, accountId, item, onClose, 
  };
 
  return (
-  <>
-   <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-    <Pressable style={styles.backdrop} onPress={onClose}>
-     <Pressable style={styles.card} onPress={() => {}}>
-      <Text style={styles.title}>Editar {item?.operation_type || ''}</Text>
+  <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+   <Pressable style={styles.backdrop} onPress={onClose}>
+    <Pressable style={styles.card} onPress={() => { }}>
+     <Text style={styles.title}>Editar {item?.operation_type || ''}</Text>
 
-      {isFishertonSpecial ? <Text style={styles.onlyFishertonNote}>Solo Fisherton</Text> : null}
+     {isFishertonSpecial ? <Text style={styles.onlyFishertonNote}>Solo Fisherton</Text> : null}
 
-      <View style={styles.fieldsWrap}>
-       <View style={styles.bigRow}>
-        <View style={styles.coinInline}>
-         <Image source={getFilterFlagSourceByShortName(coinShortName)} style={styles.coinFlag} />
-         <Text style={styles.coinText}>{coinShortName}</Text>
-        </View>
-        <View style={styles.dottedDivider} />
-        <Text style={styles.plusText}>{isRetiro ? '-' : '+'}</Text>
-        <TextInput
-         value={amount}
-         onChangeText={setAmount}
-         keyboardType="decimal-pad"
-         style={styles.amountInput}
-         placeholder=""
-         placeholderTextColor="#9892a8"
-        />
+     <View style={styles.fieldsWrap}>
+      <View style={styles.bigRow}>
+       <View style={styles.coinInline}>
+        <Image source={getFilterFlagSourceByShortName(coinShortName)} style={styles.coinFlag} />
+        <Text style={styles.coinText}>{coinShortName}</Text>
        </View>
-
-       <TouchableOpacity activeOpacity={0.8} style={styles.fieldRow} onPress={() => setDatePickerVisible(true)}>
-        <Text style={styles.fieldLabel}>Fecha</Text>
-        <View style={styles.dottedDivider} />
-        <View style={styles.fieldValueWrap}>
-         <Text style={styles.fieldValueText}>{created}</Text>
-        </View>
-       </TouchableOpacity>
+       <View style={styles.dottedDivider} />
+       <Text style={styles.plusText}>{isRetiro ? '-' : '+'}</Text>
+       <TextInput
+        value={amount}
+        onChangeText={setAmount}
+        keyboardType="decimal-pad"
+        style={styles.amountInput}
+        placeholder=""
+        placeholderTextColor="#9892a8"
+       />
       </View>
 
-      <View style={styles.actionsRow}>
-       <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8} disabled={saving}>
-        <Text style={styles.cancelText}>Cancelar</Text>
-       </TouchableOpacity>
-       <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8} disabled={saving}>
-        {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
-       </TouchableOpacity>
-      </View>
-     </Pressable>
+      <TouchableOpacity activeOpacity={0.8} style={styles.fieldRow} onPress={() => setDatePickerVisible(true)}>
+       <Text style={styles.fieldLabel}>Fecha</Text>
+       <View style={styles.dottedDivider} />
+       <View style={styles.fieldValueWrap}>
+        <Text style={styles.fieldValueText}>{dateHelper.onlyDate(dateHelper.changeFormatDate(created))}</Text>
+       </View>
+      </TouchableOpacity>
+     </View>
+
+     <View style={styles.actionsRow}>
+      <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8} disabled={saving}>
+       <Text style={styles.cancelText}>Cancelar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8} disabled={saving}>
+       {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
+      </TouchableOpacity>
+     </View>
+
+     <AppDatePicker
+      visible={datePickerVisible}
+      value={toDate(created)}
+      onCancel={() => setDatePickerVisible(false)}
+      onConfirm={(nextDate) => {
+       const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
+       const yyyy = nextDate.getFullYear();
+       const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+       const day = String(nextDate.getDate()).padStart(2, '0');
+       setCreated(`${yyyy}-${month}-${day} ${time}`);
+       setDatePickerVisible(false);
+      }}
+     />
     </Pressable>
-   </Modal>
-
-   <AppDatePicker
-    visible={datePickerVisible}
-    value={toDate(created)}
-   onCancel={() => setDatePickerVisible(false)}
-   onConfirm={(nextDate) => {
-     const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
-     const yyyy = nextDate.getFullYear();
-     const month = String(nextDate.getMonth() + 1).padStart(2, '0');
-     const day = String(nextDate.getDate()).padStart(2, '0');
-     setCreated(`${yyyy}-${month}-${day} ${time}`);
-     setDatePickerVisible(false);
-    }}
-   />
-  </>
+   </Pressable>
+  </Modal>
  );
 }

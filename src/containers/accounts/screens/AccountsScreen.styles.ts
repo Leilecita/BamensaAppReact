@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
  },
  searchWrap: {
   marginTop: 8,
-  marginLeft: 4,
-  marginRight: 4,
+  marginLeft: 8,
+  marginRight: 8,
   marginBottom: 4,
   height: 50,
   borderRadius: 8,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   left: 0,
   right: 0,
   bottom: 0,
-  height: 200,
+  height: 210,
   backgroundColor: 'transparent',
  },
  sheetBody: {
@@ -91,13 +91,14 @@ const styles = StyleSheet.create({
  },
  filterRow: {
   paddingTop: 8,
-  paddingHorizontal: 6,
+  paddingHorizontal: 10,
   alignItems: 'center',
  },
  filterItem: {
   width: 74,
   alignItems: 'center',
   padding: 6,
+  marginRight: 4,
  },
  filterIcon: {
   width: 40,
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
   color: COLORS.word,
   textAlign: 'center',
   fontSize: DIMENS.textDetailBottom,
-  fontFamily: 'OpenSansRegular',
+  fontFamily: 'OpenSansLight',
  },
  ownFilterSingle: {
   flex: 1,

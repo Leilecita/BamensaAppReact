@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { triggerSessionExpired } from './sessionManager';
 
 export const createClient = (baseURL: string, timeout: number) =>
  axios.create({
@@ -54,7 +55,7 @@ export const attachDebugInterceptors = (client: ReturnType<typeof createClient>)
 
  client.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
    if (__DEV__) {
     const status = error?.response?.status;
     const method = (error?.config?.method || 'get').toUpperCase();
@@ -62,6 +63,11 @@ export const attachDebugInterceptors = (client: ReturnType<typeof createClient>)
     const responseData = error?.response?.data;
     console.log('[API ERROR]', { method, url, status, responseData });
    }
+
+   if (error?.response?.status === 401) {
+    await triggerSessionExpired();
+   }
+
    return Promise.reject(error);
   }
  );

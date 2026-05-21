@@ -5,7 +5,7 @@ import { DIMENS } from '../../../core/constants/dimensions';
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#dfe0e5',
   },
   tabsRow: {
     height: 58,
@@ -34,15 +34,15 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   listContent: {
-    paddingHorizontal: 2,
     paddingTop: 6,
+    paddingHorizontal: 6,
     paddingBottom: 220,
   },
   operationsWrap: {
     flex: 1,
   },
   sectionHeaderWrap: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     paddingTop: 6,
     paddingBottom: 2,
   },
@@ -53,35 +53,37 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
     borderRadius: 8,
-    backgroundColor: COLORS.background,
+    backgroundColor: 'rgba(223, 224, 229, 0.88)',
   },
   sectionHeaderWeekdayText: {
-    color: '#8a839b',
+    color: '#807e7e',
     fontSize: 19,
     fontFamily: 'OpenSansRegular',
     paddingLeft: 4,
   },
   sectionHeaderDayText: {
-    color: '#8a839b',
+    color: '#807e7e',
     fontSize: 19,
     fontFamily: 'OpenSansRegular',
-    paddingLeft: 6,
+    paddingLeft: 4,
   },
   sectionHeaderMonthText: {
-    color: '#8a839b',
+    color: '#807e7e',
     fontSize: 19,
     fontFamily: 'OpenSansRegular',
     paddingLeft: 6,
   },
   sectionHeaderYearText: {
-    color: '#8a839b',
+    color: '#807e7e',
     fontSize: 19,
     fontFamily: 'OpenSansRegular',
     paddingLeft: 6,
   },
   operationCardCompact: {
-    marginLeft: 2,
-    marginRight: 2,
+    marginLeft: 4,
+    marginRight: 4,
+    marginTop: 4,
+    marginBottom: 4,
   },
   emptyWrap: {
     paddingVertical: 28,
@@ -182,6 +184,17 @@ const styles = StyleSheet.create({
     color: COLORS.colorDialogButton,
     fontSize: DIMENS.generalText,
     fontFamily: 'OpenSansRegular',
+  },
+  movementActionMenuCard: {
+    width: 198,
+    minHeight: 166,
+  },
+  movementActionMenuItem: {
+    minHeight: 54,
+    paddingHorizontal: 20,
+  },
+  movementActionMenuText: {
+    fontSize: 19,
   },
   summaryWrap: {
     flex: 1,

@@ -129,7 +129,6 @@ export default function AddMovementDialog({
   };
 
   return (
-    <>
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.card} onPress={() => {}}>
@@ -227,23 +226,23 @@ export default function AddMovementDialog({
               {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
             </TouchableOpacity>
           </View>
+
+          <AppDatePicker
+            visible={datePickerVisible}
+            value={toDate(created)}
+            onCancel={() => setDatePickerVisible(false)}
+            onConfirm={(nextDate) => {
+              const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
+              const yyyy = nextDate.getFullYear();
+              const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+              const day = String(nextDate.getDate()).padStart(2, '0');
+              const selectedDate = `${yyyy}-${month}-${day} ${time}`;
+              setCreated(selectedDate);
+              setDatePickerVisible(false);
+            }}
+          />
         </Pressable>
       </Pressable>
     </Modal>
-    <AppDatePicker
-      visible={datePickerVisible}
-      value={toDate(created)}
-      onCancel={() => setDatePickerVisible(false)}
-      onConfirm={(nextDate) => {
-        const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
-        const yyyy = nextDate.getFullYear();
-        const month = String(nextDate.getMonth() + 1).padStart(2, '0');
-        const day = String(nextDate.getDate()).padStart(2, '0');
-        const selectedDate = `${yyyy}-${month}-${day} ${time}`;
-        setCreated(selectedDate);
-        setDatePickerVisible(false);
-      }}
-    />
-    </>
   );
 }

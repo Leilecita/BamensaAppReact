@@ -22,20 +22,27 @@ function MenuItem({
   image,
   label,
   onPress,
+  muted = false,
 }: {
   icon: string;
   image?: ImageSourcePropType;
   label: string;
   onPress: () => void;
+  muted?: boolean;
 }) {
   return (
     <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.7}>
       {image ? (
-        <Image source={image} style={styles.iconImage} resizeMode="contain" />
+        <Image source={image} style={[styles.iconImage, muted ? styles.iconImageMuted : null]} resizeMode="contain" />
       ) : (
-        <MaterialCommunityIcons name={icon as any} size={22} color="#9a8eb8" style={styles.icon} />
+        <MaterialCommunityIcons
+          name={icon as any}
+          size={22}
+          color={muted ? '#bdb7cb' : '#9a8eb8'}
+          style={styles.icon}
+        />
       )}
-      <Text style={styles.itemText}>{label}</Text>
+      <Text style={[styles.itemText, muted ? styles.itemTextMuted : null]}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -106,12 +113,12 @@ export default function AppShell({ children }: { children?: ReactNode }) {
            label="Operaciones"
            onPress={() => navigateTo('operations')}
           />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Caja total" onPress={closeMenu} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Saldo monedas" onPress={closeMenu} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Balance" onPress={closeMenu} />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Caja total" onPress={closeMenu} muted />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Saldo monedas" onPress={closeMenu} muted />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Balance" onPress={closeMenu} muted />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={() => navigateTo('outcomes')} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={closeMenu} />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} muted />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={closeMenu} muted />
                   </View>
 
                   <View style={styles.divider} />
@@ -130,7 +137,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
 
                   <View style={styles.divider} />
                   <Text style={styles.sectionTitle}>Usuario</Text>
-                  <View style={styles.section}>
+                  <View style={[styles.section, styles.sectionBottom]}>
                     <MenuItem icon="logout" image={require('../../../assets/images/ui/turnoff.png')} label="Cerrar sesión" onPress={handleSignOut} />
                   </View>
                 </ScrollView>

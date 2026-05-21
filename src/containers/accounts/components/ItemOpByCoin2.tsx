@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { GestureResponderEvent, Image, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { dateHelper } from '../../../helpers/dateHelper';
 import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
@@ -8,7 +8,7 @@ import styles from './ItemOpByCoin2.styles';
 
 type ItemOpByCoin2Props = {
  item: ReportItemOperation;
- onLongPress?: (item: ReportItemOperation) => void;
+ onLongPress?: (item: ReportItemOperation, anchorY: number) => void;
 };
 
 const capitalizeWord = (text?: string) => {
@@ -51,7 +51,7 @@ export default function ItemOpByCoin2({ item, onLongPress }: ItemOpByCoin2Props)
    style={styles.linear}
    activeOpacity={0.85}
    onPress={() => setExpanded((prev) => !prev)}
-   onLongPress={() => onLongPress?.(item)}
+   onLongPress={(event: GestureResponderEvent) => onLongPress?.(item, event.nativeEvent.pageY)}
   >
    <View style={styles.rel}>
     <View style={styles.mainRow}>

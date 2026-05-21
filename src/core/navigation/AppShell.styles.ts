@@ -35,6 +35,9 @@ const styles = StyleSheet.create({
   paddingTop: 6,
   paddingBottom: 6,
  },
+ sectionBottom: {
+  paddingBottom: 24,
+ },
  item: {
   minHeight: 48,
   flexDirection: 'row',
@@ -50,11 +53,17 @@ const styles = StyleSheet.create({
   height: 22,
   marginRight: 16,
  },
+ iconImageMuted: {
+  opacity: 0.4,
+ },
  itemText: {
   color: '#4f4677',
   fontSize: DIMENS.valueText,
   lineHeight: 20,
   fontFamily: 'OpenSansRegular',
+ },
+ itemTextMuted: {
+  color: '#b7b1c5',
  },
  sectionTitle: {
   color: '#7e7695',

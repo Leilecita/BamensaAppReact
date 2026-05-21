@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setSessionSignOutHandler } from '../core/services/sessionManager';
 
 export type AuthContextType = {
  userToken: string | null;
@@ -66,6 +67,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   setUserName(null);
   setUserId(null);
  };
+
+ useEffect(() => {
+  setSessionSignOutHandler(signOut);
+  return () => setSessionSignOutHandler(null);
+ }, []);
 
  return (
   <AuthContext.Provider

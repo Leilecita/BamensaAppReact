@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     width: '40%',
     alignSelf: 'stretch',
     justifyContent: 'center',
-    paddingLeft: 2,
+    paddingLeft: 8,
   },
   dottedDivider: {
     width: 1,
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   amountInput: {
     flex: 1,
     color: COLORS.colorPrimaryDarkLetter,
-    fontSize: DIMENS.bigText,
+    fontSize: 26,
     fontFamily: 'ArialRoundedRegular',
     paddingLeft: 8,
     paddingRight: 8,
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.white,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: 8,
+    paddingHorizontal: 8,
   },
   fieldLabel: {
     width: '40%',
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
   coinFlag: {
     width: 42,
     height: 42,
+    opacity: 0.8,
     resizeMode: 'contain',
     marginRight: 12,
   },

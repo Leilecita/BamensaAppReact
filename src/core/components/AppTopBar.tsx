@@ -11,7 +11,7 @@ type AppTopBarProps = {
 export default function AppTopBar({ title, leftSymbol, onPressLeft }: AppTopBarProps) {
  return (
   <View style={styles.topBar}>
-   <TouchableOpacity onPress={onPressLeft} activeOpacity={0.8}>
+   <TouchableOpacity onPress={onPressLeft} activeOpacity={0.8} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} style={styles.leftButton}>
     <Text style={styles.menuIcon}>{leftSymbol}</Text>
    </TouchableOpacity>
    <Text style={styles.topTitle}>{title}</Text>
@@ -21,12 +21,18 @@ export default function AppTopBar({ title, leftSymbol, onPressLeft }: AppTopBarP
 
 const styles = StyleSheet.create({
  topBar: {
-  height: 102,
-  paddingTop: 34,
+  height: 98,
+  paddingTop: 37,
   paddingHorizontal: 22,
   backgroundColor: COLORS.colorPrimaryChange,
   flexDirection: 'row',
   alignItems: 'center',
+ },
+ leftButton: {
+  minWidth: 34,
+  minHeight: 34,
+  alignItems: 'center',
+  justifyContent: 'center',
  },
  menuIcon: {
   color: COLORS.topBarText,

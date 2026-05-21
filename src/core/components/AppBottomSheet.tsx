@@ -20,6 +20,9 @@ type AppBottomSheetProps = {
  bodyStyle?: StyleProp<ViewStyle>;
  dragOn?: 'handle' | 'body' | 'both';
  disableBodyDragWhenExpanded?: boolean;
+ bodyScrollOffset?: number;
+ bodyCollapseThreshold?: number;
+ onExpandedChange?: (expanded: boolean) => void;
 };
 
 export default function AppBottomSheet({
@@ -31,6 +34,9 @@ export default function AppBottomSheet({
  bodyStyle,
  dragOn = 'body',
  disableBodyDragWhenExpanded = false,
+ bodyScrollOffset = 0,
+ bodyCollapseThreshold = 0,
+ onExpandedChange,
 }: AppBottomSheetProps) {
  const minY = 0;
  const maxY = Math.max(0, height - peekHeight);
@@ -42,6 +48,7 @@ export default function AppBottomSheet({
 
  const animateTo = (toValue: number) => {
   currentY.current = toValue;
+  onExpandedChange?.(toValue <= minY + 1);
   Animated.spring(translateY, {
    toValue,
    damping: 22,
@@ -80,12 +87,16 @@ export default function AppBottomSheet({
    PanResponder.create({
     onStartShouldSetPanResponder: () => false,
     onMoveShouldSetPanResponder: (_, gestureState) => {
-     if (disableBodyDragWhenExpanded && currentY.current <= minY + 1) return false;
+     if (disableBodyDragWhenExpanded && currentY.current <= minY + 1) {
+      const draggingDown = gestureState.dy > 2;
+      const contentAtTop = bodyScrollOffset <= bodyCollapseThreshold;
+      return draggingDown && contentAtTop;
+     }
      return Math.abs(gestureState.dy) > 2;
     },
     ...sharedPanHandlers,
    }),
-  [disableBodyDragWhenExpanded, minY, maxY, translateY],
+  [disableBodyDragWhenExpanded, minY, maxY, translateY, bodyScrollOffset, bodyCollapseThreshold],
  );
 
  const toggleSheet = () => {

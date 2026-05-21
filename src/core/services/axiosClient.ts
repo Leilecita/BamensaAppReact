@@ -6,7 +6,7 @@ import {
 } from './axiosClient.helpers';
 
 //ROSARIO
-//export const BASE_URL = 'http://loteriasole.abarbieri.com.ar/'; //ahora usa esta dire 
+export const BASE_URL = 'http://loteriasole.abarbieri.com.ar/'; //ahora usa esta dire 
 
 //FISHERTON
 // public static final String BASE_URL = "http://bam_fisherton.abarbieri.com.ar/"; YA NO SE USA 
@@ -14,7 +14,7 @@ import {
 //export const BASE_URL = "http://frutos-dev.abarbieri.com.ar/"; //ahora usa esta direccion
 
 //LOCALHOST
-export const BASE_URL = 'http://192.168.0.97/bam_server/';
+//export const BASE_URL = 'http://192.168.0.97/bam_server/';
 
 
 //-------------------------

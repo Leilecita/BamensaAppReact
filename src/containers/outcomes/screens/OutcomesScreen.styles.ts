@@ -173,9 +173,37 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 26,
-    bottom: 120,
+    bottom: 90,
     width: 65,
     height: 65,
+  },
+  actionMenuBackdrop: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  actionMenuCard: {
+    position: 'absolute',
+    left: 0,
+    width: 170,
+    minHeight: 116,
+    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    paddingVertical: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 8,
+  },
+  actionMenuItem: {
+    minHeight: 56,
+    justifyContent: 'center',
+    paddingHorizontal: 22,
+  },
+  actionMenuText: {
+    color: COLORS.colorPrimaryIntLetter,
+    fontSize: 21,
+    fontFamily: 'OpenSansRegular',
   },
   deleteDialogBackdrop: {
     flex: 1,

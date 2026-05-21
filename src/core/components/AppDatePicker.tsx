@@ -42,7 +42,13 @@ export default function AppDatePicker({ visible, value, onCancel, onConfirm }: P
  }
 
  return (
-  <Modal transparent animationType="fade" visible={visible} onRequestClose={onCancel}>
+  <Modal
+   transparent
+   animationType="fade"
+   visible={visible}
+   onRequestClose={onCancel}
+   presentationStyle="overFullScreen"
+  >
    <Pressable
     style={{
       flex: 1,
@@ -103,4 +109,3 @@ export default function AppDatePicker({ visible, value, onCancel, onConfirm }: P
   </Modal>
  );
 }
-

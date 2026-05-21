@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { GestureResponderEvent, Image, Text, TouchableOpacity, View } from 'react-native';
 import { ReportOutcome } from '../services/outcomeService';
 import styles from '../screens/OutcomesScreen.styles';
 
 type Props = {
  item: ReportOutcome;
- onLongPress?: (item: ReportOutcome) => void;
+ onLongPress?: (item: ReportOutcome, anchorY: number) => void;
 };
 
 export default function OutcomeItem({ item, onLongPress }: Props) {
@@ -22,7 +22,7 @@ export default function OutcomeItem({ item, onLongPress }: Props) {
    style={styles.rowWrap}
    activeOpacity={0.88}
    onPress={() => setExpanded((prev) => !prev)}
-   onLongPress={() => onLongPress?.(item)}
+   onLongPress={(event: GestureResponderEvent) => onLongPress?.(item, event.nativeEvent.pageY)}
   >
    <View style={styles.rowShell}>
     <View style={styles.rowContent}>

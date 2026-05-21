@@ -11,6 +11,7 @@ import {
     TouchableWithoutFeedback,
     View,
 } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
@@ -18,8 +19,11 @@ import axiosClient from '../../../core/services/axiosClient';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { COLORS } from '../../../core/constants/colors';
 import { DIMENS } from '../../../core/constants/dimensions';
+import { AuthStackParamList } from '../../../core/navigation/AuthStack';
 import { getAppVariant } from '../../../core/theme/appVariant';
 import { AuthContext } from '../../../contexts/AuthContext';
+
+type Props = NativeStackScreenProps<AuthStackParamList, 'login'>;
 
 const getAppTitle = (): string => {
     const variant = getAppVariant();
@@ -28,7 +32,7 @@ const getAppTitle = (): string => {
     return APP_CONSTANTS.NAME_BAMENSA;
 };
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }: Props) {
     const { top } = useSafeAreaInsets();
     const { signIn } = useContext(AuthContext);
     const appTitle = useMemo(() => getAppTitle(), []);
@@ -159,7 +163,12 @@ export default function LoginScreen() {
                             <Text style={styles.loginButtonText}>Iniciar sesion</Text>
                         </TouchableOpacity>
 
-                        <Text style={styles.registerText}>Si no estas registrado, haz click aqui</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            onPress={() => navigation.navigate('register')}
+                        >
+                            <Text style={styles.registerText}>Si no estas registrado, haz click aqui</Text>
+                        </TouchableOpacity>
                     </ScrollView>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>

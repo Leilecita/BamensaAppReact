@@ -1,5 +1,26 @@
 # Cambio Manual Entre Bamensa, Fisherton y Mendoza
 
+## Primer paso antes de exportar
+
+Correr siempre primero:
+
+```bash
+npm run check:variant -- bamensa
+```
+
+o según la app que vayas a exportar:
+
+```bash
+npm run check:variant -- fisherton
+npm run check:variant -- mendoza
+```
+
+Si todo está bien, la consola devuelve:
+
+```bash
+Resultado: OK, variante alineada para exportar.
+```
+
 Para cambiar de una app a la otra en este proyecto, hay que revisar y alinear 5 cosas:
 
 1. `app.config.ts`
@@ -7,6 +28,25 @@ Para cambiar de una app a la otra en este proyecto, hay que revisar y alinear 5 
 3. `appVariant.ts`
 4. perfil de `eas build`
 5. archivo `.mobileprovision`
+
+## Registrar iPhones / obtener UDID
+
+Si necesitás registrar un iPhone para instalar una build interna, se puede usar:
+
+```bash
+eas device:create
+```
+
+Eso se corre desde la terminal, parado dentro del proyecto.
+
+La opción recomendada es `Website`, porque:
+
+- genera un link o QR para abrir desde el iPhone
+- instala un perfil temporal de registro
+- captura el UDID del dispositivo
+- y normalmente lo registra directamente en el flujo de Expo/EAS sin tener que copiarlo a mano
+
+Sirve también para varios iPhones: cada uno abre el link y hace su propio registro.
 
 ## Importante
 

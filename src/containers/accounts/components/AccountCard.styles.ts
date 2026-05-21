@@ -4,7 +4,7 @@ import { DIMENS } from '../../../core/constants/dimensions';
 
 const styles = StyleSheet.create({
  cardTouch: {
-  marginHorizontal: 4,
+  marginHorizontal: 8,
   marginVertical: 4,
  },
  cardInner: {
