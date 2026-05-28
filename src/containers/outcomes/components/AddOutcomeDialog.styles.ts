@@ -4,10 +4,7 @@ import { DIMENS } from '../../../core/constants/dimensions';
 
 const styles = StyleSheet.create({
  backdrop: {
-  flex: 1,
   backgroundColor: 'rgba(0,0,0,0.45)',
-  justifyContent: 'center',
-  alignItems: 'center',
   paddingHorizontal: 12,
  },
  card: {
@@ -142,7 +139,7 @@ const styles = StyleSheet.create({
  saveBtn: {
   flex: 1,
   minHeight: DIMENS.heightButton,
-  borderRadius: 8,
+  borderRadius: DIMENS.buttonRadius,
   backgroundColor: COLORS.colorDialogButton,
   alignItems: 'center',
   justifyContent: 'center',

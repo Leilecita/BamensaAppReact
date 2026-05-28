@@ -2,9 +2,11 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { triggerSessionExpired } from './sessionManager';
 
+const normalizeBaseURL = (baseURL: string) => baseURL.replace(/\/+$/, '');
+
 export const createClient = (baseURL: string, timeout: number) =>
  axios.create({
-  baseURL,
+  baseURL: normalizeBaseURL(baseURL),
   timeout,
  });
 
@@ -54,7 +56,24 @@ export const attachDebugInterceptors = (client: ReturnType<typeof createClient>)
  );
 
  client.interceptors.response.use(
-  (response) => response,
+  async (response) => {
+   const message = String(response?.data?.message ?? '').trim().toLowerCase();
+   const result = String(response?.data?.result ?? '').trim().toLowerCase();
+
+   if (result === 'error' && message.includes('session invalida')) {
+    if (__DEV__) {
+     console.log('[API SESSION INVALID]', {
+      method: (response?.config?.method || 'get').toUpperCase(),
+      url: `${response?.config?.baseURL || ''}${response?.config?.url || ''}`,
+      responseData: response?.data,
+     });
+    }
+
+    await triggerSessionExpired();
+   }
+
+   return response;
+  },
   async (error) => {
    if (__DEV__) {
     const status = error?.response?.status;

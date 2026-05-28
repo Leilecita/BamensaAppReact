@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import AppDialog from '../../../core/components/AppDialog';
 import styles from './AccountInfoDialog.styles';
 
 export type AccountInfoForm = {
@@ -81,45 +82,48 @@ export default function AccountInfoDialog({ visible, info, onClose, onSave }: Pr
  };
 
  return (
-  <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-   <Pressable style={styles.infoBackdrop} onPress={onClose}>
-    <Pressable style={styles.infoCard} onPress={() => {}}>
-     <Text style={styles.infoTitle}>Información cuenta</Text>
+  <AppDialog
+   visible={visible}
+   onClose={onClose}
+   keyboardAware
+   keyboardGap={14}
+   backdropStyle={styles.infoBackdrop}
+   cardStyle={styles.infoCard}
+  >
+   <Text style={styles.infoTitle}>Información cuenta</Text>
 
-     <View style={styles.infoTable}>
-      {renderRow({ label: 'Nombre', value: form.name, field: 'name' })}
-      {renderRow({ label: 'Apellido', value: form.surname, field: 'surname' })}
-      {renderRow({ label: 'Telefono', value: form.phone, field: 'phone' })}
-      {renderRow({ label: 'Categoria', value: form.category, field: 'category' })}
-      {renderRow({ label: 'Cuit', value: form.cuit, field: 'cuit' })}
-      {renderRow({ label: 'Dirección', value: form.address, field: 'address' })}
-      {renderRow({ label: 'Observación', value: form.observation, field: 'observation' })}
-      {renderRow({ label: 'Fecha inicio', value: form.startDate, field: 'startDate', editable: false })}
-     </View>
+   <View style={styles.infoTable}>
+    {renderRow({ label: 'Nombre', value: form.name, field: 'name' })}
+    {renderRow({ label: 'Apellido', value: form.surname, field: 'surname' })}
+    {renderRow({ label: 'Telefono', value: form.phone, field: 'phone' })}
+    {renderRow({ label: 'Categoria', value: form.category, field: 'category' })}
+    {renderRow({ label: 'Cuit', value: form.cuit, field: 'cuit' })}
+    {renderRow({ label: 'Dirección', value: form.address, field: 'address' })}
+    {renderRow({ label: 'Observación', value: form.observation, field: 'observation' })}
+    {renderRow({ label: 'Fecha inicio', value: form.startDate, field: 'startDate', editable: false })}
+   </View>
 
-     <View style={styles.infoActionsRow}>
-      {editing ? (
-       <>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => setEditing(false)} disabled={saving}>
-         <Text style={styles.cancelText}>Cancelar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleSave} disabled={saving} style={styles.saveBtn}>
-         {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
-        </TouchableOpacity>
-       </>
-      ) : (
-       <>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => setEditing(true)}>
-         <Image source={require('../../../../assets/images/ui/editsan.png')} style={styles.infoActionIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.8} onPress={handleDeletePress}>
-         <Image source={require('../../../../assets/images/ui/deletesan.png')} style={styles.infoActionIcon} />
-        </TouchableOpacity>
-       </>
-      )}
-     </View>
-    </Pressable>
-   </Pressable>
-  </Modal>
+   <View style={styles.infoActionsRow}>
+    {editing ? (
+     <>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => setEditing(false)} disabled={saving} style={styles.cancelBtn}>
+       <Text style={styles.cancelText}>Cancelar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.8} onPress={handleSave} disabled={saving} style={styles.saveBtn}>
+       {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
+      </TouchableOpacity>
+     </>
+    ) : (
+     <>
+      <TouchableOpacity activeOpacity={0.8} onPress={() => setEditing(true)} style={styles.infoActionBtn}>
+       <Image source={require('../../../../assets/images/ui/editsan.png')} style={styles.infoActionIcon} />
+      </TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.8} onPress={handleDeletePress} style={styles.infoActionBtn}>
+       <Image source={require('../../../../assets/images/ui/deletesan.png')} style={styles.infoActionIcon} />
+      </TouchableOpacity>
+     </>
+    )}
+   </View>
+  </AppDialog>
  );
 }

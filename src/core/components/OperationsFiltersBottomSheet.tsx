@@ -56,7 +56,9 @@ type Props = {
  height: number;
  peekHeight: number;
  quickFilters: QuickFilterOption[];
+ secondaryQuickFilters?: QuickFilterOption[];
  selectedQuickFilter: string;
+ selectedQuickFilterKeys?: string[];
  onSelectQuickFilter: (key: string) => void;
  coinFilters?: CoinFilterOption[];
  coinsSource?: Array<{ id: number; short_name: string }>;
@@ -69,7 +71,9 @@ export default function OperationsFiltersBottomSheet({
  height,
  peekHeight,
  quickFilters,
+ secondaryQuickFilters,
  selectedQuickFilter,
+ selectedQuickFilterKeys,
  onSelectQuickFilter,
  coinFilters,
  coinsSource,
@@ -92,6 +96,7 @@ export default function OperationsFiltersBottomSheet({
  }, [coinFilters, coinsSource]);
 
  const hasCoinFilters = Boolean(resolvedCoinFilters.length && onSelectCoinId);
+ const hasSecondaryQuickFilters = Boolean(secondaryQuickFilters?.length);
 
  return (
   <AppBottomSheet
@@ -109,7 +114,9 @@ export default function OperationsFiltersBottomSheet({
     contentContainerStyle={styles.filterRow}
    >
     {quickFilters.map((filter) => {
-     const selected = filter.key === selectedQuickFilter;
+     const selected = selectedQuickFilterKeys?.length
+      ? selectedQuickFilterKeys.includes(filter.key)
+      : filter.key === selectedQuickFilter;
      return (
       <TouchableOpacity
        key={filter.key}
@@ -141,17 +148,56 @@ export default function OperationsFiltersBottomSheet({
        <Text style={[styles.filterLabel, selected ? styles.filterLabelActive : null]}>{filter.label}</Text>
       </TouchableOpacity>
      );
-    })}
+   })}
    </ScrollView>
 
    <View
     style={[
      styles.sheetContentPlaceholder,
-     hasCoinFilters ? styles.sheetContentWithCoins : styles.sheetContentNoCoins,
+     hasCoinFilters || hasSecondaryQuickFilters ? styles.sheetContentWithCoins : styles.sheetContentNoCoins,
      { paddingBottom: contentBottomPadding },
     ]}
    >
-    {hasCoinFilters ? (
+    {hasSecondaryQuickFilters ? (
+     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.coinFilterScroll} contentContainerStyle={styles.coinFilterRow}>
+      {secondaryQuickFilters!.map((filter) => {
+       const selected = selectedQuickFilterKeys?.length
+        ? selectedQuickFilterKeys.includes(filter.key)
+        : filter.key === selectedQuickFilter;
+       return (
+        <TouchableOpacity
+         key={filter.key}
+         style={styles.coinFilterItem}
+         activeOpacity={0.8}
+         onPress={() => onSelectQuickFilter(filter.key)}
+        >
+         {filter.key === 'usr' ? (
+          <View style={[styles.userFilterIconWrap, selected ? styles.filterIconActive : null]}>
+           <Image
+            source={require('../../../assets/images/ui/buttonbshadow.png')}
+            style={styles.userFilterIconBg}
+           />
+           <Image
+            source={require('../../../assets/images/ui/userwhite2.png')}
+            style={styles.userFilterIconFg}
+           />
+          </View>
+         ) : (
+          <Image
+           source={filter.icon}
+           style={[
+            styles.coinFilterIcon,
+            { width: filter.iconSize ?? 40, height: filter.iconSize ?? 40 },
+            selected ? styles.coinFilterIconActive : null,
+           ]}
+          />
+         )}
+         <Text style={[styles.coinFilterLabel, selected ? styles.coinFilterLabelActive : null]}>{filter.label}</Text>
+        </TouchableOpacity>
+       );
+      })}
+     </ScrollView>
+    ) : hasCoinFilters ? (
      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.coinFilterScroll} contentContainerStyle={styles.coinFilterRow}>
       {resolvedCoinFilters.map((coin) => {
        const selected = selectedCoinId === coin.coinId;
@@ -261,9 +307,11 @@ const styles = StyleSheet.create({
   flex: 1,
  },
  coinFilterRow: {
+  flexGrow: 1,
   paddingHorizontal: 8,
   marginTop: 0,
-  alignItems: 'flex-start',
+  alignItems: 'center',
+  justifyContent: 'center',
   paddingTop: 0,
   paddingBottom: 0,
  },
@@ -296,7 +344,7 @@ const styles = StyleSheet.create({
   lineHeight: DIMENS.textDetailBottom + 4,
   fontFamily: 'OpenSansLight',
   textAlign: 'center',
-  textTransform: 'uppercase',
+  textTransform: 'lowercase',
  },
  coinFilterLabelActive: {
   color: '#4f426b',

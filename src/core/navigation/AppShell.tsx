@@ -53,7 +53,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const routeName = route.name as keyof AppStackParamList;
- const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes'
+ const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes' || routeName === 'boxBalance'
   ? routeName
   : 'home';
   const menuTranslateX = useRef(new Animated.Value(-320)).current;
@@ -113,9 +113,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
            label="Operaciones"
            onPress={() => navigateTo('operations')}
           />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Caja total" onPress={closeMenu} muted />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Saldo monedas" onPress={closeMenu} muted />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Balance" onPress={closeMenu} muted />
+          <MenuItem icon="safe-square-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cajas" onPress={() => navigateTo('boxBalance')} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={() => navigateTo('outcomes')} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} muted />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={closeMenu} muted />

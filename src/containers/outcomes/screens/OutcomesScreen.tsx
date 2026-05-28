@@ -167,7 +167,6 @@ export default function OutcomesScreen() {
 
    setAddDialogVisible(false);
    await reload();
-   Alert.alert('Listo', 'El gasto se guardó correctamente');
   } catch (error: any) {
    Alert.alert('Error', error?.message || 'No se pudo guardar el gasto');
   }

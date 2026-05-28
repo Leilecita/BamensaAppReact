@@ -29,6 +29,7 @@ export const DIMENS = {
  heightRecCuadInpunt: 35,
  heightOperationInput: 85,
  heightButton: 35,
+ buttonRadius: 8,
  circle: 40,
  dialogMarginTop: 11,
  dialogMarginLeft: 24,

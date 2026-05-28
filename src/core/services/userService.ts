@@ -7,6 +7,9 @@ export type AppUser = {
  level?: string;
 };
 
+let cachedUsers: AppUser[] = [];
+let usersRequestPromise: Promise<AppUser[]> | null = null;
+
 const normalizeUser = (raw: any): AppUser | null => {
  const id = Number(raw?.id ?? raw?.user_id ?? 0);
  const name = String(raw?.name ?? raw?.user_name ?? raw?.username ?? '').trim();
@@ -20,19 +23,37 @@ const normalizeUser = (raw: any): AppUser | null => {
  };
 };
 
-export async function fetchUsers(): Promise<AppUser[]> {
- const response = await api.get('/login.php', {
-  params: {
-   method: APP_CONSTANTS.METHODS.GET_ALL_USERS,
-  },
- });
+export async function fetchUsers(forceRefresh = false): Promise<AppUser[]> {
+ if (!forceRefresh && cachedUsers.length > 0) {
+  return cachedUsers;
+ }
 
- const payload = response.data;
- const source = Array.isArray(payload?.data)
-  ? payload.data
-  : Array.isArray(payload)
-   ? payload
-   : [];
+ if (!forceRefresh && usersRequestPromise) {
+  return usersRequestPromise;
+ }
 
- return source.map(normalizeUser).filter(Boolean) as AppUser[];
+ usersRequestPromise = (async () => {
+  const response = await api.get('/login.php', {
+   params: {
+    method: APP_CONSTANTS.METHODS.GET_ALL_USERS,
+   },
+  });
+
+  const payload = response.data;
+  const source = Array.isArray(payload?.data)
+   ? payload.data
+   : Array.isArray(payload)
+    ? payload
+    : [];
+
+  const users = source.map(normalizeUser).filter(Boolean) as AppUser[];
+  cachedUsers = users;
+  return users;
+ })();
+
+ try {
+  return await usersRequestPromise;
+ } finally {
+  usersRequestPromise = null;
+ }
 }

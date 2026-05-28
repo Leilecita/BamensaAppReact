@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AccountsScreen from '../../containers/accounts/screens/AccountsScreen';
 import CreateAccountScreen from '../../containers/accounts/screens/CreateAccountScreen';
 import InformationByAccountScreen from '../../containers/accounts/screens/InformationByAccountScreen';
+import InformationBoxBalanceScreen from '../../containers/boxBalance/screens/InformationBoxBalanceScreen';
 import CoinsScreen from '../../containers/coins/screens/CoinsScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
 import OperationsScreen from '../../containers/operations/screens/OperationsScreen';
@@ -28,6 +29,11 @@ export type AppStackParamList = {
  accounts: undefined;
  createAccount: undefined;
  outcomes: undefined;
+ boxBalance:
+  | {
+     initialTab?: 'box' | 'coins' | 'balance';
+    }
+  | undefined;
  informationByAccount: {
   accountId: number;
   accountName: string;
@@ -87,6 +93,13 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <OutcomesScreen />
+     </ScreenWithShell>
+   )}
+   </Stack.Screen>
+   <Stack.Screen name="boxBalance">
+    {() => (
+     <ScreenWithShell>
+      <InformationBoxBalanceScreen />
      </ScreenWithShell>
     )}
    </Stack.Screen>

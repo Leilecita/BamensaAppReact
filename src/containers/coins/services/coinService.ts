@@ -1,4 +1,5 @@
 import api from '../../../core/services/axiosClient';
+import { flagHelper } from '../../../helpers/flagHelper';
 
 export type Coin = {
  id: number;
@@ -23,11 +24,40 @@ function normalizeCoinsPayload(raw: any): Coin[] {
   .filter((item: Coin) => Number.isFinite(item.id) && !!item.short_name);
 }
 
-export async function fetchCoins(): Promise<Coin[]> {
+let coinsRequestPromise: Promise<Coin[]> | null = null;
+
+const syncFlagHelperCoins = (coins: Coin[]) => {
+ flagHelper.setCoins(
+  coins.map((coin) => ({
+   id: coin.id,
+   name: coin.name,
+   short_name: coin.short_name,
+  })),
+ );
+};
+
+export async function fetchCoins(forceRefresh = false): Promise<Coin[]> {
+ const cachedCoins = flagHelper.getCoins();
+
+ if (!forceRefresh && cachedCoins.length > 0) {
+  return cachedCoins.map((coin) => ({
+   id: Number(coin.id),
+   name: String(coin.name ?? ''),
+   short_name: String(coin.short_name ?? '').trim(),
+  }));
+ }
+
+ if (!forceRefresh && coinsRequestPromise) {
+  return coinsRequestPromise;
+ }
+
+ coinsRequestPromise = (async () => {
  try {
   const response = await api.get('/coins.php');
   if (response.data?.result === 'success' || response.data?.result === undefined) {
-   return normalizeCoinsPayload(response.data?.data ?? response.data);
+   const coins = normalizeCoinsPayload(response.data?.data ?? response.data);
+   syncFlagHelperCoins(coins);
+   return coins;
   }
 
   throw new Error(response.data?.message || 'Error al obtener monedas');
@@ -47,5 +77,10 @@ export async function fetchCoins(): Promise<Coin[]> {
 
   console.log('COINS ERROR:', { status, rawData, message });
   throw new Error(serverData && !rawMessage && status ? `${message} - ${serverData}` : message);
+ } finally {
+  coinsRequestPromise = null;
  }
+ })();
+
+ return coinsRequestPromise;
 }

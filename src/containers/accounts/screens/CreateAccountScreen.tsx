@@ -104,7 +104,7 @@ export default function CreateAccountScreen() {
 
       if (assignToOperation) {
         const fullName = `${created.client_name} ${created.client_surname}`.trim();
-        navigation.navigate('home', {
+        navigation.popTo('home', {
           selectedAccount: {
             id: created.id,
             name: fullName || created.client_name,

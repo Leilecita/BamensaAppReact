@@ -2,10 +2,7 @@ import { DIMENS } from '../../../core/constants/dimensions';
 
 export const confirmDialogStyles = {
  confirmDialogBackdrop: {
-  flex: 1,
   backgroundColor: 'rgba(0,0,0,0.52)',
-  justifyContent: 'center',
-  alignItems: 'center',
   padding: 4,
  },
  confirmDialogCard: {
@@ -17,8 +14,7 @@ export const confirmDialogStyles = {
   margin: 4,
  },
  confirmDialogHeader: {
-  paddingTop: 8,
-  paddingBottom: 6,
+  paddingTop: 14,
   paddingHorizontal: DIMENS.dialogMarginLeft,
   alignItems: 'center',
  },
@@ -40,8 +36,9 @@ export const confirmDialogStyles = {
   borderRadius: 10,
   backgroundColor: '#fcfcfd',
   overflow: 'hidden',
-  paddingLeft: 16,
-  paddingRight: 16,
+  paddingLeft: 10,
+  paddingRight: 10,
+  marginHorizontal: 4,
   paddingVertical: 8,
   flexDirection: 'row',
   alignItems: 'center',
@@ -75,6 +72,7 @@ export const confirmDialogStyles = {
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'flex-start',
+  width: '100%',
  },
  confirmSummarySubRowRight: {
   marginTop: 2,
@@ -87,6 +85,11 @@ export const confirmDialogStyles = {
   width: 24,
   height: 24,
   resizeMode: 'contain',
+  marginRight: 8,
+ },
+ confirmSummaryStateInlineRight: {
+  marginRight: 0,
+  marginLeft: 8,
  },
  confirmSummaryMain: {
   color: '#5b5181',
@@ -105,11 +108,9 @@ export const confirmDialogStyles = {
   fontFamily: 'OpenSansLight',
  },
  confirmSummarySubLeftText: {
-  marginLeft: 8,
   fontFamily: 'OpenSansRegular',
  },
  confirmSummarySubRightText: {
-  marginRight: 8,
   fontFamily: 'OpenSansRegular',
   flexShrink: 1,
   minWidth: 0,
@@ -163,7 +164,7 @@ export const confirmDialogStyles = {
  confirmDialogActions: {
   flexDirection: 'row',
   paddingHorizontal: DIMENS.dialogMarginLeft,
-  paddingBottom: DIMENS.dialogMarginBottom,
+  paddingBottom: DIMENS.dialogMarginBottom + 2,
   paddingTop: 6,
   gap: 8,
   marginTop: 16,
@@ -171,7 +172,7 @@ export const confirmDialogStyles = {
  confirmDialogCancel: {
   flex: 1,
   height: DIMENS.heightButton,
-  borderRadius: 10,
+  borderRadius: DIMENS.buttonRadius,
   alignItems: 'center',
   justifyContent: 'center',
  },
@@ -183,7 +184,7 @@ export const confirmDialogStyles = {
  confirmDialogAccept: {
   flex: 1.2,
   height: DIMENS.heightButton,
-  borderRadius: 11,
+  borderRadius: DIMENS.buttonRadius,
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: '#6f6392',

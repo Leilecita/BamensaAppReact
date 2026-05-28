@@ -14,7 +14,7 @@ export const BASE_URL = 'http://loteriasole.abarbieri.com.ar/'; //ahora usa esta
 //export const BASE_URL = "http://frutos-dev.abarbieri.com.ar/"; //ahora usa esta direccion
 
 //LOCALHOST
-//export const BASE_URL = 'http://192.168.0.97/bam_server/';
+//export const BASE_URL = 'http://192.168.0.193/bam_server/';
 
 
 //-------------------------
@@ -39,7 +39,7 @@ export const BASE_URL3 = 'http://loteriasole.abarbieri.com.ar/';
 const TIMEOUT = 10000;
 
 const api = axios.create({
- baseURL: BASE_URL,
+ baseURL: BASE_URL.replace(/\/+$/, ''),
  timeout: TIMEOUT,
 });
 

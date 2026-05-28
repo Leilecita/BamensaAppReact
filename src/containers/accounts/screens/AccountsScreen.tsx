@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
  ActivityIndicator,
  FlatList,
@@ -43,6 +43,7 @@ export default function AccountsScreen() {
  const [query, setQuery] = useState('');
  const [category, setCategory] = useState<string>(APP_CONSTANTS.TYPE_ALL);
  const [showBalances, setShowBalances] = useState(false);
+ const onEndReachedCalledDuringMomentum = useRef(false);
  const sheetHeight = 200;
  const sheetPeek = 90;
 
@@ -67,7 +68,7 @@ export default function AccountsScreen() {
  }, [accounts]);
 
  const handleAssignToOperation = (selectedAccount: (typeof accounts)[number]) => {
-  navigateTo('home', {
+  navigation.popTo('home', {
    selectedAccount: {
     id: selectedAccount.account.id,
     name: selectedAccount.account.name,
@@ -89,7 +90,17 @@ export default function AccountsScreen() {
 
  return (
   <View style={styles.screen}>
-   <AppTopBar title="Cuentas" leftSymbol="←" onPressLeft={() => navigateTo('home')} />
+   <AppTopBar
+    title="Cuentas"
+    leftSymbol="←"
+    onPressLeft={() => {
+     if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+     }
+     navigateTo('home');
+    }}
+   />
 
    <View style={styles.tabsRow}>
     <TouchableOpacity
@@ -134,8 +145,15 @@ export default function AccountsScreen() {
       onPressMovements={handlePressMovements}
      />
     )}
-    onEndReached={loadMore}
     onEndReachedThreshold={0.4}
+    onMomentumScrollBegin={() => {
+     onEndReachedCalledDuringMomentum.current = false;
+    }}
+    onEndReached={() => {
+     if (onEndReachedCalledDuringMomentum.current) return;
+     onEndReachedCalledDuringMomentum.current = true;
+     loadMore();
+    }}
     ListEmptyComponent={
       <View style={styles.emptyWrap}>
        {loading ? <ActivityIndicator size="small" color="#6f6392" /> : null}

@@ -4,10 +4,7 @@ import { DIMENS } from '../../../core/constants/dimensions';
 
 const styles = StyleSheet.create({
   infoBackdrop: {
-    flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 8,
   },
   infoCard: {
@@ -76,10 +73,10 @@ const styles = StyleSheet.create({
   },
   infoActionsRow: {
     marginTop: 16,
-    paddingHorizontal: 56,
+    paddingHorizontal: 24,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   infoActionIcon: {
     width: 40,
@@ -89,19 +86,30 @@ const styles = StyleSheet.create({
     tintColor: COLORS.colorPrimaryDarkLetter,
     opacity: 1,
   },
+  infoActionBtn: {
+    flex: 1,
+    minHeight: DIMENS.heightButton,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cancelText: {
     color: COLORS.colorDialogButton,
     fontSize: DIMENS.generalText,
     fontFamily: 'OpenSansRegular',
   },
-  saveBtn: {
-    minWidth: 120,
+  cancelBtn: {
+    flex: 1,
     minHeight: DIMENS.heightButton,
-    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveBtn: {
+    flex: 1.2,
+    minHeight: DIMENS.heightButton,
+    borderRadius: DIMENS.buttonRadius,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.colorDialogButton,
-    paddingHorizontal: 12,
   },
   saveText: {
     color: COLORS.white,

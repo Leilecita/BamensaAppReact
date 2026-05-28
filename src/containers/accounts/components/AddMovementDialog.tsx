@@ -1,5 +1,15 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import AppDialog from '../../../core/components/AppDialog';
 import AppDatePicker from '../../../core/components/AppDatePicker';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import api from '../../../core/services/axiosClient';
@@ -129,120 +139,123 @@ export default function AddMovementDialog({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.card} onPress={() => {}}>
-          <TouchableOpacity style={styles.typeRow} activeOpacity={0.8} onPress={handleToggleType}>
-            <Text style={styles.typeText}>{opType}</Text>
-            <Image source={require('../../../../assets/images/ui/downop.png')} style={styles.typeIcon} />
-          </TouchableOpacity>
+    <AppDialog
+      visible={visible}
+      onClose={onClose}
+      keyboardAware
+      keyboardGap={14}
+      backdropStyle={styles.backdrop}
+      cardStyle={styles.card}
+    >
+      <TouchableOpacity style={styles.typeRow} activeOpacity={0.8} onPress={handleToggleType}>
+        <Text style={styles.typeText}>{opType}</Text>
+        <Image source={require('../../../../assets/images/ui/downop.png')} style={styles.typeIcon} />
+      </TouchableOpacity>
 
-          {isFishertonSpecial ? <Text style={styles.onlyFishertonNote}>Solo Fisherton</Text> : null}
+      {isFishertonSpecial ? <Text style={styles.onlyFishertonNote}>Solo Fisherton</Text> : null}
 
-          <View style={styles.fieldsWrap}>
-            <View style={styles.bigRow}>
-              <View style={styles.coinSide}>
-                <TouchableOpacity onPress={handleChangeCoin} activeOpacity={0.8} style={styles.coinBtn}>
-                  <View style={styles.coinInline}>
-                    <Image source={getFilterFlagSourceByShortName(activeCoin)} style={styles.coinFlag} />
-                    <Text style={styles.coinBtnText}>{activeCoin}</Text>
-                  </View>
-                </TouchableOpacity>
-                {coinListVisible ? (
-                  <View style={styles.coinListCard}>
-                    <ScrollView style={styles.coinListScroll} nestedScrollEnabled>
-                      {coinOptions.map((coin, index) => (
-                        <TouchableOpacity
-                          key={`${coin}-${index}`}
-                          style={styles.coinListRow}
-                          activeOpacity={0.8}
-                          onPress={() => {
-                            setCoinIndex(index);
-                            setCoinListVisible(false);
-                          }}
-                        >
-                          <Image source={getFilterFlagSourceByShortName(coin)} style={styles.coinListFlag} />
-                          <Text style={styles.coinListText}>{coin}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-                ) : null}
-              </View>
-              <View style={styles.dottedDivider} />
-              <Text style={styles.plusText}>{opType === APP_CONSTANTS.TYPE_RETIRO ? '-' : '+'}</Text>
-              <TextInput
-                value={amount}
-                onChangeText={setAmount}
-                placeholder=""
-                placeholderTextColor="#9892a8"
-                keyboardType="decimal-pad"
-                style={styles.amountInput}
-              />
-              <View style={styles.stateSide}>
-                <TouchableOpacity style={styles.stateBadge} activeOpacity={0.8} onPress={() => setState((prev) => (prev === APP_CONSTANTS.STATE_PENDIENT ? APP_CONSTANTS.STATE_DONE : APP_CONSTANTS.STATE_PENDIENT))}>
-                  <Image
-                    source={
-                      state === APP_CONSTANTS.STATE_PENDIENT
-                        ? require('../../../../assets/images/ui/pendsan.png')
-                        : require('../../../../assets/images/ui/donesan.png')
-                    }
-                    style={styles.stateIcon}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <TouchableOpacity style={styles.fieldRow} activeOpacity={0.8} onPress={() => setDatePickerVisible(true)}>
-              <Text style={styles.fieldLabel}>Fecha</Text>
-              <View style={styles.dottedDivider} />
-              <View style={styles.fieldValueWrap}>
-                <Text style={styles.fieldValueText}>{dateHelper.onlyDate(dateHelper.changeFormatDate(created))}</Text>
+      <View style={styles.fieldsWrap}>
+        <View style={styles.bigRow}>
+          <View style={styles.coinSide}>
+            <TouchableOpacity onPress={handleChangeCoin} activeOpacity={0.8} style={styles.coinBtn}>
+              <View style={styles.coinInline}>
+                <Image source={getFilterFlagSourceByShortName(activeCoin)} style={styles.coinFlag} />
+                <Text style={styles.coinBtnText}>{activeCoin}</Text>
               </View>
             </TouchableOpacity>
-
-            {!isFishertonSpecial ? (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Observación</Text>
-                <View style={styles.dottedDivider} />
-                <View style={styles.fieldValueWrap}>
-                  <TextInput
-                    value={observation}
-                    onChangeText={setObservation}
-                    placeholder=""
-                    placeholderTextColor="#9892a8"
-                    style={styles.fieldInput}
-                  />
-                </View>
+            {coinListVisible ? (
+              <View style={styles.coinListCard}>
+                <ScrollView style={styles.coinListScroll} nestedScrollEnabled>
+                  {coinOptions.map((coin, index) => (
+                    <TouchableOpacity
+                      key={`${coin}-${index}`}
+                      style={styles.coinListRow}
+                      activeOpacity={0.8}
+                      onPress={() => {
+                        setCoinIndex(index);
+                        setCoinListVisible(false);
+                      }}
+                    >
+                      <Image source={getFilterFlagSourceByShortName(coin)} style={styles.coinListFlag} />
+                      <Text style={styles.coinListText}>{coin}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             ) : null}
           </View>
-
-          <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8} disabled={saving}>
-              <Text style={styles.cancelText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8} disabled={saving}>
-              {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
+          <View style={styles.dottedDivider} />
+          <Text style={styles.plusText}>{opType === APP_CONSTANTS.TYPE_RETIRO ? '-' : '+'}</Text>
+          <TextInput
+            value={amount}
+            onChangeText={setAmount}
+            placeholder=""
+            placeholderTextColor="#9892a8"
+            keyboardType="decimal-pad"
+            style={styles.amountInput}
+          />
+          <View style={styles.stateSide}>
+            <TouchableOpacity style={styles.stateBadge} activeOpacity={0.8} onPress={() => setState((prev) => (prev === APP_CONSTANTS.STATE_PENDIENT ? APP_CONSTANTS.STATE_DONE : APP_CONSTANTS.STATE_PENDIENT))}>
+              <Image
+                source={
+                  state === APP_CONSTANTS.STATE_PENDIENT
+                    ? require('../../../../assets/images/ui/pendsan.png')
+                    : require('../../../../assets/images/ui/donesan.png')
+                }
+                style={styles.stateIcon}
+              />
             </TouchableOpacity>
           </View>
+        </View>
 
-          <AppDatePicker
-            visible={datePickerVisible}
-            value={toDate(created)}
-            onCancel={() => setDatePickerVisible(false)}
-            onConfirm={(nextDate) => {
-              const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
-              const yyyy = nextDate.getFullYear();
-              const month = String(nextDate.getMonth() + 1).padStart(2, '0');
-              const day = String(nextDate.getDate()).padStart(2, '0');
-              const selectedDate = `${yyyy}-${month}-${day} ${time}`;
-              setCreated(selectedDate);
-              setDatePickerVisible(false);
-            }}
-          />
-        </Pressable>
-      </Pressable>
-    </Modal>
+        <TouchableOpacity style={styles.fieldRow} activeOpacity={0.8} onPress={() => setDatePickerVisible(true)}>
+          <Text style={styles.fieldLabel}>Fecha</Text>
+          <View style={styles.dottedDivider} />
+          <View style={styles.fieldValueWrap}>
+            <Text style={styles.fieldValueText}>{dateHelper.onlyDate(dateHelper.changeFormatDate(created))}</Text>
+          </View>
+        </TouchableOpacity>
+
+        {!isFishertonSpecial ? (
+          <View style={styles.fieldRow}>
+            <Text style={styles.fieldLabel}>Observación</Text>
+            <View style={styles.dottedDivider} />
+            <View style={styles.fieldValueWrap}>
+              <TextInput
+                value={observation}
+                onChangeText={setObservation}
+                placeholder=""
+                placeholderTextColor="#9892a8"
+                style={styles.fieldInput}
+              />
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.actionsRow}>
+        <TouchableOpacity style={styles.cancelBtn} onPress={onClose} activeOpacity={0.8} disabled={saving}>
+          <Text style={styles.cancelText}>Cancelar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8} disabled={saving}>
+          {saving ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.saveText}>Guardar</Text>}
+        </TouchableOpacity>
+      </View>
+
+      <AppDatePicker
+        visible={datePickerVisible}
+        value={toDate(created)}
+        onCancel={() => setDatePickerVisible(false)}
+        onConfirm={(nextDate) => {
+          const time = dateHelper.getOnlyTime(dateHelper.getActualDate()) || '00:00:00';
+          const yyyy = nextDate.getFullYear();
+          const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+          const day = String(nextDate.getDate()).padStart(2, '0');
+          const selectedDate = `${yyyy}-${month}-${day} ${time}`;
+          setCreated(selectedDate);
+          setDatePickerVisible(false);
+        }}
+      />
+    </AppDialog>
   );
 }

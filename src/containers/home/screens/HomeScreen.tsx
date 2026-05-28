@@ -18,6 +18,7 @@ import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { BASE_URL } from '../../../core/services/axiosClient';
 import { getAppVariant } from '../../../core/theme/appVariant';
 import AppBottomSheet from '../../../core/components/AppBottomSheet';
+import AppDialog from '../../../core/components/AppDialog';
 import AppDatePicker from '../../../core/components/AppDatePicker';
 import AppTopBar from '../../../core/components/AppTopBar';
 import { useRoute } from '@react-navigation/native';
@@ -31,17 +32,18 @@ import OperationCard from '../../operations/components/OperationCard';
 import {
   affectClientOperationAndSync,
   deleteOperation,
+  fetchOperations,
   postOperation,
   ReportOperation,
   updateOperationObservation,
 } from '../../operations/services/operationService';
-import { useOperations } from '../../operations/hooks/useOperations';
 import { changeStateItem } from '../../accounts/services/accountItemsOperationService';
 import styles from './HomeScreen.styles';
 
 type OperationState = typeof APP_CONSTANTS.STATE_DONE | typeof APP_CONSTANTS.STATE_PENDIENT;
 type OperationType = typeof APP_CONSTANTS.TYPE_COMPRA | typeof APP_CONSTANTS.TYPE_VENTA;
 type CoinCode = string;
+type DerivedField = 'in' | 'out' | 'exchange';
 type OperationPayload = {
   type: string;
   exchange: number;
@@ -61,6 +63,8 @@ type OperationPayload = {
   operation_id_ant: number;
 };
 
+let cachedHomeOperations: ReportOperation[] = [];
+
 export default function HomeScreen() {
   const appVariant = getAppVariant();
   const appTitle =
@@ -72,7 +76,9 @@ export default function HomeScreen() {
   const route = useRoute<RouteProp<AppStackParamList, 'home'>>();
   const { openMenu, navigateTo } = useSideMenu();
   const { userName, userId } = useContext(AuthContext);
-  const { operations, loading, loadMore, loadingMore, error, reload } = useOperations();
+  const [operations, setOperations] = useState<ReportOperation[]>(cachedHomeOperations);
+  const [loading, setLoading] = useState(cachedHomeOperations.length === 0);
+  const [error, setError] = useState<string | null>(null);
   const [inAmount, setInAmount] = useState('');
   const [outAmount, setOutAmount] = useState('');
   const [exchangeValue, setExchangeValue] = useState('');
@@ -91,6 +97,7 @@ export default function HomeScreen() {
   const [affectIn, setAffectIn] = useState(false);
   const [affectOut, setAffectOut] = useState(false);
   const [lastEditedAmountField, setLastEditedAmountField] = useState<'in' | 'out'>('in');
+  const [derivedField, setDerivedField] = useState<DerivedField | null>(null);
   const [inState, setInState] = useState<OperationState>(APP_CONSTANTS.STATE_DONE);
   const [outState, setOutState] = useState<OperationState>(APP_CONSTANTS.STATE_DONE);
   const [affectConfirmVisible, setAffectConfirmVisible] = useState(false);
@@ -110,6 +117,27 @@ export default function HomeScreen() {
 
   const pairCoin1 = operationType === APP_CONSTANTS.TYPE_COMPRA ? inCoin : outCoin;
   const pairCoin2 = operationType === APP_CONSTANTS.TYPE_COMPRA ? outCoin : inCoin;
+  const isInDerived = derivedField === 'in';
+  const isOutDerived = derivedField === 'out';
+  const isExchangeDerived = derivedField === 'exchange';
+
+  const loadHomeOperations = async () => {
+    const hasCachedOperations = cachedHomeOperations.length > 0;
+    if (!hasCachedOperations) {
+      setLoading(true);
+    }
+    setError(null);
+
+    try {
+      const result = await fetchOperations(0);
+      cachedHomeOperations = result;
+      setOperations(result);
+    } catch (e: any) {
+      setError(e?.message ?? 'Error al cargar datos');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const parseNumber = (value: string): number | null => {
     const normalized = value.trim().replace(',', '.');
@@ -177,27 +205,122 @@ export default function HomeScreen() {
     return Number.isFinite(result) ? formatNumber(result) : '';
   };
 
+  const computeExchangeFromAmounts = (inText: string, outText: string): string => {
+    const inN = parseNumber(inText);
+    const outN = parseNumber(outText);
+    if (inN === null || outN === null || inN === 0 || outN === 0) return '';
+    const result =
+      operationType === APP_CONSTANTS.TYPE_COMPRA ? outN / inN : inN / outN;
+    return Number.isFinite(result) ? formatNumber(result) : '';
+  };
+
+  const hasText = (value: string) => value.trim().length > 0;
+
+  const resolveDerivedField = (
+    nextValues: { in: string; out: string; exchange: string },
+    editedField: 'in' | 'out' | 'exchange'
+  ): DerivedField | null => {
+    const editedValue =
+      editedField === 'in'
+        ? nextValues.in
+        : editedField === 'out'
+          ? nextValues.out
+          : nextValues.exchange;
+
+    if (derivedField && editedField !== derivedField && !hasText(editedValue)) {
+      return derivedField;
+    }
+
+    if (derivedField && editedField !== derivedField) {
+      const canKeepDerived =
+        (derivedField === 'in' && hasText(nextValues.out) && hasText(nextValues.exchange)) ||
+        (derivedField === 'out' && hasText(nextValues.in) && hasText(nextValues.exchange)) ||
+        (derivedField === 'exchange' && hasText(nextValues.in) && hasText(nextValues.out));
+
+      if (canKeepDerived) {
+        return derivedField;
+      }
+    }
+
+    const missingFields = (['in', 'out', 'exchange'] as DerivedField[]).filter((field) => {
+      if (field === 'in') return !hasText(nextValues.in);
+      if (field === 'out') return !hasText(nextValues.out);
+      return !hasText(nextValues.exchange);
+    });
+
+    return missingFields.length === 1 ? missingFields[0] : null;
+  };
+
   const handleInChange = (text: string) => {
     setLastEditedAmountField('in');
     setInAmount(text);
-    setOutAmount(computeOutFromIn(text, exchangeValue));
+    const nextValues = { in: text, out: outAmount, exchange: exchangeValue };
+    const nextDerivedField = resolveDerivedField(nextValues, 'in');
+    setDerivedField(nextDerivedField);
+
+    if (!hasText(text)) {
+      return;
+    }
+
+    if (nextDerivedField === 'out') {
+      setOutAmount(computeOutFromIn(text, exchangeValue));
+      return;
+    }
+
+    if (nextDerivedField === 'exchange') {
+      setExchangeValue(computeExchangeFromAmounts(text, outAmount));
+    }
   };
 
   const handleOutChange = (text: string) => {
     setLastEditedAmountField('out');
     setOutAmount(text);
-    setInAmount(computeInFromOut(text, exchangeValue));
+    const nextValues = { in: inAmount, out: text, exchange: exchangeValue };
+    const nextDerivedField = resolveDerivedField(nextValues, 'out');
+    setDerivedField(nextDerivedField);
+
+    if (!hasText(text)) {
+      return;
+    }
+
+    if (nextDerivedField === 'in') {
+      setInAmount(computeInFromOut(text, exchangeValue));
+      return;
+    }
+
+    if (nextDerivedField === 'exchange') {
+      setExchangeValue(computeExchangeFromAmounts(inAmount, text));
+    }
   };
 
   const handleExchangeChange = (text: string) => {
     setExchangeValue(text);
+    const nextValues = { in: inAmount, out: outAmount, exchange: text };
+    const nextDerivedField = resolveDerivedField(nextValues, 'exchange');
+    setDerivedField(nextDerivedField);
 
-    if (lastEditedAmountField === 'in') {
+    if (!hasText(text)) {
+      return;
+    }
+
+    if (nextDerivedField === 'out') {
       setOutAmount(computeOutFromIn(inAmount, text));
       return;
     }
 
-    setInAmount(computeInFromOut(outAmount, text));
+    if (nextDerivedField === 'in') {
+      setInAmount(computeInFromOut(outAmount, text));
+      return;
+    }
+
+    if (lastEditedAmountField === 'in' && !hasText(outAmount)) {
+      setOutAmount(computeOutFromIn(inAmount, text));
+      return;
+    }
+
+    if (!hasText(inAmount)) {
+      setInAmount(computeInFromOut(outAmount, text));
+    }
   };
 
   const handleCleanInputs = () => {
@@ -205,6 +328,7 @@ export default function HomeScreen() {
     setOutAmount('');
     setExchangeValue('');
     setLastEditedAmountField('in');
+    setDerivedField(null);
     inAmountRef.current?.blur();
     outAmountRef.current?.blur();
     exchangeRef.current?.blur();
@@ -306,8 +430,7 @@ export default function HomeScreen() {
       await postOperation(operationPayload);
       setConfirmDialogVisible(false);
       cleanAllFields();
-      await reload();
-      Alert.alert('Listo', 'Operación guardada correctamente.');
+      await loadHomeOperations();
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar la operación');
     } finally {
@@ -362,6 +485,10 @@ export default function HomeScreen() {
     }
     closeCoinPicker();
   };
+
+  useEffect(() => {
+    void loadHomeOperations();
+  }, []);
 
   useEffect(() => {
     const accountId = route.params?.selectedAccount?.id;
@@ -424,7 +551,7 @@ export default function HomeScreen() {
   const handleDeleteOperation = async (operation: ReportOperation) => {
     try {
       await deleteOperation(operation.operation_id);
-      await reload();
+      await loadHomeOperations();
       Alert.alert('Listo', 'Se ha eliminado la operación');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
@@ -465,12 +592,11 @@ export default function HomeScreen() {
       side,
       userId,
     });
-    await reload();
+    await loadHomeOperations();
   };
 
   useEffect(() => {
     if (!coins.length) return;
-    flagHelper.setCoins(coins);
     const usd = coins.find((c) => c.short_name === 'USD')?.short_name;
     const ars = coins.find((c) => c.short_name === 'ARS')?.short_name;
 
@@ -483,6 +609,18 @@ export default function HomeScreen() {
     setInCoin(usd || coins[0].short_name);
     setOutCoin(ars || coins[1]?.short_name || coins[0].short_name);
   }, [coins]);
+
+  useEffect(() => {
+    if (isInDerived) {
+      inAmountRef.current?.blur();
+    }
+    if (isOutDerived) {
+      outAmountRef.current?.blur();
+    }
+    if (isExchangeDerived) {
+      exchangeRef.current?.blur();
+    }
+  }, [isExchangeDerived, isInDerived, isOutDerived]);
 
   return (
     <View style={styles.screen}>
@@ -586,13 +724,15 @@ export default function HomeScreen() {
               <View style={styles.cardSectionRight}>
                 <TextInput
                   ref={inAmountRef}
-                  style={styles.inputMock}
+                  style={[styles.inputMock, isInDerived ? styles.inputMockDisabled : null]}
                   value={inAmount}
                   onChangeText={handleInChange}
                   keyboardType="decimal-pad"
                   placeholder=""
                   placeholderTextColor="#b9b6be"
+                  editable={!isInDerived}
                 />
+                {isInDerived ? <Text style={styles.derivedBadge}>R</Text> : null}
               </View>
               <View style={styles.stateWrap}>
                 <TouchableOpacity
@@ -645,13 +785,15 @@ export default function HomeScreen() {
                 <Image source={require('../../../../assets/images/ui/arrowupsan.png')} style={styles.midArrowImg} />
                 <TextInput
                   ref={exchangeRef}
-                  style={styles.exchangeInputMock}
+                  style={[styles.exchangeInputMock, isExchangeDerived ? styles.inputMockDisabled : null]}
                   value={exchangeValue}
                   onChangeText={handleExchangeChange}
                   keyboardType="decimal-pad"
                   placeholder=""
                   placeholderTextColor="#b9b6be"
+                  editable={!isExchangeDerived}
                 />
+                {isExchangeDerived ? <Text style={styles.derivedBadge}>R</Text> : null}
               </View>
             </View>
           </View>
@@ -677,13 +819,15 @@ export default function HomeScreen() {
               <View style={styles.cardSectionRight}>
                 <TextInput
                   ref={outAmountRef}
-                  style={styles.inputMock}
+                  style={[styles.inputMock, isOutDerived ? styles.inputMockDisabled : null]}
                   value={outAmount}
                   onChangeText={handleOutChange}
                   keyboardType="decimal-pad"
                   placeholder=""
                   placeholderTextColor="#b9b6be"
+                  editable={!isOutDerived}
                 />
+                {isOutDerived ? <Text style={styles.derivedBadge}>R</Text> : null}
               </View>
               <View style={styles.stateWrap}>
                 <TouchableOpacity
@@ -802,7 +946,7 @@ export default function HomeScreen() {
           <View style={styles.center}>
             <Text style={styles.errorTitle}>No se pudieron cargar las operaciones</Text>
             <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={reload} style={styles.retryButton}>
+            <TouchableOpacity onPress={loadHomeOperations} style={styles.retryButton}>
               <Text style={styles.retryText}>Reintentar</Text>
             </TouchableOpacity>
           </View>
@@ -819,8 +963,6 @@ export default function HomeScreen() {
                 onAffectClient={handleAffectClient}
               />
             )}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.45}
             scrollEnabled={sheetExpanded}
             bounces={false}
             alwaysBounceVertical={false}
@@ -838,140 +980,148 @@ export default function HomeScreen() {
                 </Text>
               </View>
             }
-            ListFooterComponent={!loading && loadingMore ? <ActivityIndicator size="small" color="#6f6392" /> : null}
+            ListFooterComponent={
+              !loading ? (
+                <TouchableOpacity
+                  style={styles.viewAllButton}
+                  onPress={() => navigateTo('operations')}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.viewAllButtonText}>ver todas las operaciones</Text>
+                </TouchableOpacity>
+              ) : null
+            }
           />
         )}
       </AppBottomSheet>
 
-      <Modal
+      <AppDialog
         visible={confirmDialogVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={handleCloseConfirmDialog}
+        onClose={handleCloseConfirmDialog}
+        keyboardAware
+        keyboardGap={14}
+        backdropStyle={styles.confirmDialogBackdrop}
+        cardStyle={styles.confirmDialogCard}
       >
-        <Pressable style={styles.confirmDialogBackdrop} onPress={handleCloseConfirmDialog}>
-          <Pressable style={styles.confirmDialogCard} onPress={() => { }}>
-            <View style={styles.confirmDialogHeader}>
-              <Text style={styles.confirmDialogType}>{operationType.toUpperCase()}</Text>
-            </View>
+        <View style={styles.confirmDialogHeader}>
+          <Text style={styles.confirmDialogType}>{operationType.toUpperCase()}</Text>
+        </View>
 
-            <View style={styles.confirmDialogBody}>
-              <View style={styles.confirmSummaryCard}>
-                <View style={styles.confirmSummaryCol}>
-                  <Text style={styles.confirmSummaryMain}>
-                    <Text style={styles.confirmSummaryCode}>{inCoin} </Text>
-                    <Text style={styles.confirmSummaryNumber}>{inAmount || '0'}</Text>
-                  </Text>
-                  <View style={styles.confirmSummarySubRowLeft}>
-                    {inState === APP_CONSTANTS.STATE_PENDIENT ? (
-                      <Image
-                        source={require('../../../../assets/images/ui/pendsan.png')}
-                        style={styles.confirmSummaryStateInline}
-                      />
-                    ) : null}
-                    <Text style={[styles.confirmSummarySub, styles.confirmSummarySubLeftText]}>
-                      {selectedAccountName?.trim() || 'Varios'}
-                    </Text>
-                  </View>
-                </View>
-                <Image
-                  source={
-                    operationType === APP_CONSTANTS.TYPE_COMPRA
-                      ? require('../../../../assets/images/ui/log8.png')
-                      : require('../../../../assets/images/ui/log9.png')
-                  }
-                  style={styles.confirmSummaryArrowImg}
-                />
-                <View style={styles.confirmSummaryColRight}>
-                  <Text style={styles.confirmSummaryMain}>
-                    <Text style={styles.confirmSummaryCode}>{outCoin} </Text>
-                    <Text style={styles.confirmSummaryNumber}>{formatDialogOutAmount(outAmount)}</Text>
-                  </Text>
-                  <View style={styles.confirmSummarySubRowRight}>
-                    <Text style={[styles.confirmSummarySub, styles.confirmSummarySubRightText]}>
-                      {pairCoin1} 1 = {pairCoin2} {exchangeValue || '1'}
-                    </Text>
-                    {outState === APP_CONSTANTS.STATE_PENDIENT ? (
-                      <Image
-                        source={require('../../../../assets/images/ui/pendsan.png')}
-                        style={styles.confirmSummaryStateInline}
-                      />
-                    ) : null}
-                  </View>
-                </View>
-
-                {affectIn ? (
-                  <View style={styles.confirmAffectInWrap}>
-                    <Image
-                      source={require('../../../../assets/images/ui/saleccliente2.png')}
-                      style={styles.confirmAffectIcon}
-                    />
-                  </View>
-                ) : null}
-
-                {affectOut ? (
-                  <View style={styles.confirmAffectOutWrap}>
-                    <Image
-                      source={require('../../../../assets/images/ui/entraccliente.png')}
-                      style={styles.confirmAffectIcon}
-                    />
-                  </View>
-                ) : null}
-              </View>
-
-              <View style={styles.confirmMetaRow}>
-                <View style={styles.confirmMetaIconCol}>
-                  <Image source={require('../../../../assets/images/ui/dateviol.png')} style={styles.confirmMetaIcon} />
-                </View>
-                <View style={styles.confirmMetaContent}>
-                  <TouchableOpacity activeOpacity={0.8} onPress={() => setConfirmDatePickerVisible(true)}>
-                    <Text style={styles.confirmMetaText}>{confirmDate}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.confirmMetaRow}>
-                <View style={styles.confirmMetaIconCol}>
-                  <Image source={require('../../../../assets/images/ui/sessionviol.png')} style={styles.confirmMetaIcon} />
-                </View>
-                <View style={styles.confirmMetaContent}>
-                  <Text style={styles.confirmMetaText}>{userName || '-'}</Text>
-                </View>
-              </View>
-
-              <View style={styles.confirmMetaRow}>
-                <View style={styles.confirmMetaIconCol}>
-                  <Image source={require('../../../../assets/images/ui/documento.png')} style={styles.confirmMetaIcon} />
-                </View>
-                <View style={styles.confirmMetaContent}>
-                  <TextInput
-                    value={confirmObservation}
-                    onChangeText={setConfirmObservation}
-                    placeholder="agregar observacion"
-                    placeholderTextColor="#8f8f97"
-                    style={styles.confirmDialogObsInput}
+        <View style={styles.confirmDialogBody}>
+          <View style={styles.confirmSummaryCard}>
+            <View style={styles.confirmSummaryCol}>
+              <Text style={styles.confirmSummaryMain}>
+                <Text style={styles.confirmSummaryCode}>{inCoin} </Text>
+                <Text style={styles.confirmSummaryNumber}>{inAmount || '0'}</Text>
+              </Text>
+              <View style={styles.confirmSummarySubRowLeft}>
+                {inState === APP_CONSTANTS.STATE_PENDIENT ? (
+                  <Image
+                    source={require('../../../../assets/images/ui/pendsan.png')}
+                    style={styles.confirmSummaryStateInline}
                   />
-                </View>
+                ) : null}
+                <Text style={[styles.confirmSummarySub, styles.confirmSummarySubLeftText]}>
+                  {selectedAccountName?.trim() || 'Varios'}
+                </Text>
+              </View>
+            </View>
+            <Image
+              source={
+                operationType === APP_CONSTANTS.TYPE_COMPRA
+                  ? require('../../../../assets/images/ui/log8.png')
+                  : require('../../../../assets/images/ui/log9.png')
+              }
+              style={styles.confirmSummaryArrowImg}
+            />
+            <View style={styles.confirmSummaryColRight}>
+              <Text style={styles.confirmSummaryMain}>
+                <Text style={styles.confirmSummaryCode}>{outCoin} </Text>
+                <Text style={styles.confirmSummaryNumber}>{formatDialogOutAmount(outAmount)}</Text>
+              </Text>
+              <View style={styles.confirmSummarySubRowRight}>
+                <Text style={[styles.confirmSummarySub, styles.confirmSummarySubRightText]}>
+                  {pairCoin1} 1 = {pairCoin2} {exchangeValue || '1'}
+                </Text>
+                {outState === APP_CONSTANTS.STATE_PENDIENT ? (
+                  <Image
+                    source={require('../../../../assets/images/ui/pendsan.png')}
+                    style={[styles.confirmSummaryStateInline, styles.confirmSummaryStateInlineRight]}
+                  />
+                ) : null}
               </View>
             </View>
 
-            <View style={styles.confirmDialogActions}>
-              <TouchableOpacity onPress={handleCloseConfirmDialog} style={styles.confirmDialogCancel}>
-                <Text style={styles.confirmDialogCancelText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleConfirmDialogAccept}
-                style={styles.confirmDialogAccept}
-                disabled={savingOperation}
-              >
-                <Text style={styles.confirmDialogAcceptText}>
-                  {savingOperation ? 'Guardando...' : 'Confirmar'}
-                </Text>
+            {affectIn ? (
+              <View style={styles.confirmAffectInWrap}>
+                <Image
+                  source={require('../../../../assets/images/ui/saleccliente2.png')}
+                  style={styles.confirmAffectIcon}
+                />
+              </View>
+            ) : null}
+
+            {affectOut ? (
+              <View style={styles.confirmAffectOutWrap}>
+                <Image
+                  source={require('../../../../assets/images/ui/entraccliente.png')}
+                  style={styles.confirmAffectIcon}
+                />
+              </View>
+            ) : null}
+          </View>
+
+          <View style={styles.confirmMetaRow}>
+            <View style={styles.confirmMetaIconCol}>
+              <Image source={require('../../../../assets/images/ui/dateviol.png')} style={styles.confirmMetaIcon} />
+            </View>
+            <View style={styles.confirmMetaContent}>
+              <TouchableOpacity activeOpacity={0.8} onPress={() => setConfirmDatePickerVisible(true)}>
+                <Text style={styles.confirmMetaText}>{confirmDate}</Text>
               </TouchableOpacity>
             </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+          </View>
+
+          <View style={styles.confirmMetaRow}>
+            <View style={styles.confirmMetaIconCol}>
+              <Image source={require('../../../../assets/images/ui/sessionviol.png')} style={styles.confirmMetaIcon} />
+            </View>
+            <View style={styles.confirmMetaContent}>
+              <Text style={styles.confirmMetaText}>{userName || '-'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.confirmMetaRow}>
+            <View style={styles.confirmMetaIconCol}>
+              <Image source={require('../../../../assets/images/ui/documento.png')} style={styles.confirmMetaIcon} />
+            </View>
+            <View style={styles.confirmMetaContent}>
+              <TextInput
+                value={confirmObservation}
+                onChangeText={setConfirmObservation}
+                placeholder="agregar observacion"
+                placeholderTextColor="#8f8f97"
+                style={styles.confirmDialogObsInput}
+              />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.confirmDialogActions}>
+          <TouchableOpacity onPress={handleCloseConfirmDialog} style={styles.confirmDialogCancel}>
+            <Text style={styles.confirmDialogCancelText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleConfirmDialogAccept}
+            style={styles.confirmDialogAccept}
+            disabled={savingOperation}
+          >
+            <Text style={styles.confirmDialogAcceptText}>
+              {savingOperation ? 'Guardando...' : 'Confirmar'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </AppDialog>
 
       <AppDatePicker
         visible={confirmDatePickerVisible}

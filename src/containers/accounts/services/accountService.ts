@@ -87,6 +87,11 @@ const pickNumber = (value: unknown): number | null => {
 };
 
 const ensureCoinsCatalog = async (): Promise<void> => {
+ if (flagHelper.getCoins().length > 0) {
+  coinsCatalogLoaded = true;
+  return;
+ }
+
  if (coinsCatalogLoaded) return;
  if (!coinsCatalogPromise) {
   coinsCatalogPromise = (async () => {
@@ -329,6 +334,7 @@ export async function updateAccount(accountData: UpdateAccountData): Promise<voi
 async function requestAccounts(params: AccountsRequestParams): Promise<ReportAccount[]> {
  await ensureCoinsCatalog();
  const response = await api.get('/accounts.php', { params });
+
  const data = response.data;
 
  if (data?.result && data.result !== 'success') {
@@ -342,27 +348,7 @@ async function requestAccounts(params: AccountsRequestParams): Promise<ReportAcc
    ? Object.values(payload)
    : [];
 
- if (__DEV__) {
-  console.log('[accounts] request params =>', params);
-  console.log('[accounts] source length =>', source.length);
-  source.slice(0, 3).forEach((item: any, index: number) => {
-   console.log(`[accounts] raw[${index}] balance =>`, item?.balance);
-   console.log(`[accounts] raw[${index}] balances =>`, item?.balances);
-   console.log(`[accounts] raw[${index}] report_box_coin =>`, item?.report_box_coin);
-   console.log(`[accounts] raw[${index}] account.balance =>`, item?.account?.balance);
-  });
- }
-
  const normalized = source.map(normalizeItem).filter((item) => item.account.id !== 0);
-
- if (__DEV__) {
-  normalized.slice(0, 5).forEach((item, index) => {
-   console.log(
-    `[accounts] normalized[${index}] id=${item.account.id} name=${item.account.name} balanceCount=${item.balance.length}`,
-   );
-   console.log(`[accounts] normalized[${index}] balances =>`, item.balance);
-  });
- }
 
  return normalized;
 }

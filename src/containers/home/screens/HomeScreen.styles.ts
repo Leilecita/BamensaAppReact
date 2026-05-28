@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
  optionsMenuWrap: {
   position: 'absolute',
   right: 16,
-  top: 120,
+  top: 115,
   zIndex: 25,
   alignItems: 'flex-end',
  },
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   resizeMode: 'contain',
  },
  optionsList: {
-  marginTop: 16,
+  marginTop: 12,
   alignItems: 'flex-end',
  },
  optionsListItem: {
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
  },
  scrollContent: {
   paddingHorizontal: 12,
-  paddingTop: 8,
+  paddingTop: 4,
   paddingBottom: 180,
  },
  headerRow: {
@@ -155,6 +155,7 @@ const styles = StyleSheet.create({
   justifyContent: 'center',
   paddingRight: 6,
   paddingLeft: 2,
+  position: 'relative',
  },
  coinLabel: {
   color: COLORS.colorPrimaryIntLetter,
@@ -177,6 +178,16 @@ const styles = StyleSheet.create({
   color: COLORS.word,
   fontSize: DIMENS.bigBigText,
   fontFamily: 'ArialRoundedRegular',
+ },
+ inputMockDisabled: {},
+ derivedBadge: {
+  position: 'absolute',
+  top: 6,
+  right: 10,
+  color: COLORS.colorPrimaryClearLetter,
+  fontSize: 13,
+  fontFamily: 'OpenSansRegular',
+  opacity: 0.9,
  },
  stateWrap: {
   width: 46,
@@ -233,6 +244,7 @@ const styles = StyleSheet.create({
   flexDirection: 'row',
   alignItems: 'center',
   paddingLeft: 0,
+  position: 'relative',
  },
  midArrowImg: {
   width: 22,
@@ -513,6 +525,21 @@ const styles = StyleSheet.create({
  retryText: {
   color: COLORS.white,
   fontFamily: 'OpenSansBold',
+ },
+ viewAllButton: {
+  alignSelf: 'center',
+  marginTop: 12,
+  marginBottom: 16,
+  paddingHorizontal: 18,
+  paddingVertical: 10,
+  borderRadius: 16,
+  backgroundColor: COLORS.back_flot,
+ },
+ viewAllButtonText: {
+  color: COLORS.colorPrimaryDarkLetter,
+  fontFamily: 'OpenSansRegular',
+  fontSize: DIMENS.generalText,
+  textTransform: 'lowercase',
  },
  emptyWrap: {
   marginTop: 18,
