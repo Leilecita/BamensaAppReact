@@ -2,7 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AccountsScreen from '../../containers/accounts/screens/AccountsScreen';
 import CreateAccountScreen from '../../containers/accounts/screens/CreateAccountScreen';
+import CreateBalanceScreen from '../../containers/boxBalance/screens/CreateBalanceScreen';
 import InformationByAccountScreen from '../../containers/accounts/screens/InformationByAccountScreen';
+import DivisionBalanceScreen from '../../containers/boxBalance/screens/DivisionBalanceScreen';
 import InformationBoxBalanceScreen from '../../containers/boxBalance/screens/InformationBoxBalanceScreen';
 import CoinsScreen from '../../containers/coins/screens/CoinsScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
@@ -34,6 +36,13 @@ export type AppStackParamList = {
      initialTab?: 'box' | 'coins' | 'balance';
     }
   | undefined;
+ createBalance: undefined;
+ divisionBalance: {
+  balanceId: number;
+  result: number;
+  dateBalance: string;
+  partners?: any[];
+ };
  informationByAccount: {
   accountId: number;
   accountName: string;
@@ -100,6 +109,20 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <InformationBoxBalanceScreen />
+     </ScreenWithShell>
+   )}
+   </Stack.Screen>
+   <Stack.Screen name="createBalance">
+    {() => (
+     <ScreenWithShell>
+      <CreateBalanceScreen />
+     </ScreenWithShell>
+    )}
+   </Stack.Screen>
+   <Stack.Screen name="divisionBalance">
+    {() => (
+     <ScreenWithShell>
+      <DivisionBalanceScreen />
      </ScreenWithShell>
     )}
    </Stack.Screen>

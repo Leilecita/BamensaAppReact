@@ -6,6 +6,8 @@ import AppTopBar from '../../../core/components/AppTopBar';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
 import { AuthContext } from '../../../contexts/AuthContext';
 import styles from './InformationBoxBalanceScreen.styles';
+import InformationBoxBalanceBalancesTab from './tabs/InformationBoxBalanceBalancesTab';
+import InformationBoxBalanceCoinsTab from './tabs/InformationBoxBalanceCoinsTab';
 import InformationBoxBalancePlaceholderTab from './tabs/InformationBoxBalancePlaceholderTab';
 import InformationBoxBalanceTotalTab from './tabs/InformationBoxBalanceTotalTab';
 
@@ -47,23 +49,13 @@ export default function InformationBoxBalanceScreen() {
       onPress={() => setTab(tabKey)}
      >
       <Text style={[styles.tabText, tab === tabKey ? styles.tabTextActive : null]}>{TAB_LABELS[tabKey]}</Text>
-     </TouchableOpacity>
-    ))}
-   </View>
+   </TouchableOpacity>
+   ))}
+  </View>
 
    {tab === 'box' ? <InformationBoxBalanceTotalTab /> : null}
-   {tab === 'coins' ? (
-    <InformationBoxBalancePlaceholderTab
-     title="Saldo monedas"
-     description="La estructura del segundo tab ya quedó montada dentro de Cajas. Falta conectar su contenido específico."
-    />
-   ) : null}
-   {tab === 'balance' ? (
-    <InformationBoxBalancePlaceholderTab
-     title="Balances"
-     description="Este tab quedó reservado para el flujo admin, igual que en Android."
-    />
-   ) : null}
+   {tab === 'coins' ? <InformationBoxBalanceCoinsTab /> : null}
+   {tab === 'balance' ? <InformationBoxBalanceBalancesTab /> : null}
   </View>
  );
 }

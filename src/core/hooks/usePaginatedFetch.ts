@@ -56,18 +56,18 @@ export function usePaginatedFetch<T>(
  }, [page, load])
 
  // Pull-to-refresh
- const reload = async () => {
+ const reload = useCallback(async () => {
   setRefreshing(true)
   setPage(0)
   await load(0, true)
   setRefreshing(false)
- }
+ }, [load])
 
- const loadMore = () => {
+ const loadMore = useCallback(() => {
   if (!loading && !loadingMore && hasMore) {
    setPage(prev => prev + 1)
   }
- }
+ }, [hasMore, loading, loadingMore])
 
  return {
   data,
@@ -81,4 +81,3 @@ export function usePaginatedFetch<T>(
   setPage,
  }
 }
-

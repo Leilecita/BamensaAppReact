@@ -1,4 +1,4 @@
-import api from '../../../core/services/axiosClient';
+import api, { getAPIServiceBamApp } from '../../../core/services/axiosClient';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { dateHelper } from '../../../helpers/dateHelper';
 
@@ -118,6 +118,14 @@ export async function postOperation(payload: CreateOperationPayload): Promise<vo
  const data = response.data;
  if (data?.result && data.result !== 'success') {
   throw new Error(data?.message || 'Error al guardar operación');
+ }
+}
+
+export async function postOperationAppOriginal(payload: CreateOperationPayload): Promise<void> {
+ const response = await getAPIServiceBamApp().post('/operations_acces.php', payload);
+ const data = response.data;
+ if (data?.result && data.result !== 'success') {
+  throw new Error(data?.message || 'Error al guardar operación en app original');
  }
 }
 
