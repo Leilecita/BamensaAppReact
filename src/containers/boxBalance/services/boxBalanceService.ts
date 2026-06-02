@@ -24,6 +24,14 @@ export type ReportBoxCoin = {
  pendients: number;
 };
 
+export type ReportBalanceDetail = {
+ coin_id: number;
+ coin_name: string;
+ coin_short_name: string;
+ balance: number;
+ raw: any;
+};
+
 export type ReportBalanceDetailTotalBox = {
  coin_id: number;
  coin_name: string;
@@ -156,6 +164,16 @@ const normalizeBalanceDolarizedCoin = (item: any): BalanceDolarizedCoin => {
   raw: item,
  };
 };
+
+const normalizeReportBalanceDetail = (item: any): ReportBalanceDetail => ({
+ coin_id: Number(item?.coin_id ?? item?.id ?? 0) || 0,
+ coin_name: String(item?.coin_name ?? ''),
+ coin_short_name: String(item?.coin_short_name ?? item?.coin_name ?? '')
+  .toUpperCase()
+  .trim(),
+ balance: toNumber(item?.balance),
+ raw: item,
+});
 
 const normalizeReportBalance = (item: any): ReportBalance => {
  return {
@@ -338,6 +356,22 @@ export async function fetchTotalBoxCoins(): Promise<ReportBoxCoin[]> {
  }
 
  return getListFromPayload<ReportBoxCoin>(response.data);
+}
+
+export async function fetchBalanceCoins(): Promise<ReportBalanceDetail[]> {
+ const response = await api.get('/items_operation.php', {
+  params: {
+   method: 'getBalanceCoins',
+  },
+ });
+
+ if (response.data?.result && response.data.result !== 'success') {
+  throw new Error(response.data?.message || 'Error al obtener saldo monedas');
+ }
+
+ return getListFromPayload<any>(response.data)
+  .map(normalizeReportBalanceDetail)
+  .filter((item) => item.coin_id !== 0 && item.coin_short_name);
 }
 
 export async function fetchBoxItemsByCoin(

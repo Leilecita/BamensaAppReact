@@ -4,7 +4,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AddActionButton from '../../../../core/components/AddActionButton';
 import type { AppStackParamList } from '../../../../core/navigation/AppStack';
-import { usePaginatedFetch } from '../../../../core/hooks/usePaginatedFetch';
+import { useCachedPaginatedList } from '../../../../core/hooks/useCachedPaginatedList';
 import styles from '../InformationBoxBalanceScreen.styles';
 import BalanceListItem from '../../components/BalanceListItem';
 import { fetchBalances, ReportBalance } from '../../services/boxBalanceService';
@@ -12,19 +12,15 @@ import { fetchBalances, ReportBalance } from '../../services/boxBalanceService';
 export default function InformationBoxBalanceBalancesTab() {
  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
  const fetchBalancesPage = useCallback(async (page: number) => fetchBalances(page), []);
- const {
-  data: balances,
-  loading,
-  loadingMore,
-  error,
-  reload,
-  loadMore,
-  setData: setBalances,
- } = usePaginatedFetch<ReportBalance>(fetchBalancesPage);
+ const { data: balances, loading, loadingMore, error, loadMore, reload, setData: setBalances } =
+  useCachedPaginatedList<ReportBalance>({
+   cacheKey: 'box-balance:balances',
+   fetchPage: fetchBalancesPage,
+  });
 
  useFocusEffect(
   useCallback(() => {
-   void reload();
+   reload();
   }, [reload]),
  );
 
@@ -51,7 +47,7 @@ export default function InformationBoxBalanceBalancesTab() {
         {loading ? 'Cargando balances...' : error ? 'No se pudieron cargar los balances' : 'No hay balances para mostrar'}
        </Text>
        {error ? (
-        <TouchableOpacity activeOpacity={0.8} onPress={() => void reload()}>
+        <TouchableOpacity activeOpacity={0.8} onPress={reload}>
          <Text style={styles.retryText}>Reintentar</Text>
         </TouchableOpacity>
        ) : null}

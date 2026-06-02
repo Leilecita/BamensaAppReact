@@ -31,6 +31,13 @@ export default function BalanceCoinDayCard({ item }: Props) {
     <DateChip label={dateHelper.onlyDayMonth(item.item_created)} />
    </View>
 
+   <View style={styles.balanceCoinsSaldoRow}>
+    <Text style={styles.balanceCoinsSaldoLabel}>Saldo al día</Text>
+    <Text style={styles.balanceCoinsSaldoValue}>{formatFixed1(item.balance)}</Text>
+   </View>
+
+   <View style={styles.balanceCoinLine} />
+
    <TouchableOpacity style={styles.balanceCoinToggleRow} activeOpacity={0.85} onPress={() => setBoxExpanded((prev) => !prev)}>
     <View style={styles.balanceCoinLabelSide}>
      <Image

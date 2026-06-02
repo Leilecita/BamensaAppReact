@@ -5,17 +5,18 @@ import { formatAmount1Decimal } from '../../../../helpers/valuesHelper';
 import styles from '../InformationBoxBalanceScreen.styles';
 import BalanceCoinDayCard from '../../components/BalanceCoinDayCard';
 import {
+ fetchBalanceCoins,
  fetchBalanceDetailByCoin,
- fetchTotalBoxCoins,
+ ReportBalanceDetail,
  ReportBalanceDetailByCoin,
- ReportBoxCoin,
 } from '../../services/boxBalanceService';
 
 const PAGE_SIZE = 3;
+let cachedCoinsTabBalances: ReportBalanceDetail[] = [];
 
 export default function InformationBoxBalanceCoinsTab() {
- const [balances, setBalances] = useState<ReportBoxCoin[]>([]);
- const [loading, setLoading] = useState(true);
+ const [balances, setBalances] = useState<ReportBalanceDetail[]>(cachedCoinsTabBalances);
+ const [loading, setLoading] = useState(cachedCoinsTabBalances.length === 0);
  const [error, setError] = useState<string | null>(null);
  const [openCoinId, setOpenCoinId] = useState<number | null>(null);
  const [detailsCache, setDetailsCache] = useState<Record<number, ReportBalanceDetailByCoin[]>>({});
@@ -26,11 +27,15 @@ export default function InformationBoxBalanceCoinsTab() {
  const [detailHasMore, setDetailHasMore] = useState<Record<number, boolean>>({});
 
  const loadBalances = useCallback(async () => {
-  setLoading(true);
+  const hasCachedBalances = cachedCoinsTabBalances.length > 0;
+  if (!hasCachedBalances) {
+   setLoading(true);
+  }
   setError(null);
 
   try {
-   const data = await fetchTotalBoxCoins();
+   const data = await fetchBalanceCoins();
+   cachedCoinsTabBalances = data;
    setBalances(data);
   } catch (e: any) {
    setError(e?.message || 'No se pudieron cargar los saldos por moneda');
@@ -132,11 +137,6 @@ export default function InformationBoxBalanceCoinsTab() {
 
         {expanded ? (
          <View style={styles.balanceCoinsExpandedWrap}>
-          <View style={styles.balanceCoinsSaldoRow}>
-           <Text style={styles.balanceCoinsSaldoLabel}>Saldo al día</Text>
-           <Text style={styles.balanceCoinsSaldoValue}>{formatAmount1Decimal(item.balance)}</Text>
-          </View>
-
           {detailLoading[item.coin_id] ? (
            <View style={styles.coinDetailEmptyWrap}>
             <ActivityIndicator size="small" color="#6f6392" />

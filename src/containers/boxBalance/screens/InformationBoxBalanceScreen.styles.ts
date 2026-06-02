@@ -223,12 +223,12 @@ const styles = StyleSheet.create({
  },
  balanceCoinsSaldoLabel: {
   color: COLORS.word,
-  fontSize: 22,
+  fontSize: 19,
   fontFamily: 'OpenSansRegular',
  },
  balanceCoinsSaldoValue: {
   color: COLORS.word,
-  fontSize: 22,
+  fontSize: 19,
   fontFamily: 'ArialRoundedRegular',
  },
  balanceCoinDayWrap: {
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   flex: 1,
   color: COLORS.word,
   fontSize: DIMENS.generalText,
-  fontFamily: 'OpenSansRegular',
+  fontFamily: 'OpenSansLight',
  },
  balanceCoinPlainValue: {
   minWidth: 80,

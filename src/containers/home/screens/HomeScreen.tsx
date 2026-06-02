@@ -665,7 +665,7 @@ export default function HomeScreen() {
               activeOpacity={0.85}
               onPress={() => {
                 setListOptionsVisible(false);
-                Alert.alert('Caja F', 'Pantalla pendiente en React Native.');
+                Alert.alert('Caja F', 'Disponible solo en Fisherton.');
               }}
             >
               <Text style={styles.optionsListItemText}>Caja F</Text>
@@ -677,7 +677,7 @@ export default function HomeScreen() {
               activeOpacity={0.85}
               onPress={() => {
                 setListOptionsVisible(false);
-                Alert.alert('Caja', 'Pantalla pendiente en React Native.');
+                navigateTo('boxBalance');
               }}
             >
               <Text style={styles.optionsListItemText}>Caja</Text>

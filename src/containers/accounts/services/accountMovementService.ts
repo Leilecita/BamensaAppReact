@@ -1,5 +1,6 @@
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { getAPIServiceBamApp, getAPISessionService } from '../../../core/services/axiosClient';
+import { dateHelper } from '../../../helpers/dateHelper';
 
 type OperationState = typeof APP_CONSTANTS.STATE_DONE | typeof APP_CONSTANTS.STATE_PENDIENT;
 
@@ -19,11 +20,12 @@ const normalizeUrl = (value: string): string => value.trim().replace(/\/+$/, '')
 const buildPayload = (input: CreateMovementInput, accountId: number) => {
   const isRetiro = input.type === APP_CONSTANTS.TYPE_RETIRO;
   const retiroState = APP_CONSTANTS.STATE_DONE;
+  const createdForServer = dateHelper.userToServer(input.created) || input.created;
 
   return {
     type: input.type,
     exchange: 0,
-    created: input.created,
+    created: createdForServer,
     observation: input.observation,
     account_id: accountId,
     user_id: input.userId,

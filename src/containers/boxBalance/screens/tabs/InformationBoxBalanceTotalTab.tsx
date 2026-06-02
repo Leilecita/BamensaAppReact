@@ -46,6 +46,7 @@ import {
 } from '../../services/boxBalanceService';
 
 const PAGE_SIZE = 12;
+let cachedTotalBoxBalances: ReportBoxCoin[] = [];
 
 const canManageBoxMovement = (item: ReportItemOperation | null) => {
  if (!item) return false;
@@ -208,8 +209,8 @@ export default function InformationBoxBalanceTotalTab() {
  const { height: windowHeight } = useWindowDimensions();
  const sheetHeight = 240;
  const sheetPeek = 90;
- const [balances, setBalances] = useState<ReportBoxCoin[]>([]);
- const [balancesLoading, setBalancesLoading] = useState(true);
+ const [balances, setBalances] = useState<ReportBoxCoin[]>(cachedTotalBoxBalances);
+ const [balancesLoading, setBalancesLoading] = useState(cachedTotalBoxBalances.length === 0);
  const [balancesError, setBalancesError] = useState<string | null>(null);
  const [openCoinId, setOpenCoinId] = useState<number | null>(null);
  const [selectedType, setSelectedType] = useState<string>(APP_CONSTANTS.TYPE_ALL);
@@ -274,11 +275,15 @@ export default function InformationBoxBalanceTotalTab() {
  }, [selectedState, selectedType, selectedUser]);
 
  const refreshBalances = useCallback(async () => {
-  setBalancesLoading(true);
+  const hasCachedBalances = cachedTotalBoxBalances.length > 0;
+  if (!hasCachedBalances) {
+   setBalancesLoading(true);
+  }
   setBalancesError(null);
 
  try {
   const data = await fetchTotalBoxCoins();
+  cachedTotalBoxBalances = data;
   setBalances(data);
   } catch (e: any) {
    setBalancesError(e?.message || 'No se pudieron cargar los saldos de caja');
@@ -288,7 +293,7 @@ export default function InformationBoxBalanceTotalTab() {
  }, []);
 
  React.useEffect(() => {
-  refreshBalances();
+  void refreshBalances();
  }, [refreshBalances]);
 
  const loadCoinItemsFirstPage = useCallback(

@@ -1,5 +1,6 @@
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import api from '../../../core/services/axiosClient';
+import { dateHelper } from '../../../helpers/dateHelper';
 import { flagHelper } from '../../../helpers/flagHelper';
 
 export type ReportItemOperation = {
@@ -43,7 +44,7 @@ const normalizeItem = (item: any): ReportItemOperation => ({
  operation_type: String(item?.operation_type ?? ''),
  observation: String(item?.observation ?? ''),
  nota: String(item?.nota ?? ''),
- created: String(item?.created ?? ''),
+ created: dateHelper.serverToUser(String(item?.created ?? '')) || String(item?.created ?? ''),
  commission: item?.commission === undefined ? undefined : toNumber(item?.commission),
  item_number: item?.item_number === undefined ? undefined : toNumber(item?.item_number),
  approve_amount: item?.approve_amount === undefined ? undefined : toNumber(item?.approve_amount),
