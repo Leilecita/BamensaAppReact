@@ -116,7 +116,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
           <MenuItem icon="safe-square-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cajas" onPress={() => navigateTo('boxBalance')} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={() => navigateTo('outcomes')} />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} muted />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={closeMenu} muted />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={() => navigateTo('checks')} />
                   </View>
 
                   <View style={styles.divider} />

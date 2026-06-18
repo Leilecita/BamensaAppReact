@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   top: 405,
  },
  coinPickerRow: {
-  height: 56,
+  height: 50,
   flexDirection: 'row',
   alignItems: 'center',
   paddingHorizontal: 12,

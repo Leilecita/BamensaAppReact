@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import type { ReportItemOperation } from '../../accounts/services/accountItemsOperationService';
 import styles from '../../accounts/components/DeleteMovementDialog.styles';
 
@@ -16,7 +16,7 @@ export default function BoxDeleteMovementDialog({ visible, item, onClose, onDele
 
  const valueText = useMemo(() => {
   const value = Number(item?.debit ?? 0) + Number(item?.credit ?? 0);
-  return formatAmount1Decimal(value);
+  return valuesHelper.getBigNumb(value);
  }, [item?.credit, item?.debit]);
 
  const handleDelete = async () => {

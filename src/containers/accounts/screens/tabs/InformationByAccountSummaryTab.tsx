@@ -1,5 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { AccountCoinBalanceParam } from '../../../../core/navigation/AppStack';
 import AddActionButton from '../../../../core/components/AddActionButton';
 import ContextActionMenu from '../../../../core/components/ContextActionMenu';
@@ -128,6 +129,7 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
   const [coinError, setCoinError] = useState<Record<number, string | null>>({});
   const [coinPage, setCoinPage] = useState<Record<number, number>>({});
   const [coinHasMore, setCoinHasMore] = useState<Record<number, boolean>>({});
+  const [refreshingSummary, setRefreshingSummary] = useState(false);
   const [editDialogVisible, setEditDialogVisible] = useState(false);
   const [editingMovement, setEditingMovement] = useState<ReportItemOperation | null>(null);
   const [changeStateDialogVisible, setChangeStateDialogVisible] = useState(false);
@@ -194,41 +196,52 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
   );
 
   const refreshAllMovementsAndBalances = useCallback(async () => {
-    const balancesByAccount = await getTotalAmountCoinsByAccountId(accountId);
+    setRefreshingSummary(true);
+    try {
+      const balancesByAccount = await getTotalAmountCoinsByAccountId(accountId);
 
-    setBalancesView(
-      balancesByAccount.map((row) => ({
-        coin_id: row.coin_id,
-        coin_short_name: row.coin_short_name,
-        balance: row.balance,
-      })),
-    );
+      setBalancesView(
+        balancesByAccount.map((row) => ({
+          coin_id: row.coin_id,
+          coin_short_name: row.coin_short_name,
+          balance: row.balance,
+        })),
+      );
 
-    const entries = await Promise.all(
-      balancesByAccount.map(async (coin) => {
-        try {
-          const items = await fetchItemsOperationByCoin(0, coin.coin_id, accountId);
-          return [coin.coin_id, items] as const;
-        } catch {
-          return [coin.coin_id, [] as ReportItemOperation[]] as const;
-        }
-      }),
-    );
+      const entries = await Promise.all(
+        balancesByAccount.map(async (coin) => {
+          try {
+            const items = await fetchItemsOperationByCoin(0, coin.coin_id, accountId);
+            return [coin.coin_id, items] as const;
+          } catch {
+            return [coin.coin_id, [] as ReportItemOperation[]] as const;
+          }
+        }),
+      );
 
-    const nextCache: Record<number, ReportItemOperation[]> = {};
-    const nextPage: Record<number, number> = {};
-    const nextHasMore: Record<number, boolean> = {};
+      const nextCache: Record<number, ReportItemOperation[]> = {};
+      const nextPage: Record<number, number> = {};
+      const nextHasMore: Record<number, boolean> = {};
 
-    entries.forEach(([coinId, items]) => {
-      nextCache[coinId] = items;
-      nextPage[coinId] = 0;
-      nextHasMore[coinId] = items.length >= PAGE_SIZE;
-    });
+      entries.forEach(([coinId, items]) => {
+        nextCache[coinId] = items;
+        nextPage[coinId] = 0;
+        nextHasMore[coinId] = items.length >= PAGE_SIZE;
+      });
 
-    setCoinItemsCache(nextCache);
-    setCoinPage(nextPage);
-    setCoinHasMore(nextHasMore);
+      setCoinItemsCache(nextCache);
+      setCoinPage(nextPage);
+      setCoinHasMore(nextHasMore);
+    } finally {
+      setRefreshingSummary(false);
+    }
   }, [accountId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshAllMovementsAndBalances();
+    }, [refreshAllMovementsAndBalances]),
+  );
 
   const handleToggleCoin = useCallback(
     (coinId: number) => {
@@ -318,7 +331,7 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
                     <Text style={styles.summaryCoinCode}>{item.coin_short_name}</Text>
                   </View>
                   <Text style={[styles.summaryAmount, expanded ? styles.summaryAmountHidden : null]}>
-                    {formatAmount1Decimal(item.balance)}
+                    {refreshingSummary ? '' : formatAmount1Decimal(item.balance)}
                   </Text>
                 </TouchableOpacity>
 

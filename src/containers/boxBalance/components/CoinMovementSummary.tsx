@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import DateChip from '../../accounts/components/DateChip';
 import { dateHelper } from '../../../helpers/dateHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import styles from '../screens/InformationBoxBalanceScreen.styles';
 import type { ReportBalanceDetailTotalBox } from '../services/boxBalanceService';
 
@@ -55,27 +55,27 @@ export default function CoinMovementSummary({ items, loading, error, onRetry }: 
       <View style={styles.summaryInnerCard}>
        <View style={styles.summaryInnerRow}>
         <Text style={styles.summaryInnerLabel}>Caja diaria total</Text>
-        <Text style={styles.summaryInnerValue}>{formatAmount1Decimal(item.res_caja_general)}</Text>
+        <Text style={styles.summaryInnerValue}>{valuesHelper.getBigNumb(item.res_caja_general)}</Text>
        </View>
        <View style={styles.summaryInnerDivider} />
 
        <View style={styles.summaryInnerRow}>
         <Text style={styles.summaryInnerLabel}>Operaciones</Text>
-        <Text style={styles.summaryInnerValue}>{formatAmount1Decimal(caja)}</Text>
+        <Text style={styles.summaryInnerValue}>{valuesHelper.getBigNumb(caja)}</Text>
        </View>
        <View style={styles.summaryInnerDivider} />
 
        <View style={styles.summaryInnerRow}>
         <Text style={styles.summaryInnerLabel}>Gastos / Extr</Text>
         <Text style={styles.summaryInnerValue}>
-         {formatAmount1Decimal(Number(item.sum_gasto ?? 0) + Number(item.sum_extr ?? 0))}
+         {valuesHelper.getBigNumb(Number(item.sum_gasto ?? 0) + Number(item.sum_extr ?? 0))}
         </Text>
        </View>
        <View style={styles.summaryInnerDivider} />
 
        <View style={styles.summaryInnerRow}>
         <Text style={styles.summaryInnerLabel}>Pendientes</Text>
-        <Text style={styles.summaryInnerValue}>{formatAmount1Decimal(item.res_caja_general_pendients)}</Text>
+        <Text style={styles.summaryInnerValue}>{valuesHelper.getBigNumb(item.res_caja_general_pendients)}</Text>
        </View>
       </View>
      </Fragment>

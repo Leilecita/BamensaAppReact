@@ -18,9 +18,9 @@ import { AuthContext } from '../../../contexts/AuthContext';
 import { getAppVariant } from '../../../core/theme/appVariant';
 import { dateHelper } from '../../../helpers/dateHelper';
 import { getFlagSourceByShortName } from '../../../helpers/flagHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import styles from './InformationBoxBalanceScreen.styles';
-import { fetchTotalBoxCoins } from '../services/boxBalanceService';
+import { fetchBalanceCoins } from '../services/boxBalanceService';
 import {
  BalanceDraftRow,
  calculateTotalUsd,
@@ -34,7 +34,9 @@ import {
 type CreateBalanceNav = NativeStackNavigationProp<AppStackParamList, 'createBalance'>;
 type CreateBalanceRoute = RouteProp<AppStackParamList, 'createBalance'>;
 
-const formatBalanceLikeAndroid = (value: number) => formatAmount1Decimal(value);
+const formatBalanceLikeAndroid = (value: number) => valuesHelper.ifDecimalCeroGetIntegerQuantity(value);
+const formatAndroidBalanceResult = (value: number | null) =>
+  value === null ? '' : String(valuesHelper.roundOneDecimal(value));
 
 export default function CreateBalanceScreen() {
   const navigation = useNavigation<CreateBalanceNav>();
@@ -53,7 +55,7 @@ export default function CreateBalanceScreen() {
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchTotalBoxCoins();
+        const data = await fetchBalanceCoins();
         setRows(createDraftRows(data));
       } catch (e: any) {
         setError(e?.message || 'No se pudo cargar el balance');
@@ -67,7 +69,10 @@ export default function CreateBalanceScreen() {
 
   const totalUsd = useMemo(() => calculateTotalUsd(rows), [rows]);
   const allRatesLoaded = useMemo(() => hasAllRatesLoaded(rows), [rows]);
-
+  const visibleTotalUsd = useMemo(
+    () => valuesHelper.getIntegerQuantityRoundedWithLongValues(totalUsd),
+    [totalUsd],
+  );
   const updateRow = (coinId: number, key: 'rate', value: string) => {
     setRows((prev) =>
       prev.map((item) =>
@@ -100,7 +105,7 @@ export default function CreateBalanceScreen() {
 
     try {
       setSaving(true);
-      const gain = overriddenTotal ?? totalUsd;
+      const gain = overriddenTotal ?? parseNumberInput(visibleTotalUsd);
       const createdDate = dateHelper.getActualDate();
       const created = await saveCreateBalance({
         rows,
@@ -134,12 +139,16 @@ export default function CreateBalanceScreen() {
   };
 
   const openAssignDialog = () => {
-    if (!ensureReadyToSave()) return;
     setManualTotal('');
     setSaveDialogVisible(true);
   };
 
   const confirmAssign = async () => {
+    if (!ensureReadyToSave()) {
+      setSaveDialogVisible(false);
+      return;
+    }
+
     const nextTotal = parseNumberInput(manualTotal);
     if (nextTotal <= 0) {
       Alert.alert('Atención', 'Ingresá un total válido.');
@@ -201,7 +210,7 @@ export default function CreateBalanceScreen() {
                     <Text style={styles.createBalanceInputLeft}>
                       {(() => {
                         const autoUsd = getAutoUsdValue(item.balance, item.coin_short_name, item.rate);
-                        return autoUsd === null ? '' : formatAmount1Decimal(autoUsd);
+                        return formatAndroidBalanceResult(autoUsd);
                       })()}
                     </Text>
                     <View style={styles.createBalanceDivider}>
@@ -238,7 +247,7 @@ export default function CreateBalanceScreen() {
 
               <View style={styles.createBalanceInputCard}>
                 <Text style={styles.createBalanceFooterValue}>
-                  {totalUsd ? formatAmount1Decimal(totalUsd) : ''}
+                  {totalUsd ? visibleTotalUsd : ''}
                 </Text>
                 <View style={styles.createBalanceDivider}>
                   {Array.from({ length: 7 }).map((_, index) => (
@@ -286,7 +295,7 @@ export default function CreateBalanceScreen() {
     <View style={styles.createBalanceEditDialogBody}>
       <View style={styles.createBalanceEditDialogAmountRow}>
         <Text style={styles.createBalanceEditDialogCurrency}>USD</Text>
-        <Text style={styles.createBalanceEditDialogAmountValue}>{formatAmount1Decimal(totalUsd)}</Text>
+        <Text style={styles.createBalanceEditDialogAmountValue}>{visibleTotalUsd}</Text>
       </View>
 
       {isFisherton ? (

@@ -7,6 +7,7 @@ import InformationByAccountScreen from '../../containers/accounts/screens/Inform
 import DivisionBalanceScreen from '../../containers/boxBalance/screens/DivisionBalanceScreen';
 import InformationBoxBalanceScreen from '../../containers/boxBalance/screens/InformationBoxBalanceScreen';
 import CoinsScreen from '../../containers/coins/screens/CoinsScreen';
+import ChecksScreen from '../../containers/checks/screens/ChecksScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
 import OperationsScreen from '../../containers/operations/screens/OperationsScreen';
 import OutcomesScreen from '../../containers/outcomes/screens/OutcomesScreen';
@@ -31,6 +32,7 @@ export type AppStackParamList = {
  accounts: undefined;
  createAccount: undefined;
  outcomes: undefined;
+ checks: undefined;
  boxBalance:
   | {
      initialTab?: 'box' | 'coins' | 'balance';
@@ -102,6 +104,13 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <OutcomesScreen />
+     </ScreenWithShell>
+   )}
+   </Stack.Screen>
+   <Stack.Screen name="checks">
+    {() => (
+     <ScreenWithShell>
+      <ChecksScreen />
      </ScreenWithShell>
    )}
    </Stack.Screen>

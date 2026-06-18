@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { GestureResponderEvent, Image, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { dateHelper } from '../../../helpers/dateHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import type { ReportItemOperation } from '../../accounts/services/accountItemsOperationService';
 import styles from './BoxItemOpByCoin2.styles';
 
@@ -28,7 +28,7 @@ export default function BoxItemOpByCoin2({ item, onLongPress }: Props) {
 
  const isCredit = Number(item.credit ?? 0) > 0;
  const amount = isCredit ? Number(item.credit ?? 0) : Number(item.debit ?? 0);
- const amountText = `${isCredit ? '+' : '-'}${formatAmount1Decimal(amount)}`;
+ const amountText = `${isCredit ? '+' : '-'}${valuesHelper.getBigNumb(amount)}`;
  const amountStyle = isCredit ? styles.amountPlus : styles.amountMinus;
 
  const pending = item.state === APP_CONSTANTS.STATE_PENDIENT;
@@ -100,7 +100,7 @@ export default function BoxItemOpByCoin2({ item, onLongPress }: Props) {
 
      <View style={styles.balanceWrap}>
       <Text style={styles.balance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
-       {formatAmount1Decimal(item.balance)}
+       {valuesHelper.getBigNumb(item.balance)}
       </Text>
      </View>
     </View>

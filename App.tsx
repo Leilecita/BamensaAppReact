@@ -2,6 +2,7 @@ import React from 'react';
 import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './src/contexts/AuthContext';
+import { ToastProvider } from './src/core/feedback/ToastContext';
 import { NavigationApp } from './src/core/navigation';
 
 export default function App() {
@@ -22,7 +23,9 @@ export default function App() {
  return (
   <SafeAreaProvider>
    <AuthProvider>
-    <NavigationApp />
+    <ToastProvider>
+     <NavigationApp />
+    </ToastProvider>
    </AuthProvider>
   </SafeAreaProvider>
  );

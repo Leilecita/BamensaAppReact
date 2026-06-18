@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import styles from '../screens/InformationBoxBalanceScreen.styles';
 import { BalancePartner, normalizeBalancePartners } from '../services/boxBalanceService';
 
@@ -47,7 +47,7 @@ export default function BalancePartnersList({ items, onPressState }: Props) {
           : styles.balancePartnerPendingValue,
         ]}
        >
-        {partner.value === null ? '-' : formatAmount1Decimal(partner.value)}
+        {partner.value === null ? '-' : valuesHelper.getBigNumb(partner.value)}
        </Text>
       </View>
 

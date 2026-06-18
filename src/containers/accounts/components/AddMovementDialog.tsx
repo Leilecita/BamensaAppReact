@@ -112,6 +112,10 @@ export default function AddMovementDialog({
 
     setSaving(true);
     try {
+      console.log('[AddMovementDialog] device now', new Date().toString());
+      console.log('[AddMovementDialog] helper actual date', dateHelper.getActualDate());
+      console.log('[AddMovementDialog] created state', created);
+
       const payload = {
         type: opType,
         coinId: selectedCoinId,
@@ -122,6 +126,8 @@ export default function AddMovementDialog({
         userId: userId ?? 0,
         state,
       };
+
+      console.log('[AddMovementDialog] payload', payload);
 
       await createMovement(payload);
 
@@ -155,8 +161,8 @@ export default function AddMovementDialog({
       {isFishertonSpecial ? <Text style={styles.onlyFishertonNote}>Solo Fisherton</Text> : null}
 
       <View style={styles.fieldsWrap}>
-        <View style={styles.bigRow}>
-          <View style={styles.coinSide}>
+        <View style={[styles.bigRow, coinListVisible ? styles.bigRowOpen : null]}>
+          <View style={[styles.coinSide, coinListVisible ? styles.coinSideOpen : null]}>
             <TouchableOpacity onPress={handleChangeCoin} activeOpacity={0.8} style={styles.coinBtn}>
               <View style={styles.coinInline}>
                 <Image source={getFilterFlagSourceByShortName(activeCoin)} style={styles.coinFlag} />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { getFilterFlagSourceByShortName } from '../../../helpers/flagHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import styles from '../screens/InformationBoxBalanceScreen.styles';
 import type { ReportBoxCoin } from '../services/boxBalanceService';
 
@@ -40,13 +40,13 @@ export default function BoxCoinItem({
     </View>
 
     {showCollapsedBalance ? (
-     <Text style={styles.summaryAmount}>{formatAmount1Decimal(item.balance)}</Text>
+     <Text style={styles.summaryAmount}>{valuesHelper.getBigNumb(item.balance)}</Text>
     ) : null}
    </TouchableOpacity>
 
    {showCollapsedPendings ? (
     <View style={styles.pendingRow}>
-     <Text style={styles.pendingRowText}>{formatAmount1Decimal(item.pendients)}</Text>
+     <Text style={styles.pendingRowText}>{valuesHelper.getBigNumb(item.pendients)}</Text>
      <Image source={require('../../../../assets/images/ui/pendsan.png')} style={styles.pendingRowIcon} />
     </View>
    ) : null}

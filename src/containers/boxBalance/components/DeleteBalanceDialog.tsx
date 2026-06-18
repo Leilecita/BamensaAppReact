@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { dateHelper } from '../../../helpers/dateHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import type { ReportBalance } from '../services/boxBalanceService';
 import styles from '../../operations/components/DeleteOperationDialog.styles';
 
@@ -23,7 +23,7 @@ export default function DeleteBalanceDialog({ visible, balance, onClose, onDelet
   return `${day} ${dayMonth} ${year}`;
  }, [balance?.created]);
 
- const valueLabel = useMemo(() => formatAmount1Decimal(Number(balance?.gain ?? 0)), [balance?.gain]);
+ const valueLabel = useMemo(() => valuesHelper.getBigNumb(Number(balance?.gain ?? 0)), [balance?.gain]);
 
  const handleDelete = async () => {
   if (!balance) return;

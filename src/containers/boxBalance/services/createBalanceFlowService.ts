@@ -4,7 +4,6 @@ import {
  createBalance,
  createBalanceFisherton,
  CreatedBalance,
- ReportBoxCoin,
 } from './boxBalanceService';
 import {
  CreateOperationPayload,
@@ -14,14 +13,18 @@ import {
 
 export type BalanceDraftRow = {
  coin_id: number;
+ coin_name: string;
  coin_short_name: string;
  balance: number;
  rate: string;
 };
 
-export const createDraftRows = (items: ReportBoxCoin[]): BalanceDraftRow[] =>
+export const createDraftRows = (
+ items: Array<Pick<BalanceDraftRow, 'coin_id' | 'coin_name' | 'coin_short_name' | 'balance'>>
+): BalanceDraftRow[] =>
  items.map((item) => ({
   coin_id: item.coin_id,
+  coin_name: item.coin_name,
   coin_short_name: item.coin_short_name,
   balance: Number(item.balance ?? 0),
   rate: '',
@@ -44,17 +47,17 @@ export const getAutoUsdValue = (balance: number, coinShortName: string, rate: st
  if (parsedRate <= 0) return null;
 
  if (normalizedCoin === 'EUR') {
-  return valuesHelper.roundTwoDecimals(balance * parsedRate);
+  return valuesHelper.roundOneDecimal(balance * parsedRate);
  }
 
- return valuesHelper.roundTwoDecimals(balance / parsedRate);
+ return valuesHelper.roundOneDecimal(balance / parsedRate);
 };
 
 export const calculateTotalUsd = (rows: BalanceDraftRow[]) =>
- rows.reduce((acc, item) => {
+ valuesHelper.roundOneDecimal(rows.reduce((acc, item) => {
   const next = getAutoUsdValue(item.balance, item.coin_short_name, item.rate);
   return acc + (typeof next === 'number' && Number.isFinite(next) ? next : 0);
- }, 0);
+ }, 0));
 
 export const hasAllRatesLoaded = (rows: BalanceDraftRow[]) =>
  rows.length > 0 && rows.every((item) => String(item.rate).trim().length > 0);

@@ -8,7 +8,9 @@ export type AppRoute =
  | 'accounts'
  | 'createAccount'
  | 'outcomes'
- | 'boxBalance';
+ | 'boxBalance'
+ | 'checks'
+ | 'transfers';
 
 type SideMenuContextType = {
  openMenu: () => void;

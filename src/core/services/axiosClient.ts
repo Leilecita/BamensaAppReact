@@ -14,7 +14,7 @@ import {
 //export const BASE_URL = "http://frutos-dev.abarbieri.com.ar/"; //ahora usa esta direccion
 
 //LOCALHOST
-export const BASE_URL = 'http://192.168.0.193/bam_server/';
+export const BASE_URL = 'http://192.168.0.191/bam_server/';
 
 
 //-------------------------

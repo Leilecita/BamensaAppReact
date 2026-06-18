@@ -81,8 +81,8 @@ export default function AddOutcomeDialog({
    <Text style={styles.title}>{title}</Text>
 
    <View style={styles.fieldsWrap}>
-    <View style={styles.amountRow}>
-     <View style={styles.coinSide}>
+    <View style={[styles.amountRow, coinListVisible ? styles.amountRowOpen : null]}>
+     <View style={[styles.coinSide, coinListVisible ? styles.coinSideOpen : null]}>
       <TouchableOpacity style={styles.coinTrigger} activeOpacity={0.8} onPress={() => setCoinListVisible((v) => !v)}>
        <View style={styles.coinInline}>
         <Image source={getFlagSourceByShortName(selectedCoin)} style={styles.coinFlag} />

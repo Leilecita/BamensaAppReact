@@ -4,10 +4,11 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppDialog from '../../../core/components/AppDialog';
 import AppTopBar from '../../../core/components/AppTopBar';
+import { useToast } from '../../../core/feedback/ToastContext';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
 import { usePaginatedFetch } from '../../../core/hooks/usePaginatedFetch';
 import { dateHelper } from '../../../helpers/dateHelper';
-import { formatAmount1Decimal } from '../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../helpers/valuesHelper';
 import styles from './InformationBoxBalanceScreen.styles';
 import {
  areAllBalancePartnersAssigned,
@@ -26,6 +27,7 @@ type DivisionBalanceNav = NativeStackNavigationProp<AppStackParamList, 'division
 export default function DivisionBalanceScreen() {
  const navigation = useNavigation<DivisionBalanceNav>();
  const route = useRoute<DivisionBalanceRoute>();
+ const { showToast } = useToast();
  const { balanceId, result, dateBalance } = route.params;
  const [savingPartner, setSavingPartner] = useState(false);
  const [selectedPartner, setSelectedPartner] = useState<BalancePartner | null>(null);
@@ -84,7 +86,7 @@ export default function DivisionBalanceScreen() {
    );
 
    setSelectedPartner(null);
-   Alert.alert('Listo', 'La operación ha sido realizada con éxito');
+   showToast('La operación se ha realizado con éxito');
   } catch (e: any) {
    Alert.alert('Error', e?.message || 'No se pudo asignar el dividendo');
   } finally {
@@ -99,7 +101,7 @@ export default function DivisionBalanceScreen() {
    <View style={styles.divisionResultBar}>
     <Text style={styles.divisionResultLabel}>Resultado financiero</Text>
     <Text style={styles.divisionResultCurrency}>USD</Text>
-    <Text style={styles.divisionResultValue}>{formatAmount1Decimal(result)}</Text>
+    <Text style={styles.divisionResultValue}>{valuesHelper.getBigNumb(result)}</Text>
    </View>
 
    <View style={styles.divisionDateBar}>
@@ -134,7 +136,7 @@ export default function DivisionBalanceScreen() {
 
          <View style={styles.divisionPartnerAmountBox}>
           <Text style={styles.divisionPartnerAmountText}>
-           {formatAmount1Decimal(calculateBalancePartnerAmount(item.participation, result))}
+           {valuesHelper.getBigNumb(calculateBalancePartnerAmount(item.participation, result))}
           </Text>
          </View>
 
@@ -210,7 +212,7 @@ export default function DivisionBalanceScreen() {
     cardStyle={styles.balanceDivisionDialogCard}
    >
     <View style={styles.divisionAssignDialogAmountRow}>
-     <Text style={styles.divisionAssignDialogAmountText}>USD {formatAmount1Decimal(selectedPartnerAmount)}</Text>
+     <Text style={styles.divisionAssignDialogAmountText}>USD {valuesHelper.getBigNumb(selectedPartnerAmount)}</Text>
     </View>
     <View style={styles.divisionAssignDialogMessageWrap}>
      <Text style={styles.divisionAssignDialogMessageText}>

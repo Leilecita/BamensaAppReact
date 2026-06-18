@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
   paddingHorizontal: 14,
   paddingTop: 12,
   paddingBottom: 12,
+  overflow: 'visible',
  },
  title: {
   height: 30,
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
  fieldsWrap: {
   marginTop: 16,
   gap: 12,
+  overflow: 'visible',
  },
  row: {
   height: DIMENS.heightRecCuadInpunt,
@@ -46,10 +48,19 @@ const styles = StyleSheet.create({
   flexDirection: 'row',
   alignItems: 'center',
   paddingLeft: 8,
+  overflow: 'visible',
+  zIndex: 1,
+ },
+ amountRowOpen: {
+  zIndex: 30,
  },
  coinSide: {
   width: '42%',
   justifyContent: 'center',
+  zIndex: 1,
+ },
+ coinSideOpen: {
+  zIndex: 40,
  },
  label: {
   width: '42%',
@@ -153,13 +164,13 @@ const styles = StyleSheet.create({
   position: 'absolute',
   top: DIMENS.heightRecCuadInpunt + 2,
   left: 8,
-  right: 6,
-  maxHeight: 200,
+  right: -8,
+  maxHeight: 380,
   borderRadius: 10,
   backgroundColor: COLORS.white,
   borderWidth: 1,
   borderColor: COLORS.colorPrimaryClear2,
-  zIndex: 20,
+  zIndex: 100,
   elevation: 20,
  },
  coinListRow: {
