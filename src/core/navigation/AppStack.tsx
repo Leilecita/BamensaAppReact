@@ -11,6 +11,7 @@ import ChecksScreen from '../../containers/checks/screens/ChecksScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
 import OperationsScreen from '../../containers/operations/screens/OperationsScreen';
 import OutcomesScreen from '../../containers/outcomes/screens/OutcomesScreen';
+import TransfersScreen from '../../containers/transfers/screens/TransfersScreen';
 import AppShell from './AppShell';
 import { AppRoute } from './SideMenuContext';
 
@@ -33,6 +34,7 @@ export type AppStackParamList = {
  createAccount: undefined;
  outcomes: undefined;
  checks: undefined;
+ transfers: undefined;
  boxBalance:
   | {
      initialTab?: 'box' | 'coins' | 'balance';
@@ -108,9 +110,16 @@ export default function AppStack() {
    )}
    </Stack.Screen>
    <Stack.Screen name="checks">
-    {() => (
+   {() => (
      <ScreenWithShell>
       <ChecksScreen />
+     </ScreenWithShell>
+   )}
+   </Stack.Screen>
+   <Stack.Screen name="transfers">
+    {() => (
+     <ScreenWithShell>
+      <TransfersScreen />
      </ScreenWithShell>
    )}
    </Stack.Screen>

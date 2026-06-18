@@ -13,12 +13,6 @@ type Props = {
  onSave: (payload: { id: number; state: string }) => Promise<void>;
 };
 
-const capitalizeWord = (text?: string) => {
- const value = String(text ?? '').trim();
- if (!value) return '-';
- return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-};
-
 export default function ChangeStateItemDialog({ visible, item, onClose, onSave }: Props) {
  const [state, setState] = useState<string>(item?.state ?? APP_CONSTANTS.STATE_DONE);
  const [saving, setSaving] = useState(false);
@@ -58,12 +52,14 @@ export default function ChangeStateItemDialog({ visible, item, onClose, onSave }
      </View>
 
      <View style={styles.mainRow}>
-      <Text style={styles.type}>{capitalizeWord(item?.operation_type)}</Text>
-      <View style={styles.amountRow}>
+      <View style={styles.mainRowSide} />
+      <View style={styles.mainRowCenter}>
        <Image
         source={require('../../../../assets/images/ui/pendsan.png')}
         style={[styles.pendingIcon, !isPending ? styles.pendingIconHidden : null]}
        />
+      </View>
+      <View style={styles.amountRow}>
        <Text style={[styles.amount, amountStyle]}>{amountText}</Text>
       </View>
      </View>

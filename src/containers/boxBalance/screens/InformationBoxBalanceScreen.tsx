@@ -1,6 +1,6 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppTopBar from '../../../core/components/AppTopBar';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
@@ -30,10 +30,21 @@ export default function InformationBoxBalanceScreen() {
  const safeInitialTab: InformationTab =
   initialTab === 'balance' && !isAdmin ? 'box' : initialTab;
  const [tab, setTab] = useState<InformationTab>(safeInitialTab);
+ const [focusRefreshKey, setFocusRefreshKey] = useState(0);
 
  const availableTabs = useMemo<InformationTab[]>(
   () => (isAdmin ? ['box', 'coins', 'balance'] : ['box', 'coins']),
   [isAdmin],
+ );
+
+ useEffect(() => {
+  setTab(safeInitialTab);
+ }, [safeInitialTab]);
+
+ useFocusEffect(
+  useCallback(() => {
+   setFocusRefreshKey((prev) => prev + 1);
+  }, []),
  );
 
  return (
@@ -55,7 +66,12 @@ export default function InformationBoxBalanceScreen() {
 
    {tab === 'box' ? <InformationBoxBalanceTotalTab /> : null}
    {tab === 'coins' ? <InformationBoxBalanceCoinsTab /> : null}
-   {tab === 'balance' ? <InformationBoxBalanceBalancesTab /> : null}
+   {tab === 'balance' ? (
+    <InformationBoxBalanceBalancesTab
+     key={`balance-${focusRefreshKey}`}
+     refreshKey={focusRefreshKey}
+    />
+   ) : null}
   </View>
  );
 }

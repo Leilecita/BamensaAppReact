@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { getFilterFlagSourceByShortName } from '../../../../helpers/flagHelper';
-import { formatAmount1Decimal } from '../../../../helpers/valuesHelper';
+import { valuesHelper } from '../../../../helpers/valuesHelper';
 import styles from '../InformationBoxBalanceScreen.styles';
 import BalanceCoinDayCard from '../../components/BalanceCoinDayCard';
 import {
@@ -132,7 +132,7 @@ export default function InformationBoxBalanceCoinsTab() {
           <Image source={getFilterFlagSourceByShortName(item.coin_short_name)} style={styles.balanceCoinsFlag} />
           <Text style={styles.balanceCoinsCode}>{item.coin_short_name}</Text>
          </View>
-         {!expanded ? <Text style={styles.balanceCoinsAmount}>{formatAmount1Decimal(item.balance)}</Text> : null}
+         {!expanded ? <Text style={styles.balanceCoinsAmount}>{valuesHelper.getBigNumb(item.balance)}</Text> : null}
         </TouchableOpacity>
 
         {expanded ? (

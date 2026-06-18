@@ -35,6 +35,13 @@ export const parseNumberInput = (value: string) => {
  return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const formatJavaDoubleString = (value: number) => {
+ const normalized = Number(value ?? 0);
+ if (!Number.isFinite(normalized)) return '0.0';
+ const raw = String(normalized);
+ return raw.includes('.') || raw.includes('e') || raw.includes('E') ? raw : `${raw}.0`;
+};
+
 const toRateNumber = (value: string) => {
  const parsed = Number(String(value).replace(',', '.'));
  return Number.isFinite(parsed) ? parsed : 0;
@@ -72,11 +79,11 @@ export const buildItemsPayload = (rows: BalanceDraftRow[]) =>
     result: typeof result === 'number' ? result : 0,
    };
   })
-  .map((item) => `${item.coinName} ${item.coefficient} ${item.result}`)
+  .map((item) => `${item.coinName} ${formatJavaDoubleString(item.coefficient)} ${formatJavaDoubleString(item.result)}`)
   .join(';');
 
 export const buildBalancePayload = (gain: number, userId: number, assignable: boolean) =>
- `${gain} ${userId} ${assignable ? 'true' : 'false'}`;
+ `${formatJavaDoubleString(gain)} ${userId} ${assignable ? 'true' : 'false'}`;
 
 const buildOperationPayload = (input: {
  type: typeof APP_CONSTANTS.TYPE_DEPOSITO | typeof APP_CONSTANTS.TYPE_RETIRO;
@@ -114,7 +121,7 @@ export async function runFishertonAssignableFlow(input: {
  userId: number;
  rows: BalanceDraftRow[];
 }): Promise<CreatedBalance> {
- await postOperation(
+ void postOperation(
   buildOperationPayload({
    type: APP_CONSTANTS.TYPE_DEPOSITO,
    accountId: APP_CONSTANTS.ACCOUNT_ID_SUCURSAL_CENTRO_EN_APP_FISHERTON,
@@ -124,9 +131,9 @@ export async function runFishertonAssignableFlow(input: {
    created: input.createdDate,
    userId: input.userId,
   }),
- );
+ ).catch(() => {});
 
- await postOperationAppOriginal(
+ void postOperationAppOriginal(
   buildOperationPayload({
    type: APP_CONSTANTS.TYPE_RETIRO,
    accountId: APP_CONSTANTS.ACCOUNT_ID_SUCURSAL_FISHERTON_EN_APP_BAMENSA_ORIGINAL,
@@ -136,9 +143,9 @@ export async function runFishertonAssignableFlow(input: {
    created: input.createdDate,
    userId: input.userId,
   }),
- );
+ ).catch(() => {});
 
- await postOperation(
+ void postOperation(
   buildOperationPayload({
    type: APP_CONSTANTS.TYPE_RETIRO,
    accountId: APP_CONSTANTS.CUENTA_CAJA_GENERAL,
@@ -148,7 +155,7 @@ export async function runFishertonAssignableFlow(input: {
    created: input.createdDate,
    userId: input.userId,
   }),
- );
+ ).catch(() => {});
 
  return createBalanceFisherton(
   buildItemsPayload(input.rows),

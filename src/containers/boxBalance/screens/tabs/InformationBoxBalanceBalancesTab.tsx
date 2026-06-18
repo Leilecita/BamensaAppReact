@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,7 +9,11 @@ import styles from '../InformationBoxBalanceScreen.styles';
 import BalanceListItem from '../../components/BalanceListItem';
 import { fetchBalances, ReportBalance } from '../../services/boxBalanceService';
 
-export default function InformationBoxBalanceBalancesTab() {
+type Props = {
+ refreshKey?: number;
+};
+
+export default function InformationBoxBalanceBalancesTab({ refreshKey = 0 }: Props) {
  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
  const fetchBalancesPage = useCallback(async (page: number) => fetchBalances(page), []);
  const { data: balances, loading, loadingMore, error, loadMore, reload, setData: setBalances } =
@@ -17,6 +21,10 @@ export default function InformationBoxBalanceBalancesTab() {
    cacheKey: 'box-balance:balances',
    fetchPage: fetchBalancesPage,
   });
+
+ useEffect(() => {
+  reload();
+ }, [refreshKey, reload]);
 
  useFocusEffect(
   useCallback(() => {

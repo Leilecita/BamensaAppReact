@@ -291,6 +291,19 @@ export async function fetchAccounts({
  });
 }
 
+export async function fetchSimpleAccounts({
+ page,
+ query,
+ category,
+}: FetchAccountsParams): Promise<ReportAccount[]> {
+ return requestAccounts({
+  method: 'getAllAccounts',
+  page,
+  query,
+  category,
+ });
+}
+
 export async function fetchSpecialAccounts({
  page,
 }: FetchSpecialAccountsParams): Promise<ReportAccount[]> {
