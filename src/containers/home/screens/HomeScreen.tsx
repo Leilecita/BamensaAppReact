@@ -678,7 +678,7 @@ export default function HomeScreen() {
               activeOpacity={0.85}
               onPress={() => {
                 setListOptionsVisible(false);
-                Alert.alert('Caja F', 'Disponible solo en Fisherton.');
+                navigateTo('boxBalanceFisherton');
               }}
             >
               <Text style={styles.optionsListItemText}>Caja F</Text>

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AccountsScreen from '../../containers/accounts/screens/AccountsScreen';
 import CreateAccountScreen from '../../containers/accounts/screens/CreateAccountScreen';
 import CreateBalanceScreen from '../../containers/boxBalance/screens/CreateBalanceScreen';
+import InformationBoxBalanceFishertonScreen from '../../containers/boxBalanceFisherton/screens/InformationBoxBalanceFishertonScreen';
 import InformationByAccountScreen from '../../containers/accounts/screens/InformationByAccountScreen';
 import DivisionBalanceScreen from '../../containers/boxBalance/screens/DivisionBalanceScreen';
 import InformationBoxBalanceScreen from '../../containers/boxBalance/screens/InformationBoxBalanceScreen';
@@ -11,6 +12,7 @@ import ChecksScreen from '../../containers/checks/screens/ChecksScreen';
 import HomeScreen from '../../containers/home/screens/HomeScreen';
 import OperationsScreen from '../../containers/operations/screens/OperationsScreen';
 import OutcomesScreen from '../../containers/outcomes/screens/OutcomesScreen';
+import StatisticsScreen from '../../containers/statistics/screens/StatisticsScreen';
 import TransfersScreen from '../../containers/transfers/screens/TransfersScreen';
 import AppShell from './AppShell';
 import { AppRoute } from './SideMenuContext';
@@ -29,6 +31,7 @@ export type AccountCoinBalanceParam = {
 export type AppStackParamList = {
  home: { selectedAccount?: HomeSelectedAccount } | undefined;
  operations: undefined;
+ statistics: undefined;
  coins: undefined;
  accounts: undefined;
  createAccount: undefined;
@@ -36,6 +39,11 @@ export type AppStackParamList = {
  checks: undefined;
  transfers: undefined;
  boxBalance:
+  | {
+     initialTab?: 'box' | 'coins' | 'balance';
+    }
+  | undefined;
+ boxBalanceFisherton:
   | {
      initialTab?: 'box' | 'coins' | 'balance';
     }
@@ -80,6 +88,13 @@ export default function AppStack() {
       <OperationsScreen />
      </ScreenWithShell>
     )}
+   </Stack.Screen>
+   <Stack.Screen name="statistics">
+    {() => (
+     <ScreenWithShell>
+      <StatisticsScreen />
+     </ScreenWithShell>
+   )}
    </Stack.Screen>
    <Stack.Screen name="coins">
     {() => (
@@ -127,6 +142,13 @@ export default function AppStack() {
     {() => (
      <ScreenWithShell>
       <InformationBoxBalanceScreen />
+     </ScreenWithShell>
+   )}
+   </Stack.Screen>
+   <Stack.Screen name="boxBalanceFisherton">
+    {() => (
+     <ScreenWithShell>
+      <InformationBoxBalanceFishertonScreen />
      </ScreenWithShell>
    )}
    </Stack.Screen>

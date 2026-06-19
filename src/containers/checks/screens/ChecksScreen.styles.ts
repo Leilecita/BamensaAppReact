@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginRight: 12,
     marginTop: 4,
+    marginBottom: 40,
   },
   checkFooterRowLayout: {
     flexDirection: 'row',
@@ -483,7 +484,7 @@ const styles = StyleSheet.create({
   },
   checkPendingLoadedAmountValue: {
     color: COLORS.colorPrimaryDarkLetter,
-    fontSize: 18,
+    fontSize: 19,
     fontFamily: 'ArialRoundedRegular',
     textAlign: 'right',
   },
@@ -496,7 +497,7 @@ const styles = StyleSheet.create({
   checkApprovedLoadsWrap: {
     marginLeft: 14,
     marginRight: 18,
-    gap: 8,
+    gap: 2,
   },
   checkApprovedEmptyWrap: {
     paddingTop: 8,

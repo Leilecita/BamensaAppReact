@@ -137,8 +137,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
            icon="checkbox-blank-circle-outline"
            image={require('../../../assets/images/ui/logo55.png')}
            label="Cheques"
-           onPress={closeMenu}
-           muted
+           onPress={() => navigateTo('checks')}
           />
                   </View>
 

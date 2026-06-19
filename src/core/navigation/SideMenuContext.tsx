@@ -10,6 +10,7 @@ export type AppRoute =
  | 'createAccount'
  | 'outcomes'
  | 'boxBalance'
+ | 'boxBalanceFisherton'
  | 'checks'
  | 'transfers';
 
