@@ -251,9 +251,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: 'ArialRoundedRegular',
   },
-  summaryAmountHidden: {
-    opacity: 0,
-  },
   summaryDivider: {
     height: 0.6,
     backgroundColor: COLORS.color_line_div,

@@ -53,7 +53,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const routeName = route.name as keyof AppStackParamList;
- const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes' || routeName === 'boxBalance'
+ const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'statistics' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes' || routeName === 'boxBalance' || routeName === 'checks' || routeName === 'transfers'
   ? routeName
   : 'home';
   const menuTranslateX = useRef(new Animated.Value(-320)).current;
@@ -85,7 +85,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   };
 
   const navigateTo = <R extends AppRoute>(targetRoute: R, params?: AppStackParamList[R]) => {
-    if (currentRoute !== targetRoute) {
+    if (currentRoute !== targetRoute || params !== undefined) {
       navigation.navigate(targetRoute as never, params as never);
     }
     closeMenu();
@@ -106,17 +106,40 @@ export default function AppShell({ children }: { children?: ReactNode }) {
 
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View style={styles.section}>
-          <MenuItem icon="home-outline" image={require('../../../assets/images/ui/logo55.png')} label="Inicio" onPress={() => navigateTo('home')} />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Transferencias" onPress={() => navigateTo('transfers')} />
           <MenuItem
            icon="format-list-bulleted"
            image={require('../../../assets/images/ui/logo55.png')}
            label="Operaciones"
            onPress={() => navigateTo('operations')}
           />
-          <MenuItem icon="safe-square-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cajas" onPress={() => navigateTo('boxBalance')} />
+          <MenuItem
+           icon="checkbox-blank-circle-outline"
+           image={require('../../../assets/images/ui/logo55.png')}
+           label="Caja total"
+           onPress={() => navigateTo('boxBalance', { initialTab: 'box' })}
+          />
+          <MenuItem
+           icon="checkbox-blank-circle-outline"
+           image={require('../../../assets/images/ui/logo55.png')}
+           label="Saldo monedas"
+           onPress={() => navigateTo('boxBalance', { initialTab: 'coins' })}
+          />
+          <MenuItem
+           icon="checkbox-blank-circle-outline"
+           image={require('../../../assets/images/ui/logo55.png')}
+           label="Balance"
+           onPress={() => navigateTo('boxBalance', { initialTab: 'balance' })}
+          />
           <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Gastos" onPress={() => navigateTo('outcomes')} />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={closeMenu} muted />
-          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Cheques" onPress={() => navigateTo('checks')} />
+          <MenuItem icon="checkbox-blank-circle-outline" image={require('../../../assets/images/ui/logo55.png')} label="Resultados" onPress={() => navigateTo('statistics')} />
+          <MenuItem
+           icon="checkbox-blank-circle-outline"
+           image={require('../../../assets/images/ui/logo55.png')}
+           label="Cheques"
+           onPress={closeMenu}
+           muted
+          />
                   </View>
 
                   <View style={styles.divider} />
@@ -124,7 +147,7 @@ export default function AppShell({ children }: { children?: ReactNode }) {
                   <View style={styles.section}>
           <MenuItem icon="account" image={require('../../../assets/images/ui/usuviol.png')} label="Cuentas clientes" onPress={() => navigateTo('accounts')} />
           <MenuItem icon="account" image={require('../../../assets/images/ui/usuviol.png')} label="Cuentas propias" onPress={() => navigateTo('accounts')} />
-                    <MenuItem icon="account-plus-outline" image={require('../../../assets/images/ui/addlei.png')} label="Crear cuenta" onPress={() => navigateTo('createAccount')} />
+          <MenuItem icon="account-plus-outline" image={require('../../../assets/images/ui/addlei.png')} label="Crear cuenta" onPress={() => navigateTo('createAccount')} />
                   </View>
 
                   <View style={styles.divider} />

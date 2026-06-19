@@ -23,6 +23,7 @@ type AppBottomSheetProps = {
  bodyScrollOffset?: number;
  bodyCollapseThreshold?: number;
  onExpandedChange?: (expanded: boolean) => void;
+ expandTrigger?: number;
 };
 
 export default function AppBottomSheet({
@@ -37,6 +38,7 @@ export default function AppBottomSheet({
  bodyScrollOffset = 0,
  bodyCollapseThreshold = 0,
  onExpandedChange,
+ expandTrigger,
 }: AppBottomSheetProps) {
  const minY = 0;
  const maxY = Math.max(0, height - peekHeight);
@@ -103,6 +105,11 @@ export default function AppBottomSheet({
   const target = currentY.current <= maxY / 2 ? maxY : minY;
   animateTo(target);
  };
+
+ React.useEffect(() => {
+  if (expandTrigger === undefined) return;
+  animateTo(minY);
+ }, [expandTrigger]);
 
  return (
   <Animated.View style={[styles.root, { height, transform: [{ translateY }] }, containerStyle]}>

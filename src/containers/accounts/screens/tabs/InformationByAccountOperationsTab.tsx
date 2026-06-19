@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Modal, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
+import { useToast } from '../../../../core/feedback/ToastContext';
 import { APP_CONSTANTS } from '../../../../core/constants/appConstants';
 import OperationsFiltersBottomSheet, {
  CoinFilterOption,
@@ -12,6 +13,7 @@ import { getFilterFlagSourceByShortName } from '../../../../helpers/flagHelper';
 import OperationCard from '../../../operations/components/OperationCard';
 import {
  affectClientOperationAndSync,
+ deleteOperation,
  ReportOperation,
  updateOperationObservation,
 } from '../../../operations/services/operationService';
@@ -33,6 +35,7 @@ type Props = {
 
 export default function InformationByAccountOperationsTab({ accountId, balances }: Props) {
  const { userId } = useContext(AuthContext);
+ const { showToast } = useToast();
  const [quickFilter, setQuickFilter] = useState<string>('all');
  const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
  const [selectedUser, setSelectedUser] = useState<number>(APP_CONSTANTS.USER_ALL);
@@ -105,6 +108,16 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
   accountId,
   resolvedFilters
  );
+
+ const handleDeleteOperation = async (operation: ReportOperation) => {
+  try {
+   await deleteOperation(operation.operation_id);
+   await reload();
+   showToast('Se ha eliminado la operación');
+  } catch (error: any) {
+   Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
+  }
+ };
 
  const handleChangeItemState = async ({ itemId, nextState }: { itemId: number; nextState: string }) => {
   await changeStateItem(itemId, nextState);
@@ -195,6 +208,7 @@ export default function InformationByAccountOperationsTab({ accountId, balances 
      <OperationCard
       operation={item}
       wrapperStyle={styles.operationCardCompact}
+      onDeleteOperation={handleDeleteOperation}
       onChangeItemState={handleChangeItemState}
       onUpdateOperation={handleUpdateOperation}
       onAffectClient={handleAffectClient}

@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
+import { useToast } from '../../../core/feedback/ToastContext';
 import AppTopBar from '../../../core/components/AppTopBar';
 import OperationsFiltersBottomSheet, {
   OPERATIONS_QUICK_FILTERS,
@@ -41,6 +42,7 @@ type OperationSection = {
 export default function OperationsScreen() {
   const { navigateTo } = useSideMenu();
   const { userId } = useContext(AuthContext);
+  const { showToast } = useToast();
   const [quickFilter, setQuickFilter] = useState<string>('all');
   const [selectedCoin, setSelectedCoin] = useState<number>(APP_CONSTANTS.COIN_ALL);
   const [selectedUser, setSelectedUser] = useState<number>(APP_CONSTANTS.USER_ALL);
@@ -129,7 +131,7 @@ export default function OperationsScreen() {
     try {
       await deleteOperation(operation.operation_id);
       await reload();
-      Alert.alert('Listo', 'Se ha eliminado la operación');
+      showToast('Se ha eliminado la operación');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
     }

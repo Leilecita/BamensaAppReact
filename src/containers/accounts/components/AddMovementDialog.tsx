@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Keyboard,
   ScrollView,
   Text,
   TextInput,
@@ -68,6 +69,7 @@ export default function AddMovementDialog({
     APP_CONSTANTS.STATE_DONE,
   );
   const [saving, setSaving] = useState(false);
+  const amountInputRef = React.useRef<TextInput>(null);
 
   const opType = OP_TYPES[opTypeIndex] ?? OP_TYPES[0];
   const activeCoin = useMemo(() => coinOptions[coinIndex] ?? 'ARS', [coinIndex, coinOptions]);
@@ -93,7 +95,15 @@ export default function AddMovementDialog({
     setOpTypeIndex((prev) => (prev + 1) % OP_TYPES.length);
   };
 
-  const handleChangeCoin = () => setCoinListVisible((prev) => !prev);
+  const handleChangeCoin = () => {
+    setCoinListVisible((prev) => {
+      const nextVisible = !prev;
+      if (nextVisible) {
+        Keyboard.dismiss();
+      }
+      return nextVisible;
+    });
+  };
 
   const handleSave = async () => {
     const numericAmount = Number(amount.trim().replace(',', '.'));
@@ -180,6 +190,9 @@ export default function AddMovementDialog({
                       onPress={() => {
                         setCoinIndex(index);
                         setCoinListVisible(false);
+                        requestAnimationFrame(() => {
+                          amountInputRef.current?.focus();
+                        });
                       }}
                     >
                       <Image source={getFilterFlagSourceByShortName(coin)} style={styles.coinListFlag} />
@@ -193,6 +206,7 @@ export default function AddMovementDialog({
           <View style={styles.dottedDivider} />
           <Text style={styles.plusText}>{opType === APP_CONSTANTS.TYPE_RETIRO ? '-' : '+'}</Text>
           <TextInput
+            ref={amountInputRef}
             value={amount}
             onChangeText={setAmount}
             placeholder=""

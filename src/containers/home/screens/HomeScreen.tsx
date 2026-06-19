@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -12,16 +12,18 @@ import {
   Modal,
   Pressable,
   Alert,
+  Keyboard,
 } from 'react-native';
 import { useCoins } from '../../coins/hooks/useCoins';
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { BASE_URL } from '../../../core/services/axiosClient';
 import { getAppVariant } from '../../../core/theme/appVariant';
+import { useToast } from '../../../core/feedback/ToastContext';
 import AppBottomSheet from '../../../core/components/AppBottomSheet';
 import AppDialog from '../../../core/components/AppDialog';
 import AppDatePicker from '../../../core/components/AppDatePicker';
 import AppTopBar from '../../../core/components/AppTopBar';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { useSideMenu } from '../../../core/navigation/SideMenuContext';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
@@ -76,6 +78,7 @@ export default function HomeScreen() {
   const route = useRoute<RouteProp<AppStackParamList, 'home'>>();
   const { openMenu, navigateTo } = useSideMenu();
   const { userName, userId } = useContext(AuthContext);
+  const { showToast } = useToast();
   const [operations, setOperations] = useState<ReportOperation[]>(cachedHomeOperations);
   const [loading, setLoading] = useState(cachedHomeOperations.length === 0);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +109,7 @@ export default function HomeScreen() {
   const [savingOperation, setSavingOperation] = useState(false);
   const [sheetScrollOffset, setSheetScrollOffset] = useState(0);
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [sheetExpandTrigger, setSheetExpandTrigger] = useState<number | undefined>(undefined);
   const { coins, loadingCoins, coinsError, reloadCoins } = useCoins();
   const inAmountRef = useRef<TextInput>(null);
   const outAmountRef = useRef<TextInput>(null);
@@ -380,6 +384,7 @@ export default function HomeScreen() {
       return;
     }
 
+    Keyboard.dismiss();
     const actualPayloadDate = dateHelper.getActualDate(new Date());
     const actualDialogDate = dateHelper.getActualDateToShow(new Date());
     setConfirmCreatedPayload(actualPayloadDate);
@@ -431,6 +436,8 @@ export default function HomeScreen() {
       setConfirmDialogVisible(false);
       cleanAllFields();
       await loadHomeOperations();
+      setSheetScrollOffset(0);
+      setSheetExpandTrigger(Date.now());
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar la operación');
     } finally {
@@ -489,6 +496,12 @@ export default function HomeScreen() {
   useEffect(() => {
     void loadHomeOperations();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadHomeOperations();
+    }, []),
+  );
 
   useEffect(() => {
     const accountId = route.params?.selectedAccount?.id;
@@ -552,7 +565,7 @@ export default function HomeScreen() {
     try {
       await deleteOperation(operation.operation_id);
       await loadHomeOperations();
-      Alert.alert('Listo', 'Se ha eliminado la operación');
+      showToast('Se ha eliminado la operación');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar la operación');
     }
@@ -687,7 +700,11 @@ export default function HomeScreen() {
         ) : null}
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.headerHalfLeft} onPress={handleToggleOperationType} activeOpacity={0.8}>
             <Text style={styles.operationType}>{operationType}</Text>
@@ -939,6 +956,7 @@ export default function HomeScreen() {
         bodyScrollOffset={sheetScrollOffset}
         bodyCollapseThreshold={80}
         onExpandedChange={setSheetExpanded}
+        expandTrigger={sheetExpandTrigger}
         containerStyle={styles.sheet}
         bodyStyle={styles.sheetBody}
       >

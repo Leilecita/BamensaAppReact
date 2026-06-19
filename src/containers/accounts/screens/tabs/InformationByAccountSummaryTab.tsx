@@ -330,7 +330,7 @@ export default function InformationByAccountSummaryTab({ accountId, balances }: 
                     <Image source={getFilterFlagSourceByShortName(item.coin_short_name)} style={styles.summaryFlag} />
                     <Text style={styles.summaryCoinCode}>{item.coin_short_name}</Text>
                   </View>
-                  <Text style={[styles.summaryAmount, expanded ? styles.summaryAmountHidden : null]}>
+                  <Text style={styles.summaryAmount}>
                     {refreshingSummary ? '' : formatAmount1Decimal(item.balance)}
                   </Text>
                 </TouchableOpacity>

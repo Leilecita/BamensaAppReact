@@ -3,11 +3,10 @@ import { DIMENS } from '../../../core/constants/dimensions';
 export const confirmDialogStyles = {
  confirmDialogBackdrop: {
   backgroundColor: 'rgba(0,0,0,0.52)',
-  padding: 4,
+  padding: 10,
  },
  confirmDialogCard: {
   width: '100%',
-  maxWidth: 500,
   backgroundColor: '#f3f2f7',
   borderRadius: 12,
   overflow: 'hidden',

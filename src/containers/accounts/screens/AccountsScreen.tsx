@@ -3,6 +3,7 @@ import {
  ActivityIndicator,
  FlatList,
  Image,
+ Keyboard,
  ScrollView,
  Text,
  TextInput,
@@ -68,11 +69,14 @@ export default function AccountsScreen() {
  }, [accounts]);
 
  const handleAssignToOperation = (selectedAccount: (typeof accounts)[number]) => {
-  navigation.popTo('home', {
-   selectedAccount: {
-    id: selectedAccount.account.id,
-    name: selectedAccount.account.name,
-   },
+  Keyboard.dismiss();
+  requestAnimationFrame(() => {
+   navigation.popTo('home', {
+    selectedAccount: {
+     id: selectedAccount.account.id,
+     name: selectedAccount.account.name,
+    },
+   });
   });
  };
 
@@ -136,7 +140,7 @@ export default function AccountsScreen() {
     data={visibleAccounts}
     keyExtractor={(item) => item.account.id.toString()}
     contentContainerStyle={styles.listContent}
-    renderItem={({ item }) => (
+   renderItem={({ item }) => (
      <AccountCard
       account={item}
       ownMode={tab === 'own'}
@@ -145,6 +149,7 @@ export default function AccountsScreen() {
       onPressMovements={handlePressMovements}
      />
     )}
+    keyboardShouldPersistTaps="handled"
     onEndReachedThreshold={0.4}
     onMomentumScrollBegin={() => {
      onEndReachedCalledDuringMomentum.current = false;

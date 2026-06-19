@@ -4,6 +4,7 @@ import type { AppStackParamList } from './AppStack';
 export type AppRoute =
  | 'home'
  | 'operations'
+ | 'statistics'
  | 'coins'
  | 'accounts'
  | 'createAccount'
