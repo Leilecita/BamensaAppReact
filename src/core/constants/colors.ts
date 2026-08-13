@@ -112,7 +112,7 @@ const VARIANT_COLORS = {
   topBarText: BASE_COLORS.textColorAppFisherton,
  },
  mendoza: {
-  colorPrimary: '#3E6A76',
+  /*colorPrimary: '#3E6A76',
   colorPrimaryDark: '#2D515D',
   colorAccent: '#2D515D',
   colorDialogButton: '#3E6A76',
@@ -126,7 +126,7 @@ const VARIANT_COLORS = {
   colorPrimaryIntLetter2: '#4A7382',
   colorPrimaryClearLetter: '#6E98A5',
   color_line_div: '#C0D2D8',
-  color_line_punt: '#C0D2D8',
+  color_line_punt: '#C0D2D8',*/
  },
 } as const;
 

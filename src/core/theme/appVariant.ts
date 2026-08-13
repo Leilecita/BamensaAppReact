@@ -18,4 +18,5 @@ const normalizeVariant = (value: string): AppVariant => {
 export const getAppVariant = (): AppVariant => {
  //return 'fisherton';
  return 'bamensa';
+ //return 'mendoza';
 };

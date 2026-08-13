@@ -17,6 +17,8 @@ import type { AppStackParamList } from './AppStack';
 import { AppRoute, SideMenuProvider } from './SideMenuContext';
 import styles from './AppShell.styles';
 
+let lastHomeRoute: 'home' | 'homeNew' = 'homeNew';
+
 function MenuItem({
   icon,
   image,
@@ -53,9 +55,14 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   const navigation = useNavigation<any>();
   const route = useRoute();
   const routeName = route.name as keyof AppStackParamList;
- const currentRoute: AppRoute = routeName === 'home' || routeName === 'operations' || routeName === 'statistics' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes' || routeName === 'boxBalance' || routeName === 'checks' || routeName === 'transfers'
+ const currentRoute: AppRoute = routeName === 'home' || routeName === 'homeNew' || routeName === 'operations' || routeName === 'statistics' || routeName === 'coins' || routeName === 'accounts' || routeName === 'createAccount' || routeName === 'outcomes' || routeName === 'boxBalance' || routeName === 'checks' || routeName === 'transfers'
   ? routeName
   : 'home';
+  const homeRoute: 'home' | 'homeNew' = routeName === 'homeNew' ? 'homeNew' : routeName === 'home' ? 'home' : lastHomeRoute;
+
+  if (routeName === 'home' || routeName === 'homeNew') {
+    lastHomeRoute = homeRoute;
+  }
   const menuTranslateX = useRef(new Animated.Value(-320)).current;
 
   const openMenu = () => {
@@ -85,14 +92,16 @@ export default function AppShell({ children }: { children?: ReactNode }) {
   };
 
   const navigateTo = <R extends AppRoute>(targetRoute: R, params?: AppStackParamList[R]) => {
-    if (currentRoute !== targetRoute || params !== undefined) {
-      navigation.navigate(targetRoute as never, params as never);
+    const resolvedRoute = (targetRoute === 'home' ? homeRoute : targetRoute) as R;
+
+    if (currentRoute !== resolvedRoute || params !== undefined) {
+      navigation.navigate(resolvedRoute as never, params as never);
     }
     closeMenu();
   };
 
   return (
-    <SideMenuProvider value={{ openMenu, closeMenu, navigateTo, currentRoute }}>
+    <SideMenuProvider value={{ openMenu, closeMenu, navigateTo, currentRoute, homeRoute }}>
       {children}
 
       {menuVisible ? (

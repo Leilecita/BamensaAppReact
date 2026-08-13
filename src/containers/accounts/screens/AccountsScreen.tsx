@@ -38,7 +38,7 @@ const CATEGORY_FILTERS: CategoryFilter[] = [
 ];
 
 export default function AccountsScreen() {
- const { navigateTo } = useSideMenu();
+ const { navigateTo, homeRoute } = useSideMenu();
  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
  const [tab, setTab] = useState<AccountsTab>('clients');
  const [query, setQuery] = useState('');
@@ -71,7 +71,7 @@ export default function AccountsScreen() {
  const handleAssignToOperation = (selectedAccount: (typeof accounts)[number]) => {
   Keyboard.dismiss();
   requestAnimationFrame(() => {
-   navigation.popTo('home', {
+   navigation.popTo(homeRoute, {
     selectedAccount: {
      id: selectedAccount.account.id,
      name: selectedAccount.account.name,

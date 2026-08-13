@@ -1,5 +1,7 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { COLORS } from '../../../core/constants/colors';
+
+const isWeb = Platform.OS === 'web';
 
 const styles = StyleSheet.create({
   screen: {
@@ -7,8 +9,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   topBar: {
-    height: 98,
-    paddingTop: 37,
+    height: isWeb ? 48 : 98,
+    paddingTop: isWeb ? 0 : 37,
     paddingHorizontal: 22,
     backgroundColor: COLORS.colorPrimaryChange,
     flexDirection: 'row',
@@ -22,18 +24,18 @@ const styles = StyleSheet.create({
   },
   topBarArrow: {
     color: COLORS.topBarText,
-    fontSize: 30,
-    marginRight: 22,
+    fontSize: isWeb ? 24 : 30,
+    marginRight: isWeb ? 18 : 22,
   },
   topBarTitle: {
     flex: 1,
     color: COLORS.topBarText,
-    fontSize: 22,
+    fontSize: isWeb ? 18 : 22,
     fontFamily: 'OpenSansRegular',
   },
   topBarSave: {
-    width: 40,
-    height: 35,
+    width: isWeb ? 34 : 40,
+    height: isWeb ? 30 : 35,
     resizeMode: 'contain',
   },
   scrollContent: {

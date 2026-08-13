@@ -123,7 +123,7 @@ export default function LoginScreen({ navigation }: Props) {
                 style={styles.flex}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                {Platform.OS === 'web' ? (
                     <ScrollView
                         style={styles.formScroll}
                         contentContainerStyle={styles.formContent}
@@ -170,7 +170,56 @@ export default function LoginScreen({ navigation }: Props) {
                             <Text style={styles.registerText}>Si no estas registrado, haz click aqui</Text>
                         </TouchableOpacity>
                     </ScrollView>
-                </TouchableWithoutFeedback>
+                ) : (
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                        <ScrollView
+                            style={styles.formScroll}
+                            contentContainerStyle={styles.formContent}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            <TextInput
+                                label="Name"
+                                value={username}
+                                onChangeText={setUsername}
+                                mode="outlined"
+                                style={styles.input}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                editable={!loading}
+                                theme={inputTheme}
+                            />
+
+                            <TextInput
+                                label="Password"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                                mode="outlined"
+                                style={styles.input}
+                                editable={!loading}
+                                theme={inputTheme}
+                            />
+
+                            {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+
+                            <TouchableOpacity
+                                style={[styles.loginButton, loading ? styles.loginButtonDisabled : null]}
+                                activeOpacity={0.85}
+                                disabled={loading}
+                                onPress={handleLogin}
+                            >
+                                <Text style={styles.loginButtonText}>Iniciar sesion</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                onPress={() => navigation.navigate('register')}
+                            >
+                                <Text style={styles.registerText}>Si no estas registrado, haz click aqui</Text>
+                            </TouchableOpacity>
+                        </ScrollView>
+                    </TouchableWithoutFeedback>
+                )}
             </KeyboardAvoidingView>
         </View>
     );

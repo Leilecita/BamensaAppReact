@@ -5,7 +5,6 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  Dimensions,
   ScrollView,
   TextInput,
   Image,
@@ -19,7 +18,6 @@ import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { BASE_URL } from '../../../core/services/axiosClient';
 import { getAppVariant } from '../../../core/theme/appVariant';
 import { useToast } from '../../../core/feedback/ToastContext';
-import AppBottomSheet from '../../../core/components/AppBottomSheet';
 import AppDialog from '../../../core/components/AppDialog';
 import AppDatePicker from '../../../core/components/AppDatePicker';
 import AppTopBar from '../../../core/components/AppTopBar';
@@ -67,11 +65,15 @@ type OperationPayload = {
 
 let cachedHomeOperations: ReportOperation[] = [];
 
-type HomeScreenProps = {
+type HomeScreenDockProps = {
   hideFloatingActions?: boolean;
+  onOperationCreated?: () => void | Promise<void>;
 };
 
-export default function HomeScreen({ hideFloatingActions = false }: HomeScreenProps) {
+export default function HomeScreenDock({
+  hideFloatingActions = false,
+  onOperationCreated,
+}: HomeScreenDockProps) {
   const appVariant = getAppVariant();
   const appTitle =
     appVariant === 'fisherton'
@@ -111,17 +113,10 @@ export default function HomeScreen({ hideFloatingActions = false }: HomeScreenPr
   const [affectConfirmType, setAffectConfirmType] = useState<'affect_in' | 'affect_out' | null>(null);
   const [listOptionsVisible, setListOptionsVisible] = useState(false);
   const [savingOperation, setSavingOperation] = useState(false);
-  const [sheetScrollOffset, setSheetScrollOffset] = useState(0);
-  const [sheetExpanded, setSheetExpanded] = useState(false);
-  const [sheetExpandTrigger, setSheetExpandTrigger] = useState<number | undefined>(undefined);
   const { coins, loadingCoins, coinsError, reloadCoins } = useCoins();
   const inAmountRef = useRef<TextInput>(null);
   const outAmountRef = useRef<TextInput>(null);
   const exchangeRef = useRef<TextInput>(null);
-
-  const windowHeight = Dimensions.get('window').height;
-  const sheetHeight = Math.min(windowHeight * 0.64, 560);
-  const sheetPeek = 110;
 
   const pairCoin1 = operationType === APP_CONSTANTS.TYPE_COMPRA ? inCoin : outCoin;
   const pairCoin2 = operationType === APP_CONSTANTS.TYPE_COMPRA ? outCoin : inCoin;
@@ -440,8 +435,7 @@ export default function HomeScreen({ hideFloatingActions = false }: HomeScreenPr
       setConfirmDialogVisible(false);
       cleanAllFields();
       await loadHomeOperations();
-      setSheetScrollOffset(0);
-      setSheetExpandTrigger(Date.now());
+      await onOperationCreated?.();
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'No se pudo guardar la operación');
     } finally {
@@ -952,72 +946,6 @@ export default function HomeScreen({ hideFloatingActions = false }: HomeScreenPr
           <Text style={styles.devBaseUrlText}>{BASE_URL}</Text>
         </View>
       ) : null}
-
-      <AppBottomSheet
-        height={sheetHeight}
-        peekHeight={sheetPeek}
-        arrowSource={require('../../../../assets/images/ui/arrowsan.png')}
-        dragOn="both"
-        disableBodyDragWhenExpanded
-        bodyScrollOffset={sheetScrollOffset}
-        bodyCollapseThreshold={80}
-        onExpandedChange={setSheetExpanded}
-        expandTrigger={sheetExpandTrigger}
-        containerStyle={styles.sheet}
-        bodyStyle={styles.sheetBody}
-      >
-        {error ? (
-          <View style={styles.center}>
-            <Text style={styles.errorTitle}>No se pudieron cargar las operaciones</Text>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity onPress={loadHomeOperations} style={styles.retryButton}>
-              <Text style={styles.retryText}>Reintentar</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <FlatList
-            data={operations}
-            keyExtractor={(item) => item.operation_id.toString()}
-            renderItem={({ item }) => (
-              <OperationCard
-                operation={item}
-                onDeleteOperation={handleDeleteOperation}
-                onChangeItemState={handleChangeItemState}
-                onUpdateOperation={handleUpdateOperation}
-                onAffectClient={handleAffectClient}
-              />
-            )}
-            scrollEnabled={sheetExpanded}
-            bounces={false}
-            alwaysBounceVertical={false}
-            overScrollMode="never"
-            onScroll={(event) => {
-              setSheetScrollOffset(event.nativeEvent.contentOffset.y);
-            }}
-            scrollEventThrottle={16}
-            contentContainerStyle={styles.sheetListContent}
-            ListEmptyComponent={
-              <View style={styles.emptyWrap}>
-                {loading ? <ActivityIndicator size="small" color="#6f6392" /> : null}
-                <Text style={styles.emptyText}>
-                  {loading ? 'Cargando operaciones...' : 'No hay operaciones para mostrar.'}
-                </Text>
-              </View>
-            }
-            ListFooterComponent={
-              !loading ? (
-                <TouchableOpacity
-                  style={styles.viewAllButton}
-                  onPress={() => navigateTo('operations')}
-                  activeOpacity={0.85}
-                >
-                  <Text style={styles.viewAllButtonText}>ver todas las operaciones</Text>
-                </TouchableOpacity>
-              ) : null
-            }
-          />
-        )}
-      </AppBottomSheet>
 
       <AppDialog
         visible={confirmDialogVisible}

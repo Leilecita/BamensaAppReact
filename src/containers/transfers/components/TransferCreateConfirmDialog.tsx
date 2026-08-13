@@ -44,6 +44,9 @@ export default function TransferCreateConfirmDialog({
           placeholder=""
           placeholderTextColor="#B4AFC3"
           style={styles.observationInput}
+          multiline
+          numberOfLines={3}
+          textAlignVertical="top"
         />
         <TouchableOpacity style={styles.copyBtn} activeOpacity={0.85} onPress={onCopy}>
           <Image source={require('../../../../assets/images/ui/copy.png')} style={styles.copyIcon} />

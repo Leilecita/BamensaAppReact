@@ -1,6 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/colors';
+
+const isWeb = Platform.OS === 'web';
 
 type AppTopBarProps = {
  title: string;
@@ -21,8 +23,8 @@ export default function AppTopBar({ title, leftSymbol, onPressLeft }: AppTopBarP
 
 const styles = StyleSheet.create({
  topBar: {
-  height: 98,
-  paddingTop: 37,
+  height: isWeb ? 48 : 98,
+  paddingTop: isWeb ? 0 : 37,
   paddingHorizontal: 22,
   backgroundColor: COLORS.colorPrimaryChange,
   flexDirection: 'row',
@@ -36,12 +38,12 @@ const styles = StyleSheet.create({
  },
  menuIcon: {
   color: COLORS.topBarText,
-  fontSize: 30,
-  marginRight: 22,
+  fontSize: isWeb ? 24 : 30,
+  marginRight: isWeb ? 18 : 22,
  },
  topTitle: {
   color: COLORS.topBarText,
-  fontSize: 22,
+  fontSize: isWeb ? 18 : 22,
   fontFamily: 'OpenSansRegular',
  },
 });

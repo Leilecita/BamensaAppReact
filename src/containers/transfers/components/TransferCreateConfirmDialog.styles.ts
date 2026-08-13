@@ -22,9 +22,10 @@ const styles = StyleSheet.create({
   },
   observationInput: {
     flex: 1,
-    minHeight: 40,
+    minHeight: 84,
     color: COLORS.word,
     paddingHorizontal: 10,
+    paddingVertical: 10,
     fontSize: 16,
     fontFamily: 'OpenSansLight',
   },

@@ -1,6 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { COLORS } from '../../../core/constants/colors';
 import { DIMENS } from '../../../core/constants/dimensions';
+
+const isWeb = Platform.OS === 'web';
 
 const styles = StyleSheet.create({
  screen: {
@@ -8,7 +10,7 @@ const styles = StyleSheet.create({
   backgroundColor: COLORS.colorPrimaryClear3,
  },
  tabsRow: {
-  height: 58,
+  height: isWeb ? 48 : 58,
   backgroundColor: COLORS.colorPrimaryDarkChange,
   flexDirection: 'row',
  },

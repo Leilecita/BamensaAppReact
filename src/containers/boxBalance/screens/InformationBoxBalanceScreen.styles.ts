@@ -1,13 +1,15 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { COLORS } from '../../../core/constants/colors';
 import { DIMENS } from '../../../core/constants/dimensions';
 import accountStyles from '../../accounts/screens/InformationByAccountScreen.styles';
+
+const isWeb = Platform.OS === 'web';
 
 const styles = StyleSheet.create({
  ...accountStyles,
  tabsRow: {
   ...accountStyles.tabsRow,
-  minHeight: 58,
+  minHeight: isWeb ? 48 : 58,
  },
  placeholderWrap: {
   flex: 1,

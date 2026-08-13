@@ -1,7 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { COLORS } from '../../../core/constants/colors';
 import { DIMENS } from '../../../core/constants/dimensions';
 import { confirmDialogStyles } from './HomeScreen.confirmDialog.styles';
+
+const isWeb = Platform.OS === 'web';
 
 const styles = StyleSheet.create({
 
@@ -12,7 +14,7 @@ const styles = StyleSheet.create({
  optionsMenuWrap: {
   position: 'absolute',
   right: 16,
-  top: 115,
+  top: isWeb ? 68 : 115,
   zIndex: 25,
   alignItems: 'flex-end',
  },
@@ -54,12 +56,12 @@ const styles = StyleSheet.create({
  },
  scrollContent: {
   paddingHorizontal: 12,
-  paddingTop: 4,
+  paddingTop: isWeb ? 0 : 4,
   paddingBottom: 180,
  },
  headerRow: {
   height: 48,
-  marginTop: 18,
+  marginTop: isWeb ? 10 : 18,
   flexDirection: 'row',
   alignItems: 'center',
  },
@@ -254,7 +256,9 @@ const styles = StyleSheet.create({
   resizeMode: 'contain',
  },
  exchangeInputMock: {
-  flex: 1,
+  flex: isWeb ? 0 : 1,
+  width: isWeb ? 150 : undefined,
+  maxWidth: isWeb ? 150 : undefined,
   height: DIMENS.heightButton,
   borderRadius: 10,
   backgroundColor: COLORS.white,
