@@ -13,7 +13,9 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AppDialog from '../../../core/components/AppDialog';
 import AppTopBar from '../../../core/components/AppTopBar';
+import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import type { AppStackParamList } from '../../../core/navigation/AppStack';
+import { BASE_URL } from '../../../core/services/axiosClient';
 import { AuthContext } from '../../../contexts/AuthContext';
 import { getAppVariant } from '../../../core/theme/appVariant';
 import { dateHelper } from '../../../helpers/dateHelper';
@@ -42,7 +44,8 @@ export default function CreateBalanceScreen() {
   const navigation = useNavigation<CreateBalanceNav>();
   useRoute<CreateBalanceRoute>();
   const { userId } = useContext(AuthContext);
-  const isFisherton = getAppVariant() === 'fisherton';
+  const isFisherton =
+    getAppVariant() === 'fisherton' && String(BASE_URL) === String(APP_CONSTANTS.URL_FISHERTON);
   const [rows, setRows] = useState<BalanceDraftRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

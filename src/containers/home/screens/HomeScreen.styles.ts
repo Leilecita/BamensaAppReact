@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
   width: '100%',
   height: '100%',
   resizeMode: 'contain',
+  tintColor: COLORS.homeOptionsIcon,
  },
  optionsList: {
   marginTop: 12,
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   paddingLeft: 16,
  },
  optionsListItemText: {
-  color: COLORS.colorPrimaryDarkLetter,
+  color: COLORS.homeOptionsText,
   fontSize: DIMENS.generalText,
   fontFamily: 'OpenSansRegular',
   paddingRight: 16,
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
   width: 40,
   height: 40,
   resizeMode: 'contain',
+  tintColor: COLORS.homeOptionsIcon,
  },
  scroll: {
   flex: 1,

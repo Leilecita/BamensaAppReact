@@ -23,7 +23,7 @@ const VARIANTS: Record<AppVariant, VariantConfig> = {
  fisherton: {
   name: 'Fisherton app',
   slug: 'bamensa-app',
-  icon: './assets/app-icons/logo_ic_fisherton5.png',
+  icon: './assets/app-icons/logo_ic_fisherton_app.png',
   androidPackage: 'com.example.fisherton',
   iosBundleIdentifier: 'com.example.fisherton',
   baseUrl: 'http://frutos-dev.abarbieri.com.ar/',

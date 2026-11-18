@@ -8,6 +8,9 @@ const BASE_COLORS = {
  textColorSubMenuAppFisherton: '#D6AA10',
  logoColorAppFisherton: '#BD9815',
 
+ homeOptionsText: '#4f426b',
+ homeOptionsIcon: '#685c85',
+
  colorAccent: '#4f426b',
  colorDialogButton: '#685c85',
 
@@ -110,6 +113,8 @@ const VARIANT_COLORS = {
  },
  fisherton: {
   topBarText: BASE_COLORS.textColorAppFisherton,
+  homeOptionsText: BASE_COLORS.textColorSubMenuAppFisherton,
+  homeOptionsIcon: BASE_COLORS.logoColorAppFisherton,
  },
  mendoza: {
   /*colorPrimary: '#3E6A76',

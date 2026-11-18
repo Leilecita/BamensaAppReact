@@ -1,5 +1,6 @@
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
 import { getAPIServiceBamApp, getAPISessionService } from '../../../core/services/axiosClient';
+import { getAppVariant } from '../../../core/theme/appVariant';
 
 type OperationState = typeof APP_CONSTANTS.STATE_DONE | typeof APP_CONSTANTS.STATE_PENDIENT;
 
@@ -55,6 +56,7 @@ export async function createMovement(input: CreateMovementInput) {
 
 export const shouldApplyFishertonMirrorRule = (baseUrl: string | undefined, accountId: number): boolean => {
   return (
+    getAppVariant() === 'fisherton' &&
     normalizeUrl(baseUrl || '') === normalizeUrl(APP_CONSTANTS.URL_FISHERTON) &&
     accountId === APP_CONSTANTS.ACCOUNT_ID_SUCURSAL_CENTRO_EN_APP_FISHERTON
   );
@@ -65,6 +67,7 @@ export const shouldBlockMirrorAccountMovementCreation = (
   accountId: number,
 ): boolean => {
   return (
+    getAppVariant() === 'bamensa' &&
     normalizeUrl(baseUrl || '') === normalizeUrl(APP_CONSTANTS.URL_BAMENSA_PRINCIPAL) &&
     accountId === APP_CONSTANTS.ACCOUNT_ID_SUCURSAL_FISHERTON_EN_APP_BAMENSA_ORIGINAL
   );

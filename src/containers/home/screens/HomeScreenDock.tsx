@@ -81,6 +81,8 @@ export default function HomeScreenDock({
       : appVariant === 'mendoza'
         ? APP_CONSTANTS.NAME_MENDOZA
         : APP_CONSTANTS.NAME_BAMENSA;
+  const showFishertonBox =
+    appVariant === 'bamensa' && String(BASE_URL) === String(APP_CONSTANTS.URL_BAMENSA_PRINCIPAL);
   const route = useRoute<RouteProp<AppStackParamList, 'home'>>();
   const { openMenu, navigateTo } = useSideMenu();
   const { userName, userId } = useContext(AuthContext);
@@ -671,17 +673,19 @@ export default function HomeScreenDock({
               <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.optionsListItem}
-              activeOpacity={0.85}
-              onPress={() => {
-                setListOptionsVisible(false);
-                navigateTo('boxBalanceFisherton');
-              }}
-            >
-              <Text style={styles.optionsListItemText}>Caja F</Text>
-              <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
-            </TouchableOpacity>
+            {showFishertonBox ? (
+              <TouchableOpacity
+                style={styles.optionsListItem}
+                activeOpacity={0.85}
+                onPress={() => {
+                  setListOptionsVisible(false);
+                  navigateTo('boxBalanceFisherton');
+                }}
+              >
+                <Text style={styles.optionsListItemText}>Caja F</Text>
+                <Image source={require('../../../../assets/images/ui/logo55.png')} style={styles.optionsListItemIcon} />
+              </TouchableOpacity>
+            ) : null}
 
             <TouchableOpacity
               style={styles.optionsListItem}

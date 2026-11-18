@@ -20,6 +20,12 @@ const formatAmount = (value: number) => {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 };
 
+const formatPercentage = (value: number) => {
+  const rounded = Math.round(value * 100) / 100;
+  if (Number.isInteger(rounded)) return String(rounded);
+  return rounded.toFixed(2).replace(/\.?0+$/, '');
+};
+
 const formatAmountDisplay = (value: number) =>
   Math.round(Number(value || 0)).toLocaleString('en-US');
 
@@ -118,7 +124,7 @@ export default function CheckCard({ item, state, onCheckChanged }: Props) {
               <Image source={require('../../../../assets/images/ui/bammut.png')} style={styles.checkRateIcon} />
               <View style={styles.checkRateBadge}>
                 <Text style={styles.checkRateValue}>
-                  {showCommissionAmounts ? `$ ${formatAmount(mutualCommissionAmount)}` : formatAmount(item.percentage_mutual)}
+                  {showCommissionAmounts ? `$ ${formatAmount(mutualCommissionAmount)}` : formatPercentage(item.percentage_mutual)}
                 </Text>
                 {!showCommissionAmounts ? <Text style={styles.checkRatePercent}>%</Text> : null}
                 <Image source={require('../../../../assets/images/ui/changeop.png')} style={styles.checkRateSwap} />
@@ -133,7 +139,7 @@ export default function CheckCard({ item, state, onCheckChanged }: Props) {
               <Image source={require('../../../../assets/images/ui/baml.png')} style={styles.checkRateIcon} />
               <View style={styles.checkRateBadge}>
                 <Text style={styles.checkRateValue}>
-                  {showCommissionAmounts ? `$ ${formatAmount(bamCommissionAmount)}` : formatAmount(item.percentage_bam)}
+                  {showCommissionAmounts ? `$ ${formatAmount(bamCommissionAmount)}` : formatPercentage(item.percentage_bam)}
                 </Text>
                 {!showCommissionAmounts ? <Text style={styles.checkRatePercent}>%</Text> : null}
                 <Image source={require('../../../../assets/images/ui/changeop.png')} style={styles.checkRateSwap} />

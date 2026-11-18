@@ -16,7 +16,7 @@ const VARIANTS = {
   fisherton: {
     appName: 'Fisherton app',
     slug: 'bamensa-app',
-    icon: './assets/app-icons/logo_ic_fisherton5.png',
+    icon: './assets/app-icons/logo_ic_fisherton_app.png',
     androidPackage: 'com.example.fisherton',
     iosBundleIdentifier: 'com.example.fisherton',
     baseUrl: 'http://frutos-dev.abarbieri.com.ar/',
@@ -84,11 +84,16 @@ if (!variantBlockMatch) {
   expectIncludes(block, `baseUrl: '${expected.baseUrl}'`, `app.config.ts ${variant}`);
 }
 
-const baseUrlMatch = axiosClient.match(/export const BASE_URL = '([^']+)'/);
+const axiosClientCode = axiosClient
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .split('\n')
+  .filter((line) => !line.trimStart().startsWith('//'))
+  .join('\n');
+const baseUrlMatch = axiosClientCode.match(/export const BASE_URL\s*=\s*(['"])(.*?)\1/);
 if (!baseUrlMatch) {
   errors.push('axiosClient.ts: no pude leer BASE_URL');
-} else if (baseUrlMatch[1] !== expected.baseUrl) {
-  errors.push(`axiosClient.ts: BASE_URL actual ${baseUrlMatch[1]} pero esperaba ${expected.baseUrl}`);
+} else if (baseUrlMatch[2] !== expected.baseUrl) {
+  errors.push(`axiosClient.ts: BASE_URL actual ${baseUrlMatch[2]} pero esperaba ${expected.baseUrl}`);
 }
 
 const appVariantCode = stripComments(appVariant);

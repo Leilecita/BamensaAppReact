@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
     width: 10,
     alignItems: 'center',
     alignSelf: 'stretch',
-    marginLeft: 16,
-    marginRight: 12,
+    marginLeft: 22,
+    marginRight: 8,
   },
   checkDotDivider: {
     width: 1,
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingTop: 8,
     paddingLeft: 36,
-    paddingRight: 0,
+    paddingRight: 12,
   },
   checkRateRow: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import { APP_CONSTANTS } from '../../../core/constants/appConstants';
-import { getAPISessionService, getAPISessionService2 } from '../../../core/services/axiosClient';
+import { getAPISessionService2 } from '../../../core/services/axiosClient';
 import type { ReportItemOperation } from '../../accounts/services/accountItemsOperationService';
 import { flagHelper } from '../../../helpers/flagHelper';
 
@@ -268,7 +268,7 @@ export async function fetchFishertonBalanceDetailByCoin(
   coinId: number,
   groupby: 'day' | 'month' = 'day',
 ): Promise<ReportBalanceDetailByCoin[]> {
-  const response = await getAPISessionService().get('/items_operation_acces.php', {
+  const response = await getAPISessionService2().get('/items_operation_acces.php', {
     params: {
       method: 'getBalanceDetailByCoin',
       coin_id: coinId,
